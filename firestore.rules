@@ -1,0 +1,18 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner() {
+      return request.auth != null
+        && request.auth.token.email == 'hasebe201114@gmail.com';
+    }
+
+    // Cloud Functions からのリクエストは request.auth == null
+    function isCloudFunction() {
+      return request.auth == null;
+    }
+
+    // TODO: コレクションが増えたら isOwner() ベースでルールを追加していく
+    // （btc-strategy の firestore.rules を参考に、本アプリで必要なコレクションのみ定義する）
+  }
+}

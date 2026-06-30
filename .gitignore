@@ -1,0 +1,9 @@
+node_modules
+dev.log
+server.log
+.firebase/hosting.*.cache
+.env.local
+.env
+dist/
+*.timestamp-*.mjs
+.claude/settings.local.json
