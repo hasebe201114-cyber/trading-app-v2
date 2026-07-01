@@ -22,6 +22,7 @@ export interface BacktestConfig {
   k: number;             // 近傍数
   testRatio: number;     // データ全体のうち後半何割をテスト期間にするか（残りは近傍プール専用）
   testEndFraction?: number; // テスト期間の終端（validIndices長に対する割合、0-1）。省略時は末尾まで。複数期間でのフォールド検証に使う
+  regimeBandwidth?: number; // 指定時、効率比(特徴量の末尾次元)がこの範囲内の候補のみを近傍探索対象にする（レジーム条件付け）
 }
 
 export interface BacktestResult {
@@ -42,8 +43,9 @@ function actualDirection(ret: number): Direction {
 }
 
 export function walkForwardBacktest(candles: OHLCV[], config: BacktestConfig): BacktestResult {
-  const { horizon, k, testRatio, testEndFraction = 1 } = config;
+  const { horizon, k, testRatio, testEndFraction = 1, regimeBandwidth } = config;
   const n = candles.length;
+  const REGIME_FEATURE_INDEX = 9; // features.ts の efficiencyRatio20 の位置
 
   // 全有効インデックス（特徴量抽出可能かつforward returnが取得できる範囲）の特徴量を一括算出
   const minIndex = 20;
@@ -79,9 +81,11 @@ export function walkForwardBacktest(candles: OHLCV[], config: BacktestConfig): B
     const targetVector = normalizedAll[t];
 
     // 近傍候補: forward returnが現在時刻より前に確定しているもののみ（リーク防止）
+    const targetRegime = rawVectors[t][REGIME_FEATURE_INDEX];
     const candidates = validIndices
-      .map((idx, pos) => ({ index: idx, vector: normalizedAll[pos] }))
-      .filter(c => c.index + horizon <= currentCandleIndex);
+      .map((idx, pos) => ({ index: idx, vector: normalizedAll[pos], regime: rawVectors[pos][REGIME_FEATURE_INDEX] }))
+      .filter(c => c.index + horizon <= currentCandleIndex)
+      .filter(c => regimeBandwidth === undefined || Math.abs(c.regime - targetRegime) <= regimeBandwidth);
 
     if (candidates.length < k) continue;
 

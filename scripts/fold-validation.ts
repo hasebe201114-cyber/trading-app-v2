@@ -18,8 +18,9 @@ const candles = loadOhlcvFromCsv(csvPath);
 
 const FOLD_BOUNDARIES = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
 
-function runFolds(horizon: number, k: number) {
-  console.log(`\n--- horizon=${horizon}日, k=${k} ---`);
+function runFolds(horizon: number, k: number, regimeBandwidth?: number) {
+  const label = regimeBandwidth !== undefined ? `horizon=${horizon}日, k=${k}, regimeBandwidth=${regimeBandwidth}` : `horizon=${horizon}日, k=${k}`;
+  console.log(`\n--- ${label} ---`);
   const accuracies: number[] = [];
 
   for (let i = 0; i < FOLD_BOUNDARIES.length - 1; i++) {
@@ -30,6 +31,7 @@ function runFolds(horizon: number, k: number) {
       k,
       testRatio: 1 - testStartFraction,
       testEndFraction,
+      regimeBandwidth,
     });
     accuracies.push(result.directionAccuracy);
     console.log(
@@ -45,6 +47,12 @@ function runFolds(horizon: number, k: number) {
 }
 
 console.log('=== 複数期間フォールド検証（単一分割の過学習チェック） ===');
-runFolds(10, 30); // real-data-backtest.tsで最良だった設定
+runFolds(10, 30); // real-data-backtest.tsで最良だった設定（efficiencyRatio20をソフトな特徴量として含む）
 runFolds(7, 15);
 runFolds(5, 15);  // 参考: 目標未達だった短めのhorizon
+
+console.log('\n=== レジーム条件付け（ハードフィルタ）を追加した場合 ===');
+runFolds(10, 30, 0.15);
+runFolds(10, 30, 0.10);
+runFolds(7, 15, 0.15);
+runFolds(5, 15, 0.15);

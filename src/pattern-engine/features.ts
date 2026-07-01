@@ -5,10 +5,11 @@
  */
 import type { OHLCV } from '../types/market.ts';
 import { calculateRSI } from '../shared/indicators.ts';
+import { calculateEfficiencyRatio } from './regime.ts';
 
 export const FEATURE_NAMES = [
   'return1', 'return3', 'return5', 'return10', 'return20',
-  'volatility20', 'momentum10', 'rsi14', 'volumeChangeRatio',
+  'volatility20', 'momentum10', 'rsi14', 'volumeChangeRatio', 'efficiencyRatio20',
 ] as const;
 
 export type FeatureVector = number[];
@@ -47,7 +48,9 @@ export function extractFeatureVector(candles: OHLCV[], endIndex: number): Featur
   const priorVolAvg = volumes.slice(-40, -20).reduce((a, b) => a + b, 0) / Math.max(1, volumes.slice(-40, -20).length);
   const volumeChangeRatio = priorVolAvg > 0 ? recentVolAvg / priorVolAvg : 1;
 
-  return [return1, return3, return5, return10, return20, volatility20, momentum10, rsi14, volumeChangeRatio];
+  const efficiencyRatio20 = calculateEfficiencyRatio(closes, 20);
+
+  return [return1, return3, return5, return10, return20, volatility20, momentum10, rsi14, volumeChangeRatio, efficiencyRatio20];
 }
 
 /** 特徴量セット全体をz-score正規化する（次元ごとにスケールを揃え、距離計算の偏りを防ぐ） */
