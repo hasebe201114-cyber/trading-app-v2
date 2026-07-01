@@ -21,6 +21,7 @@ export interface BacktestConfig {
   horizon: number;       // 何本先の将来リターンを予測するか
   k: number;             // 近傍数
   testRatio: number;     // データ全体のうち後半何割をテスト期間にするか（残りは近傍プール専用）
+  testEndFraction?: number; // テスト期間の終端（validIndices長に対する割合、0-1）。省略時は末尾まで。複数期間でのフォールド検証に使う
 }
 
 export interface BacktestResult {
@@ -41,7 +42,7 @@ function actualDirection(ret: number): Direction {
 }
 
 export function walkForwardBacktest(candles: OHLCV[], config: BacktestConfig): BacktestResult {
-  const { horizon, k, testRatio } = config;
+  const { horizon, k, testRatio, testEndFraction = 1 } = config;
   const n = candles.length;
 
   // 全有効インデックス（特徴量抽出可能かつforward returnが取得できる範囲）の特徴量を一括算出
@@ -59,7 +60,8 @@ export function walkForwardBacktest(candles: OHLCV[], config: BacktestConfig): B
   }
 
   const testStart = Math.floor(validIndices.length * (1 - testRatio));
-  if (testStart < 10 || testStart >= validIndices.length) {
+  const testEnd = Math.floor(validIndices.length * testEndFraction);
+  if (testStart < 10 || testStart >= validIndices.length || testEnd <= testStart) {
     return { totalPredictions: 0, correctDirection: 0, directionAccuracy: 0, avgConfidence: 0, skippedNeutral: 0 };
   }
 
@@ -72,7 +74,7 @@ export function walkForwardBacktest(candles: OHLCV[], config: BacktestConfig): B
   let confidenceSum = 0;
   let skippedNeutral = 0;
 
-  for (let t = testStart; t < validIndices.length; t++) {
+  for (let t = testStart; t < testEnd; t++) {
     const currentCandleIndex = validIndices[t];
     const targetVector = normalizedAll[t];
 
