@@ -1,6 +1,8 @@
 /**
- * scripts/data/*.csv (investing.com エクスポート形式) を OHLCV[] に変換する。
- * PoC専用の暫定ローダー（scripts/data/README.md参照）。
+ * scripts/data/*.csv を OHLCV[] に変換する。
+ * - loadOhlcvFromCsv: investing.com エクスポート形式（旧・btc-daily-2010-2020.csv）
+ * - loadOhlcvFromDailyCsv: date,open,high,low,close,volume_usd 形式（現行・btc-daily-2010-2026.csv）
+ * PoC/検証専用の暫定ローダー（scripts/data/README.md参照）。
  */
 import { readFileSync } from 'node:fs';
 import type { OHLCV } from '../src/types/market.ts';
@@ -70,6 +72,33 @@ export function loadOhlcvFromCsv(path: string): OHLCV[] {
   }
 
   // 元データは新しい日付が先頭（降順）なので、時系列昇順に並べ替える
+  rows.sort((a, b) => a.time - b.time);
+  return rows;
+}
+
+/**
+ * 現行形式（ヘッダー: date,open,high,low,close,volume_usd、日付はUTC）のローダー。
+ * time は当該日のUTC 00:00:00 のエポックミリ秒。
+ */
+export function loadOhlcvFromDailyCsv(path: string): OHLCV[] {
+  const raw = readFileSync(path, 'utf-8');
+  const lines = raw.split('\n').filter(l => l.trim().length > 0);
+  const rows: OHLCV[] = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const [dateStr, openStr, highStr, lowStr, closeStr, volStr] = lines[i].split(',');
+    const time = Date.parse(`${dateStr}T00:00:00Z`);
+    if (Number.isNaN(time)) continue;
+    rows.push({
+      time,
+      open: parseFloat(openStr),
+      high: parseFloat(highStr),
+      low: parseFloat(lowStr),
+      close: parseFloat(closeStr),
+      volume: parseFloat(volStr),
+    });
+  }
+
   rows.sort((a, b) => a.time - b.time);
   return rows;
 }

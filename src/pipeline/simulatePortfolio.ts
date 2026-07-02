@@ -7,9 +7,8 @@
  * 求めているため、本モジュールで初めてポートフォリオレベルの指標を算出する。
  *
  * 既知の簡略化（TODO）:
- *   - ③LLM層は実ニュースデータが無いため mockClient を使用。過去日付のニュース本文が
- *     存在しないので eventImpactScore は実質常に0（regimeLabelのみ価格統計から算出）。
- *     つまり本シミュレーションは「④⑤⑥の配線確認」であり、③の実効果は含まれていない。
+ *   - ③LLM層は config.marketContextForDay で事前計算済みの日次特徴量を注入できる（OBS000014）。
+ *     未指定の場合はニュースなしのmockで動作し、eventImpactScoreは実質常に0（③なし相当）。
  *   - ⑥執行層は成行注文のみシミュレート（指値注文の約定判定には日中データが必要なため未対応）
  *   - ポジションは非オーバーラップ（horizon日分の保有が終わるまで新規エントリーしない）
  *   - シャープレシオはトレード単位のリターン列から算出し、年間トレード数で年率化する簡易版
@@ -35,7 +34,7 @@ export function simulatePortfolio(
   riskLimits: RiskLimits = DEFAULT_RISK_LIMITS,
   executionCost: ExecutionCostModel = DEFAULT_EXECUTION_COST,
 ): PipelineResult {
-  const { horizon, k, testRatio, testEndFraction = 1, initialEquity } = config;
+  const { horizon, k, testRatio, testEndFraction = 1, initialEquity, marketContextForDay } = config;
   const n = candles.length;
 
   const minIndex = 20;
@@ -99,13 +98,17 @@ export function simulatePortfolio(
     const patternPrediction = predictFromNeighborReturns(forwardReturns);
     if (patternPrediction.direction === 'neutral') continue;
 
-    // ③ LLM特徴量層（mock。実ニュースデータ無しのため eventImpactScore は実質0。TODO参照）
+    // ③ LLM特徴量層
+    // marketContextForDay が与えられていれば事前計算済みの実LLM/mock特徴量を使用（OBS000014）。
+    // 無ければ従来どおりニュースなしのmock（eventImpactScoreは実質0＝③なし相当）。
     const return24h = pctChange(candles[currentCandleIndex - 1].close, candles[currentCandleIndex].close);
     const volatility20d = rawVectors[t][5]; // features.ts: volatility20
-    const llmLog = mockAnalyzeMarketContext({ recentNews: [], priceContext: { return24h, volatility20d } });
+    const utcDate = new Date(candles[currentCandleIndex].time).toISOString().slice(0, 10);
+    const llmContext = marketContextForDay?.(utcDate)
+      ?? mockAnalyzeMarketContext({ recentNews: [], priceContext: { return24h, volatility20d } }).output;
 
     // ④ 統合判断層
-    const finalSignal = combineSignals(patternPrediction, llmLog.output);
+    const finalSignal = combineSignals(patternPrediction, llmContext);
     if (finalSignal.action === 'skip' || finalSignal.direction === 'neutral') continue;
 
     // ⑤ リスク管理層

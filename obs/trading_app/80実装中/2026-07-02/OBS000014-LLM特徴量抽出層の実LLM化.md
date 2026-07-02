@@ -1,0 +1,80 @@
+# OBS000014 - ③LLM特徴量抽出層の実LLM化（Phase 2 KPI検証準備）
+
+## 変更履歴
+- 2026-07-02: 起票。データ調達調査を実施し、実装に着手
+- 2026-07-02: 実装完了。mockによるエンドツーエンド配線検証まで実施。実LLM実行はユーザ作業待ち
+
+## 関連ドキュメント
+- [OBS000007-LLM特徴量抽出層プラミング実装.md](../2026-07-01/OBS000007-LLM特徴量抽出層プラミング実装.md)（プラミングのみ完成、実LLM検証が未着手だった）
+- [20260703-引き継ぎ.md](../../引き継ぎ/20260703-引き継ぎ.md)（候補A: ③の実LLM化としてディレクター承認）
+- [PJ000001](../../00プロジェクト方針/PJ000001-AI判断×統計パターン認識ハイブリッド自動売買エンジン.md) 5.2節 Phase2 KPI（③あり/なしでシャープレシオ+0.2以上、または最大DD -3pt以上）
+
+## 背景
+③LLM特徴量抽出層はプラミング（型・プロンプト・実LLMクライアント・mockスタブ）のみ完成しており、
+実LLMでの増分効果測定には (1) ANTHROPIC_API_KEY、(2) 過去ニュースデータ、の2点が不足していた。
+
+## データ調達調査の結果
+
+### 過去ニュースデータ: CryptoPanicアーカイブ（採用）
+- 出典: GitHub `soheilrahsaz/cryptoNewsDataset`（**CC0-1.0ライセンス**）
+- 内容: CryptoPanic.comのニュース約248,000件（2017-09〜2025-12）。タイトル・日時・ソース・投票情報・関連通貨タグ付き
+- BTC関連件数: 2021年以降が高密度（2021年:2,116件、2022年:4,096件、2023年:3,770件、2024年:12,521件、2025年:8,329件）。2017〜2020年は疎（計約330件）
+- → **③の増分効果検証は、ニュースが高密度な2021年以降の期間で実施する**
+
+### 価格データの延伸: BTC時間足OHLCV（採用）
+- 既存の価格データ（btc-daily-2010-2020.csv）は2020-08で終了しており、ニュース高密度期間と重ならない
+- 出典: GitHub `mouadja02/bitcoin-technical-indicators-dataset`（**MITライセンス**、Git LFS配布）
+- 内容: BTC時間足OHLCV 2010-07-14〜2026-07-02（毎日更新）。UTC日次に集約して日足として利用
+- 取引所API（Binance等）・CoinGecko・cryptodatadownload等は本環境のネットワークポリシーでブロックされており、GitHub raw/LFS経由が現状唯一の調達経路
+
+### 実行環境の制約
+- 本リモート環境には `ANTHROPIC_API_KEY` が未設定（api.anthropic.comへの到達性はあり）
+- → 実装は「実LLM呼び出しコード＋mockによる配線検証」まで完了させ、実LLM実行はキーが設定された環境（ローカルPC等）で行う方式とする
+
+## 対応方針
+1. データ整備
+   - `scripts/data/btc-daily-2010-2026.csv`: 時間足をUTC日次集約した日足データ（既存CSVの後継）
+   - `scripts/data/btc-news-2017-2026.csv.gz`: BTC関連ニュース抽出版（日時・タイトル・投票・ソース）
+2. `src/llm-layer/client.ts` の強化
+   - SDKを最新化（0.28.0 → 0.110.0）し、**構造化出力（output_config.format, json_schema）** でスキーマ保証されたJSONを取得
+   - モデルは既定 `claude-haiku-4-5`（OBS000007の選定を踏襲。env `LLM_MODEL` で上書き可能）
+3. `scripts/llm-feature-extraction.ts` の新規実装
+   - 日次バッチ: 各営業日について当日のBTCニュース上位N件＋価格コンテキストをLLMに渡し、MarketContextOutputを抽出
+   - 結果はJSONキャッシュに保存（中断・再開可能）。`--mock` でAPIキー無し環境でも配線検証可能
+4. ③あり/なし比較バックテスト
+   - `simulatePortfolio` に日次LLM特徴量の注入口を追加し、2021年以降の期間で②単体 vs ②+③の差分を測定
+
+## コスト見積り（実LLM実行時）
+- 対象: 2021-01-01〜2026-07-01 ≈ 2,000日 × 1コール
+- claude-haiku-4-5（$1/M入力・$5/M出力）で入力~700tok・出力~250tok/コール → **合計約$4**
+- 参考: claude-opus-4-8を使う場合は約$25〜30。まずHaikuで効果有無を確認し、効果があればモデル格上げのA/Bを実施する方針
+
+## 実装結果（2026-07-02）
+
+### 追加・変更したもの
+- データ: `scripts/data/btc-daily-2010-2026.csv`（日足5,828本）、`btc-news-2017-2026.csv.gz`（BTCニュース31,162件）
+- ローダー: `scripts/loadCsvData.ts` に `loadOhlcvFromDailyCsv()` 追加、`scripts/loadNewsData.ts` 新規
+- `src/llm-layer/client.ts`: SDK 0.110に更新し**構造化出力（json_schema）**対応。refusal/max_tokensハンドリング、値域クランプ、`LLM_MODEL`環境変数でモデル上書き可
+- `scripts/llm-feature-extraction.ts` 新規: 日次バッチ抽出（キャッシュ・レジューム・`--mock`/`--limit`/`--concurrency`対応）
+- `src/pipeline/simulatePortfolio.ts`: `config.marketContextForDay` で日次③特徴量を注入可能に（未指定時は従来どおり③なし相当）
+- `scripts/pipeline-backtest-llm.ts` 新規: ③あり/なしを年次フォールド（2021〜）で比較しPhase2 KPI判定
+
+### mock配線検証の結果
+- 抽出バッチ: 2021-01-01〜2026-07-01の2,008日を処理（ニュースあり1,773日）
+- 比較バックテスト: 全フォールドで動作。**mock（キーワードマッチ）ではシャープレシオ平均-0.82と悪化**
+  → 粗い感情判定はveto/確信度加点を誤発動させ逆効果になることを確認。実LLMの解釈力が問われる構図が明確になった
+- `npm run build`（tsc含む）通過、既存 `pipeline-backtest.ts` の結果に回帰なし
+
+## 次のアクション（ユーザ作業）
+ローカルPC（APIキーが使える環境）で以下を実行:
+```
+set ANTHROPIC_API_KEY=sk-ant-...   # PowerShellは $env:ANTHROPIC_API_KEY="sk-ant-..."
+node --experimental-strip-types scripts/llm-feature-extraction.ts --limit 5   # まず小規模で動作確認
+node --experimental-strip-types scripts/llm-feature-extraction.ts             # 全期間（約2,000日、推定$4前後）
+node --experimental-strip-types scripts/pipeline-backtest-llm.ts              # ③あり/なし比較（KPI判定）
+```
+- 生成された `scripts/data/llm-features-daily.live.json` は再現性確保のためコミットする
+- 結果（KPI達成可否）を本ファイルに追記し、達成ならOBSクローズ・未達なら改善検討（プロンプト・モデル格上げ・統合ルール調整）へ
+
+## ステータス
+実装完了・実LLM実行待ち（ユーザ作業: APIキー設定して上記コマンドを実行）

@@ -7,3 +7,5 @@ server.log
 dist/
 *.timestamp-*.mjs
 .claude/settings.local.json
+# ③LLM特徴量のmockキャッシュ（--mockで再生成可能。liveキャッシュは実測結果の再現用にコミット対象）
+scripts/data/llm-features-daily.mock.json
