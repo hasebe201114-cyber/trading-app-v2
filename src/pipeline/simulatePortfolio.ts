@@ -1,5 +1,5 @@
 /**
- * パイプライン統合 — ②パターン認識層→③LLM特徴量層→④統合判断層→⑤リスク管理層を
+ * パイプライン統合 — ②パターン認識層→③LLM特徴量層→④統合判断層→⑤リスク管理層→⑥執行層を
  * 1本につなぎ、実際のポートフォリオ損益（総リターン・最大ドローダウン・シャープレシオ）を測定する。
  *
  * これまでの検証（OBS000005, OBS000006）は②単体の「方向的中率」のみを見ていたが、
@@ -9,7 +9,8 @@
  * 既知の簡略化（TODO）:
  *   - ③LLM層は実ニュースデータが無いため mockClient を使用。過去日付のニュース本文が
  *     存在しないので eventImpactScore は実質常に0（regimeLabelのみ価格統計から算出）。
- *     つまり本シミュレーションは「④⑤の配線確認」であり、③の実効果は含まれていない。
+ *     つまり本シミュレーションは「④⑤⑥の配線確認」であり、③の実効果は含まれていない。
+ *   - ⑥執行層は成行注文のみシミュレート（指値注文の約定判定には日中データが必要なため未対応）
  *   - ポジションは非オーバーラップ（horizon日分の保有が終わるまで新規エントリーしない）
  *   - シャープレシオはトレード単位のリターン列から算出し、年間トレード数で年率化する簡易版
  */
@@ -22,6 +23,8 @@ import { combineSignals } from '../decision-layer/combineSignals.ts';
 import { calculatePositionSize } from '../risk-layer/positionSizing.ts';
 import { evaluateCircuitBreaker } from '../risk-layer/circuitBreaker.ts';
 import { DEFAULT_RISK_LIMITS, type EquityPoint, type RiskLimits } from '../risk-layer/types.ts';
+import { simulateRoundTripExecution } from '../execution-layer/executeOrder.ts';
+import { DEFAULT_EXECUTION_COST, type ExecutionCostModel } from '../execution-layer/types.ts';
 import type { PipelineConfig, PipelineResult, TradeRecord } from './types.ts';
 
 const pctChange = (from: number, to: number): number => (to - from) / from;
@@ -30,6 +33,7 @@ export function simulatePortfolio(
   candles: OHLCV[],
   config: PipelineConfig,
   riskLimits: RiskLimits = DEFAULT_RISK_LIMITS,
+  executionCost: ExecutionCostModel = DEFAULT_EXECUTION_COST,
 ): PipelineResult {
   const { horizon, k, testRatio, testEndFraction = 1, initialEquity } = config;
   const n = candles.length;
@@ -111,10 +115,16 @@ export function simulatePortfolio(
     );
     if (sizeResult.positionSizeRatio <= 0) continue;
 
-    // 執行シミュレーション（⑥執行層は未実装のため、成行約定・スリッページ0と仮定する簡易版）
+    // ⑥ 執行層: 成行注文の約定シミュレーション（スリッページ・手数料を織り込む）
     const exitIndex = currentCandleIndex + horizon;
     const priceReturn = pctChange(candles[currentCandleIndex].close, candles[exitIndex].close);
-    const directionalReturn = finalSignal.direction === 'up' ? priceReturn : -priceReturn;
+    const execution = simulateRoundTripExecution(
+      candles[currentCandleIndex].close,
+      candles[exitIndex].close,
+      finalSignal.direction,
+      executionCost,
+    );
+    const directionalReturn = execution.netReturn;
     const pnl = equity * sizeResult.positionSizeRatio * directionalReturn;
     equity += pnl;
 
