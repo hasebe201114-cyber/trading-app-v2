@@ -7,9 +7,9 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 // その設定値（apiKey / projectId / authDomain）に置き換えること。
 // btc-strategy の Firebase プロジェクトとは共有しない（データ混在防止のため）。
 const firebaseConfig = {
-  apiKey: "REPLACE_ME",
-  projectId: "REPLACE_ME",
-  authDomain: "REPLACE_ME.firebaseapp.com",
+  apiKey: "AIzaSyDcqQXVFfIIzlUGYdq4Ktu143xCH7XIMTg",
+  projectId: "trading-app-v2-94de8",
+  authDomain: "trading-app-v2-94de8.firebaseapp.com",
 };
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
