@@ -1,0 +1,69 @@
+{
+  "generatedAt": "2026-07-02T13:38:32.924Z",
+  "config": {
+    "horizon": 10,
+    "k": 30,
+    "initialEquity": 1000000
+  },
+  "dataSource": "scripts/data/btc-daily-2010-2020.csv（GitHub経由の暫定データ、取引所API未接続。scripts/data/README.md参照）",
+  "caveats": [
+    "③LLM特徴量層はmockClient使用（実ニュースデータなし）。②④⑤⑥の配線確認であり③の実効果は含まない",
+    "単一銘柄(BTC)・単一データソースでの検証。複数銘柄・複数データソースでの再現性は未確認",
+    "このレポートはNode側で事前計算したスナップショット。ブラウザでのリアルタイム再計算ではない"
+  ],
+  "targets": {
+    "directionAccuracy": 0.55,
+    "sharpeRatio": 0.8,
+    "maxDrawdown": 0.15
+  },
+  "folds": [
+    {
+      "label": "フォールド1 [50-60%]",
+      "tradeCount": 35,
+      "winRate": 0.5142857142857142,
+      "totalReturn": 0.0740748512389555,
+      "maxDrawdown": 0.04067102329085643,
+      "sharpeRatio": 0.8034229453180689
+    },
+    {
+      "label": "フォールド2 [60-70%]",
+      "tradeCount": 37,
+      "winRate": 0.5945945945945946,
+      "totalReturn": 0.22089514535103016,
+      "maxDrawdown": 0.044296500905991444,
+      "sharpeRatio": 2.2782838889441854
+    },
+    {
+      "label": "フォールド3 [70-80%]",
+      "tradeCount": 37,
+      "winRate": 0.5405405405405406,
+      "totalReturn": 0.2014811006962601,
+      "maxDrawdown": 0.04975897310972101,
+      "sharpeRatio": 1.4606659784375975
+    },
+    {
+      "label": "フォールド4 [80-90%]",
+      "tradeCount": 35,
+      "winRate": 0.6,
+      "totalReturn": 0.09988288349629659,
+      "maxDrawdown": 0.06646730838863679,
+      "sharpeRatio": 1.0029223430902272
+    },
+    {
+      "label": "フォールド5 [90-100%]",
+      "tradeCount": 36,
+      "winRate": 0.4166666666666667,
+      "totalReturn": 0.03036695640145033,
+      "maxDrawdown": 0.10985756775602896,
+      "sharpeRatio": 0.3575849973054408
+    }
+  ],
+  "summary": {
+    "avgSharpeRatio": 1.180576030619104,
+    "minSharpeRatio": 0.3575849973054408,
+    "maxDrawdownAcrossFolds": 0.10985756775602896,
+    "foldsAboveSharpeTarget": 4,
+    "foldsWithinDrawdownTarget": 5,
+    "totalFolds": 5
+  }
+}
