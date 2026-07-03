@@ -69,7 +69,11 @@ function std(xs: number[]): number {
 }
 
 // --- データ読み込み・特徴量 ---
-const candles = loadOhlcvFromDailyCsv(join(DATA_DIR, 'btc-daily-2010-2026.csv'));
+function argStr(flag: string, def: string): string {
+  const i = process.argv.indexOf(flag);
+  return i >= 0 && i + 1 < process.argv.length ? process.argv[i + 1] : def;
+}
+const candles = loadOhlcvFromDailyCsv(join(DATA_DIR, argStr('--data', 'btc-daily-2010-2026.csv')));
 const n = candles.length;
 const minIndex = 20;
 const maxIndex = n - HORIZON - 1;
