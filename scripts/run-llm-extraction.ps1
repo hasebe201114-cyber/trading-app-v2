@@ -1,4 +1,4 @@
-# ③LLM特徴量抽出の自動実行スクリプト
+﻿# ③LLM特徴量抽出の自動実行スクリプト
 # 使い方: .\scripts\run-llm-extraction.ps1 -ApiKey "sk-ant-..."
 
 param(
