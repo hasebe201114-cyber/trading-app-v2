@@ -16,7 +16,7 @@
 import type { OHLCV } from '../types/market.ts';
 import { extractFeatureVector, zScoreNormalize, type FeatureVector } from '../pattern-engine/features.ts';
 import { findNearestNeighbors } from '../pattern-engine/similarity.ts';
-import { predictFromNeighborReturns } from '../pattern-engine/predict.ts';
+import { predictFromNeighborReturns, type Prediction } from '../pattern-engine/predict.ts';
 import { mockAnalyzeMarketContext } from '../llm-layer/mockClient.ts';
 import { combineSignals } from '../decision-layer/combineSignals.ts';
 import { calculatePositionSize } from '../risk-layer/positionSizing.ts';
@@ -28,6 +28,16 @@ import type { PipelineConfig, PipelineResult, TradeRecord } from './types.ts';
 
 const pctChange = (from: number, to: number): number => (to - from) / from;
 const EFFICIENCY_RATIO_INDEX = 9; // features.ts FEATURE_NAMES: efficiencyRatio20
+const NEUTRAL_THRESHOLD = 0.0005;
+const MOMENTUM_CONFIDENCE = 60; // OBS000020: k-NNの近傍合意率に相当する概念がないため固定値を用いる
+
+/** ②パターン認識層をモメンタムに置き換える場合の予測（OBS000020） */
+function predictFromMomentum(candles: OHLCV[], currentCandleIndex: number, lookback: number): Prediction {
+  if (currentCandleIndex - lookback < 0) return { direction: 'neutral', strength: 0, confidence: 0, neighborCount: 0 };
+  const momRet = pctChange(candles[currentCandleIndex - lookback].close, candles[currentCandleIndex].close);
+  const direction = momRet > NEUTRAL_THRESHOLD ? 'up' : momRet < -NEUTRAL_THRESHOLD ? 'down' : 'neutral';
+  return { direction, strength: Math.abs(momRet), confidence: MOMENTUM_CONFIDENCE, neighborCount: 1 };
+}
 
 function median(sortedInput: number[]): number {
   if (sortedInput.length === 0) return 0;
@@ -42,7 +52,7 @@ export function simulatePortfolio(
   riskLimits: RiskLimits = DEFAULT_RISK_LIMITS,
   executionCost: ExecutionCostModel = DEFAULT_EXECUTION_COST,
 ): PipelineResult {
-  const { horizon, k, testRatio, testEndFraction = 1, initialEquity, marketContextForDay, minEfficiencyRatio, adaptiveErGateWarmup } = config;
+  const { horizon, k, testRatio, testEndFraction = 1, initialEquity, marketContextForDay, minEfficiencyRatio, adaptiveErGateWarmup, momentumLookback } = config;
   const n = candles.length;
 
   const minIndex = 20;
@@ -95,16 +105,21 @@ export function simulatePortfolio(
       continue; // 日次損失による一時停止 → この足は見送り、次の足で再評価
     }
 
-    // ② パターン認識層
-    const targetVector = normalizedAll[t];
-    const candidates = validIndices
-      .map((idx, pos) => ({ index: idx, vector: normalizedAll[pos] }))
-      .filter(c => c.index + horizon <= currentCandleIndex);
-    if (candidates.length < k) continue;
+    // ② パターン認識層（momentumLookback指定時はk-NNの代わりにモメンタムを使用。OBS000020）
+    let patternPrediction: Prediction;
+    if (momentumLookback !== undefined) {
+      patternPrediction = predictFromMomentum(candles, currentCandleIndex, momentumLookback);
+    } else {
+      const targetVector = normalizedAll[t];
+      const candidates = validIndices
+        .map((idx, pos) => ({ index: idx, vector: normalizedAll[pos] }))
+        .filter(c => c.index + horizon <= currentCandleIndex);
+      if (candidates.length < k) continue;
 
-    const neighbors = findNearestNeighbors(targetVector, candidates, k);
-    const forwardReturns = neighbors.map(nb => pctChange(candles[nb.index].close, candles[nb.index + horizon].close));
-    const patternPrediction = predictFromNeighborReturns(forwardReturns);
+      const neighbors = findNearestNeighbors(targetVector, candidates, k);
+      const forwardReturns = neighbors.map(nb => pctChange(candles[nb.index].close, candles[nb.index + horizon].close));
+      patternPrediction = predictFromNeighborReturns(forwardReturns);
+    }
     if (patternPrediction.direction === 'neutral') continue;
 
     // ②レジームゲート（OBS000018）: 効率比が低い＝レンジ局面では②のエッジが消えるため見送る

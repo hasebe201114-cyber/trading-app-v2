@@ -28,6 +28,13 @@ export interface PipelineConfig {
    * 中央値が不安定なためエントリーを見送る。未指定ならこのゲートは無効。
    */
   adaptiveErGateWarmup?: number;
+  /**
+   * ②パターン認識層をk-NNからトレンドフォロー(モメンタム)に置き換える（OBS000020）。
+   * 指定した日数のリターンの符号を方向シグナルとする。確信度は固定値(60)を用いる
+   * （近傍合意率という概念がk-NNと異なるため、Kelly比率がわずかに正になる程度の暫定値）。
+   * 未指定なら従来どおりk-NNを使用する。
+   */
+  momentumLookback?: number;
 }
 
 export interface TradeRecord {
