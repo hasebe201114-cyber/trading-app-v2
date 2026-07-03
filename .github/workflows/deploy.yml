@@ -28,11 +28,15 @@ jobs:
       # （ビルド検証までは常に実施し、mainを赤くしない）
       - name: Check deploy secret
         id: check-secret
+        env:
+          # 複数行JSONを直接 ${{ }} でシェルに展開すると構文エラーになるため、必ずenv経由で参照する
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
-          if [ -n "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" ]; then
+          if [ -n "$FIREBASE_SERVICE_ACCOUNT" ]; then
             echo "available=true" >> "$GITHUB_OUTPUT"
+            echo "デプロイ用シークレットを確認しました。"
           else
-            echo "::warning::FIREBASE_SERVICE_ACCOUNT シークレットが未設定のためデプロイをスキップしました。リポジトリの Settings > Secrets and variables > Actions に登録してください。"
+            echo "::warning::FIREBASE_SERVICE_ACCOUNT シークレットが未設定のためデプロイをスキップしました。リポジトリの Settings > Secrets and variables > Actions の「Repository secrets」に登録してください。"
           fi
 
       - name: Deploy to Firebase Hosting (live)
