@@ -43,12 +43,30 @@
 - 用途: ②パターン認識層のBTC以外・直近期間での再現性検証（OBS000019）
 - 既知の制約: eth-daily-2020-2023.csv とは2023-04〜2024-01の約9ヶ月の欠落があり連続していない。2つの独立した検証期間として扱うこと
 
+## btc-daily-binance-2017-2026.csv / eth-daily-binance-2017-2026.csv（OBS000021・直接API取得）
+
+- 出典: Binance spot公開API `GET /api/v3/klines`（認証不要、直接アクセス可能と2026-07-04に再確認）
+- 期間: 2017-08-17 〜 2026-07-03（日足、両銘柄とも3,243本）
+- カラム: `date,open,high,low,close,volume_usd`
+- 取得スクリプト: `scripts/fetch-binance-data.ts`
+- 既存のGitHub由来CSVより連続的（欠落なし）。**今後の新規検証はこちらを優先使用**する
+
+## btc-funding-2019-2026.csv / eth-funding-2019-2026.csv（OBS000021・OBS000022用）
+
+- 出典: Binance USDT-M無期限先物公開API `GET /fapi/v1/fundingRate`（認証不要）
+- 期間: BTCは2019-09-19〜、ETHは2019-11-27〜、いずれも2026-07-03まで（8時間おきイベント単位）
+- カラム: `datetime,funding_rate`
+- ローダー: `scripts/loadFundingRateData.ts`（UTC日次に集約）
+- 用途: Funding Rateキャリー戦略の検証（OBS000022）
+
 ## 今後の対応
 - Phase 4（フォワードテスト）以降は、このCSVではなく実際のAPIクライアント層から取得した
   データに切り替える
-- 取引所API（Binance/Bitget等）・CoinGecko等は開発サンドボックスのネットワークポリシーで
-  ブロックされているため、暫定データはGitHub raw/LFS経由で調達している
+- 2026-07-04時点、Binance spot/先物公開API・CoinGeckoへの直接アクセスが可能であることを
+  再確認した（OBS000021）。以前は「ネットワークポリシーでブロックされている」としていたが、
+  現状は利用可能。ただし将来変わる可能性もあるため、都度確認すること
 
 ## 変更履歴
 - 2026-07-02: btc-daily-2010-2026.csv / btc-news-2017-2026.csv.gz を追加（OBS000014）
 - 2026-07-04: eth-daily-2020-2023.csv / eth-daily-2024-2025.csv を追加（OBS000019・②のETHクロス検証用）
+- 2026-07-04: Binance直接API接続を再確認し btc/eth-daily-binance-2017-2026.csv・btc/eth-funding-2019-2026.csv を追加（OBS000021・OBS000022）
