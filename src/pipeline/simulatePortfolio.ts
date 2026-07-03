@@ -29,13 +29,20 @@ import type { PipelineConfig, PipelineResult, TradeRecord } from './types.ts';
 const pctChange = (from: number, to: number): number => (to - from) / from;
 const EFFICIENCY_RATIO_INDEX = 9; // features.ts FEATURE_NAMES: efficiencyRatio20
 
+function median(sortedInput: number[]): number {
+  if (sortedInput.length === 0) return 0;
+  const s = [...sortedInput].sort((a, b) => a - b);
+  const mid = Math.floor(s.length / 2);
+  return s.length % 2 === 0 ? (s[mid - 1] + s[mid]) / 2 : s[mid];
+}
+
 export function simulatePortfolio(
   candles: OHLCV[],
   config: PipelineConfig,
   riskLimits: RiskLimits = DEFAULT_RISK_LIMITS,
   executionCost: ExecutionCostModel = DEFAULT_EXECUTION_COST,
 ): PipelineResult {
-  const { horizon, k, testRatio, testEndFraction = 1, initialEquity, marketContextForDay, minEfficiencyRatio } = config;
+  const { horizon, k, testRatio, testEndFraction = 1, initialEquity, marketContextForDay, minEfficiencyRatio, adaptiveErGateWarmup } = config;
   const n = candles.length;
 
   const minIndex = 20;
@@ -69,6 +76,7 @@ export function simulatePortfolio(
   let nextAvailableIndex = validIndices[testStart];
   let haltedByDrawdown = false;
   let skippedByCircuitBreaker = 0;
+  const pastErValues: number[] = []; // 適応的ERゲート用：過去に評価した局面の効率比（先読み防止のため現局面は含めない）
 
   for (let t = testStart; t < testEnd; t++) {
     if (haltedByDrawdown) break; // 最大DD到達後は全面停止（PJ000001方針）
@@ -100,7 +108,16 @@ export function simulatePortfolio(
     if (patternPrediction.direction === 'neutral') continue;
 
     // ②レジームゲート（OBS000018）: 効率比が低い＝レンジ局面では②のエッジが消えるため見送る
-    if (minEfficiencyRatio !== undefined && rawVectors[t][EFFICIENCY_RATIO_INDEX] < minEfficiencyRatio) continue;
+    const efficiencyRatio = rawVectors[t][EFFICIENCY_RATIO_INDEX];
+    if (adaptiveErGateWarmup !== undefined) {
+      // 適応的中央値方式（推奨）: 過去の効率比の中央値を自己校正の閾値にする
+      const gatePassed = pastErValues.length >= adaptiveErGateWarmup && efficiencyRatio >= median(pastErValues);
+      pastErValues.push(efficiencyRatio); // 現局面は判定後に記録（先読み防止）
+      if (!gatePassed) continue;
+    } else if (minEfficiencyRatio !== undefined && efficiencyRatio < minEfficiencyRatio) {
+      // 固定閾値方式（検証用・過最適傾向）
+      continue;
+    }
 
     // ③ LLM特徴量層
     // marketContextForDay が与えられていれば事前計算済みの実LLM/mock特徴量を使用（OBS000014）。

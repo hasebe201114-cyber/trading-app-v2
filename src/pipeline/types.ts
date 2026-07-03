@@ -16,11 +16,18 @@ export interface PipelineConfig {
    */
   marketContextForDay?: (utcDate: string) => MarketContextOutput | undefined;
   /**
-   * ②レジームゲート（OBS000018）。効率比(efficiencyRatio20)がこの閾値未満の局面では
-   * エントリーを見送る。②のエッジがトレンド局面（高効率比）に集中し、レンジ（低効率比）では
-   * 消えるため、「効く局面だけ張る」ためのフィルタ。未指定なら従来どおりゲートなし。
+   * ②レジームゲート・固定閾値方式（OBS000018）。効率比(efficiencyRatio20)がこの閾値未満の
+   * 局面ではエントリーを見送る。※固定閾値は過最適の傾向があるため本番非推奨。検証用途。
+   * 未指定ならゲートなし。adaptiveErGateWarmup が指定された場合はそちらが優先される。
    */
   minEfficiencyRatio?: number;
+  /**
+   * ②レジームゲート・適応的中央値方式（OBS000018、推奨）。効率比が「過去に評価した局面の
+   * 効率比の中央値」未満なら見送る自己校正ゲート。固定閾値の過最適を避ける。
+   * 値は中央値を確定するのに必要な最小サンプル数（ウォームアップ）。この件数が貯まるまでは
+   * 中央値が不安定なためエントリーを見送る。未指定ならこのゲートは無効。
+   */
+  adaptiveErGateWarmup?: number;
 }
 
 export interface TradeRecord {
