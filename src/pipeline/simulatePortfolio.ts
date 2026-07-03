@@ -27,6 +27,7 @@ import { DEFAULT_EXECUTION_COST, type ExecutionCostModel } from '../execution-la
 import type { PipelineConfig, PipelineResult, TradeRecord } from './types.ts';
 
 const pctChange = (from: number, to: number): number => (to - from) / from;
+const EFFICIENCY_RATIO_INDEX = 9; // features.ts FEATURE_NAMES: efficiencyRatio20
 
 export function simulatePortfolio(
   candles: OHLCV[],
@@ -34,7 +35,7 @@ export function simulatePortfolio(
   riskLimits: RiskLimits = DEFAULT_RISK_LIMITS,
   executionCost: ExecutionCostModel = DEFAULT_EXECUTION_COST,
 ): PipelineResult {
-  const { horizon, k, testRatio, testEndFraction = 1, initialEquity, marketContextForDay } = config;
+  const { horizon, k, testRatio, testEndFraction = 1, initialEquity, marketContextForDay, minEfficiencyRatio } = config;
   const n = candles.length;
 
   const minIndex = 20;
@@ -97,6 +98,9 @@ export function simulatePortfolio(
     const forwardReturns = neighbors.map(nb => pctChange(candles[nb.index].close, candles[nb.index + horizon].close));
     const patternPrediction = predictFromNeighborReturns(forwardReturns);
     if (patternPrediction.direction === 'neutral') continue;
+
+    // ②レジームゲート（OBS000018）: 効率比が低い＝レンジ局面では②のエッジが消えるため見送る
+    if (minEfficiencyRatio !== undefined && rawVectors[t][EFFICIENCY_RATIO_INDEX] < minEfficiencyRatio) continue;
 
     // ③ LLM特徴量層
     // marketContextForDay が与えられていれば事前計算済みの実LLM/mock特徴量を使用（OBS000014）。

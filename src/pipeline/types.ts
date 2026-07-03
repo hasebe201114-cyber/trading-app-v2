@@ -15,6 +15,12 @@ export interface PipelineConfig {
    * 未指定またはundefinedを返した日は、従来どおりニュースなしのmock（実質③なし）で動作する。
    */
   marketContextForDay?: (utcDate: string) => MarketContextOutput | undefined;
+  /**
+   * ②レジームゲート（OBS000018）。効率比(efficiencyRatio20)がこの閾値未満の局面では
+   * エントリーを見送る。②のエッジがトレンド局面（高効率比）に集中し、レンジ（低効率比）では
+   * 消えるため、「効く局面だけ張る」ためのフィルタ。未指定なら従来どおりゲートなし。
+   */
+  minEfficiencyRatio?: number;
 }
 
 export interface TradeRecord {
