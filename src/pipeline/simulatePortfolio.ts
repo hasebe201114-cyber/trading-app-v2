@@ -29,14 +29,36 @@ import type { PipelineConfig, PipelineResult, TradeRecord } from './types.ts';
 const pctChange = (from: number, to: number): number => (to - from) / from;
 const EFFICIENCY_RATIO_INDEX = 9; // features.ts FEATURE_NAMES: efficiencyRatio20
 const NEUTRAL_THRESHOLD = 0.0005;
-const MOMENTUM_CONFIDENCE = 60; // OBS000020: k-NNの近傍合意率に相当する概念がないため固定値を用いる
+const MOMENTUM_CONFIDENCE = 60; // OBS000020: k-NNの近傍合意率に相当する概念がないため固定値を用いる（confidenceScale未指定時のフォールバック）
+const MIN_MOMENTUM_CONFIDENCE = 50; // risk-layerのminConfidenceToEnter(50)と整合させる下限
+const MAX_MOMENTUM_CONFIDENCE = 95;
 
-/** ②パターン認識層をモメンタムに置き換える場合の予測（OBS000020） */
-function predictFromMomentum(candles: OHLCV[], currentCandleIndex: number, lookback: number): Prediction {
+/**
+ * ②パターン認識層をモメンタムに置き換える場合の予測（OBS000020/OBS000024）。
+ * confidenceScale指定時は、モメンタムの強さをその期間のボラティリティで正規化した
+ * z値（＝ランダムウォーク仮定下でのその値動きの標準偏差換算の大きさ）に基づき
+ * 確信度を動的に算出する（強いトレンドほどKellyサイジングを積み増す）。
+ * 未指定時は固定値60（OBS000020/023で検証した挙動と完全互換）。
+ */
+function predictFromMomentum(
+  candles: OHLCV[],
+  currentCandleIndex: number,
+  lookback: number,
+  volatility20: number,
+  confidenceScale?: number,
+): Prediction {
   if (currentCandleIndex - lookback < 0) return { direction: 'neutral', strength: 0, confidence: 0, neighborCount: 0 };
   const momRet = pctChange(candles[currentCandleIndex - lookback].close, candles[currentCandleIndex].close);
   const direction = momRet > NEUTRAL_THRESHOLD ? 'up' : momRet < -NEUTRAL_THRESHOLD ? 'down' : 'neutral';
-  return { direction, strength: Math.abs(momRet), confidence: MOMENTUM_CONFIDENCE, neighborCount: 1 };
+
+  let confidence = MOMENTUM_CONFIDENCE;
+  if (confidenceScale !== undefined && volatility20 > 0) {
+    const expectedMoveStd = volatility20 * Math.sqrt(lookback); // ランダムウォーク仮定下のlookback日リターンの標準偏差
+    const z = Math.abs(momRet) / expectedMoveStd;
+    confidence = Math.min(MAX_MOMENTUM_CONFIDENCE, Math.max(MIN_MOMENTUM_CONFIDENCE, 50 + confidenceScale * z));
+  }
+
+  return { direction, strength: Math.abs(momRet), confidence, neighborCount: 1 };
 }
 
 function median(sortedInput: number[]): number {
@@ -52,7 +74,7 @@ export function simulatePortfolio(
   riskLimits: RiskLimits = DEFAULT_RISK_LIMITS,
   executionCost: ExecutionCostModel = DEFAULT_EXECUTION_COST,
 ): PipelineResult {
-  const { horizon, k, testRatio, testEndFraction = 1, initialEquity, marketContextForDay, minEfficiencyRatio, adaptiveErGateWarmup, momentumLookback } = config;
+  const { horizon, k, testRatio, testEndFraction = 1, initialEquity, marketContextForDay, minEfficiencyRatio, adaptiveErGateWarmup, momentumLookback, momentumConfidenceScale } = config;
   const n = candles.length;
 
   const minIndex = 20;
@@ -108,7 +130,7 @@ export function simulatePortfolio(
     // ② パターン認識層（momentumLookback指定時はk-NNの代わりにモメンタムを使用。OBS000020）
     let patternPrediction: Prediction;
     if (momentumLookback !== undefined) {
-      patternPrediction = predictFromMomentum(candles, currentCandleIndex, momentumLookback);
+      patternPrediction = predictFromMomentum(candles, currentCandleIndex, momentumLookback, rawVectors[t][5], momentumConfidenceScale);
     } else {
       const targetVector = normalizedAll[t];
       const candidates = validIndices

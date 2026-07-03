@@ -35,6 +35,12 @@ export interface PipelineConfig {
    * 未指定なら従来どおりk-NNを使用する。
    */
   momentumLookback?: number;
+  /**
+   * モメンタムの確信度を動的化する（OBS000024）。momentumLookback指定時のみ有効。
+   * モメンタムの強さをボラティリティで正規化したz値に、この係数を掛けて確信度(50-95)を
+   * 算出する（強いトレンドほどKellyサイジングを積み増す）。未指定なら固定値60を使う。
+   */
+  momentumConfidenceScale?: number;
 }
 
 export interface TradeRecord {
