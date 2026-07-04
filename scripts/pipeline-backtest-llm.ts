@@ -47,7 +47,7 @@ if (!existsSync(cachePath)) {
 const cache: Record<string, MarketContextLogEntry> = JSON.parse(readFileSync(cachePath, 'utf-8'));
 const candles = loadOhlcvFromDailyCsv(join(DATA_DIR, 'btc-daily-2010-2026.csv'));
 
-const baseConfig = { horizon: 10, k: 30, initialEquity: 1_000_000 };
+const baseConfig = { horizon: 10, k: 30, initialEquity: 1_000_000, momentumLookback: 30, momentumConfidenceScale: 30 };
 
 // --- 年次フォールド境界（UTC日付）をvalidIndices空間の比率に変換 ---
 // simulatePortfolio内部: validIndices = [20 .. n-horizon-1] → 長さ n-horizon-20

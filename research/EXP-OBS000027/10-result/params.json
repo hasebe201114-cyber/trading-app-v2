@@ -1,0 +1,34 @@
+{
+  "spec": "research/EXP-OBS000027/00-spec.md",
+  "pipelineBacktest": {
+    "script": "scripts/pipeline-backtest-llm.ts",
+    "baseConfig": {
+      "horizon": 10,
+      "k": 30,
+      "initialEquity": 1000000,
+      "momentumLookback": 30,
+      "momentumConfidenceScale": 30
+    },
+    "combineSignals": "src/decision-layer/combineSignals.ts（mainのまま無改変。VETO=0.5 / CONFIRM=0.3 / BOOST=10 / 高ボラ0.5倍）",
+    "folds": "既存スクリプト定義（年次: 2021-01-01, 2022-01-01, 2023-01-01, 2024-01-01, 2025-01-01。最終フォールドはデータ末尾2026-07-01まで）",
+    "kpiThresholds": {
+      "sharpeDiffGte": 0.2,
+      "maxDrawdownImprovementPtGte": 3
+    },
+    "cache": "scripts/data/llm-features-daily.live.json（--mock不使用）"
+  },
+  "predictionUnitTest": {
+    "script": "scripts/llm-signal-standalone.ts",
+    "horizon": 10,
+    "scoreThreshold": 0.3,
+    "permutations": 1000,
+    "permutationSeed": 12345,
+    "rng": "mulberry32（edge-validation.tsと同一実装）",
+    "cache": "scripts/data/llm-features-daily.live.json",
+    "csv": "scripts/data/btc-daily-2010-2026.csv"
+  },
+  "changedFromMain": [
+    "scripts/pipeline-backtest-llm.ts: baseConfig に momentumLookback:30, momentumConfidenceScale:30 を追加（他は無変更）",
+    "scripts/llm-signal-standalone.ts: 新規作成"
+  ]
+}

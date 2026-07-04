@@ -1,0 +1,45 @@
+=== ③LLM特徴量層 予測単位テスト（llm-signal-standalone） ===
+
+git非依存の再現メタは run.log 参照。
+日足データ: 5828本（2010-07-18〜2026-07-01）
+③キャッシュ: C:\Users\Atsushi Hasebe\Project\trading-app-v2\scripts\data\llm-features-daily.live.json
+  ソース=live, モデル=claude-haiku-4-5, 収録=2008日, ファイルサイズ=3303850バイト
+設定: horizon=10, |score|閾値=0.3, permutations=1000, seed=12345
+
+有効サンプル数（10日先が算出可能な日）: 全ニュース日=1998, |score|>=0.3部分集合=1107
+
+=== Q1（方向一致率, |score|>=0.3） ===
+n(score!=0 かつ forwardReturn!=0)=1107
+一致率=49.59%
+score符号内訳: up(score>0)=828, down(score<0)=279
+permutation p値(両側, N=1000)=0.8262
+
+=== Q2（Spearman IC） ===
+[全ニュース日] n=1998, rho=-0.0066, 符号=負, permutation p値(両側, N=1000)=0.7692
+[|score|>=0.3部分集合] n=1107, rho=-0.0475, 符号=負, permutation p値(両側, N=1000)=0.1209
+
+=== 年次内訳 ===
+[2021] n(全)=365, n(|score|>=0.3)=218
+  Q1: n=218, 一致率=53.67%, permP=0.2817
+  Q2(全): rho=0.0349, permP=0.5015
+  Q2(|score|>=0.3): n=218, rho=0.0441, permP=0.4915
+[2022] n(全)=365, n(|score|>=0.3)=208
+  Q1: n=208, 一致率=38.94%, permP=0.0020
+  Q2(全): rho=-0.1636, permP=0.0040
+  Q2(|score|>=0.3): n=208, rho=-0.2142, permP=0.0030
+[2023] n(全)=365, n(|score|>=0.3)=218
+  Q1: n=218, 一致率=55.50%, permP=0.5614
+  Q2(全): rho=-0.0138, permP=0.7892
+  Q2(|score|>=0.3): n=218, rho=-0.0122, permP=0.8531
+[2024] n(全)=366, n(|score|>=0.3)=239
+  Q1: n=239, 一致率=52.72%, permP=0.7183
+  Q2(全): rho=-0.0476, permP=0.3786
+  Q2(|score|>=0.3): n=239, rho=-0.1011, permP=0.1249
+[2025] n(全)=365, n(|score|>=0.3)=224
+  Q1: n=224, 一致率=46.43%, permP=0.2797
+  Q2(全): rho=-0.1067, permP=0.0400
+  Q2(|score|>=0.3): n=224, rho=-0.1531, permP=0.0290
+[2026] n(全)=172, n(|score|>=0.3)=0
+  Q1: n=0, 一致率=NaN, permP=NaN
+  Q2(全): rho=0.0000, permP=1.0000
+  Q2(|score|>=0.3): n=0, rho=NaN, permP=NaN

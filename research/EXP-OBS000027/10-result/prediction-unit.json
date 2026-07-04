@@ -1,0 +1,160 @@
+{
+  "cacheStats": {
+    "source": "live",
+    "model": "claude-haiku-4-5",
+    "recordedDays": 2008,
+    "fileSizeBytes": 3303850
+  },
+  "sampleCounts": {
+    "allNewsDays": 1998,
+    "subsetGte0_3": 1107
+  },
+  "q1": {
+    "n": 1107,
+    "matchRatePct": 49.59,
+    "upCount": 828,
+    "downCount": 279,
+    "permutationP": 0.8262
+  },
+  "q2": {
+    "allNewsDays": {
+      "n": 1998,
+      "rho": -0.0066,
+      "sign": "負",
+      "permutationP": 0.7692
+    },
+    "subsetGte0_3": {
+      "n": 1107,
+      "rho": -0.0475,
+      "sign": "負",
+      "permutationP": 0.1209
+    }
+  },
+  "yearly": [
+    {
+      "year": "2021",
+      "nAll": 365,
+      "nSubset": 218,
+      "q1": {
+        "n": 218,
+        "matchRatePct": 53.67,
+        "permutationP": 0.2817
+      },
+      "q2All": {
+        "rho": 0.0349,
+        "permutationP": 0.5015
+      },
+      "q2Subset": {
+        "n": 218,
+        "rho": 0.0441,
+        "permutationP": 0.4915
+      }
+    },
+    {
+      "year": "2022",
+      "nAll": 365,
+      "nSubset": 208,
+      "q1": {
+        "n": 208,
+        "matchRatePct": 38.94,
+        "permutationP": 0.002
+      },
+      "q2All": {
+        "rho": -0.1636,
+        "permutationP": 0.004
+      },
+      "q2Subset": {
+        "n": 208,
+        "rho": -0.2142,
+        "permutationP": 0.003
+      }
+    },
+    {
+      "year": "2023",
+      "nAll": 365,
+      "nSubset": 218,
+      "q1": {
+        "n": 218,
+        "matchRatePct": 55.5,
+        "permutationP": 0.5614
+      },
+      "q2All": {
+        "rho": -0.0138,
+        "permutationP": 0.7892
+      },
+      "q2Subset": {
+        "n": 218,
+        "rho": -0.0122,
+        "permutationP": 0.8531
+      }
+    },
+    {
+      "year": "2024",
+      "nAll": 366,
+      "nSubset": 239,
+      "q1": {
+        "n": 239,
+        "matchRatePct": 52.72,
+        "permutationP": 0.7183
+      },
+      "q2All": {
+        "rho": -0.0476,
+        "permutationP": 0.3786
+      },
+      "q2Subset": {
+        "n": 239,
+        "rho": -0.1011,
+        "permutationP": 0.1249
+      }
+    },
+    {
+      "year": "2025",
+      "nAll": 365,
+      "nSubset": 224,
+      "q1": {
+        "n": 224,
+        "matchRatePct": 46.43,
+        "permutationP": 0.2797
+      },
+      "q2All": {
+        "rho": -0.1067,
+        "permutationP": 0.04
+      },
+      "q2Subset": {
+        "n": 224,
+        "rho": -0.1531,
+        "permutationP": 0.029
+      }
+    },
+    {
+      "year": "2026",
+      "nAll": 172,
+      "nSubset": 0,
+      "q1": {
+        "n": 0,
+        "matchRatePct": null,
+        "permutationP": null
+      },
+      "q2All": {
+        "rho": 0,
+        "permutationP": 1
+      },
+      "q2Subset": {
+        "n": 0,
+        "rho": null,
+        "permutationP": null
+      }
+    }
+  ],
+  "candleCount": 5828,
+  "candleRange": {
+    "start": "2010-07-18",
+    "end": "2026-07-01"
+  },
+  "config": {
+    "horizon": 10,
+    "scoreThreshold": 0.3,
+    "permutations": 1000,
+    "seed": 12345
+  }
+}
