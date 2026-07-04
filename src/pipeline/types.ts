@@ -41,6 +41,13 @@ export interface PipelineConfig {
    * 算出する（強いトレンドほどKellyサイジングを積み増す）。未指定なら固定値60を使う。
    */
   momentumConfidenceScale?: number;
+  /**
+   * レジームスイッチ（第三者レビュー提案2 / OBS000018後続）。momentumLookback指定時のみ有効。
+   * 効率比が過去中央値未満（レンジ局面）のときは、モメンタムで見送る代わりにRSI14の
+   * 逆張り（<30で買い、>70で売り）に切り替える。値は中央値算出のウォームアップ件数
+   * （adaptiveErGateWarmupと同じ考え方）。未指定ならレジームスイッチは無効（従来通り）。
+   */
+  regimeSwitchErGateWarmup?: number;
 }
 
 export interface TradeRecord {

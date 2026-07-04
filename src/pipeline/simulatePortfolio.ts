@@ -28,7 +28,9 @@ import type { PipelineConfig, PipelineResult, TradeRecord } from './types.ts';
 
 const pctChange = (from: number, to: number): number => (to - from) / from;
 const EFFICIENCY_RATIO_INDEX = 9; // features.ts FEATURE_NAMES: efficiencyRatio20
+const RSI_INDEX = 7; // features.ts FEATURE_NAMES: rsi14
 const NEUTRAL_THRESHOLD = 0.0005;
+const MEAN_REVERSION_CONFIDENCE = 55; // OBS000025: RSI逆張りの暫定固定確信度
 const MOMENTUM_CONFIDENCE = 60; // OBS000020: k-NNの近傍合意率に相当する概念がないため固定値を用いる（confidenceScale未指定時のフォールバック）
 const MIN_MOMENTUM_CONFIDENCE = 50; // risk-layerのminConfidenceToEnter(50)と整合させる下限
 const MAX_MOMENTUM_CONFIDENCE = 95;
@@ -61,6 +63,12 @@ function predictFromMomentum(
   return { direction, strength: Math.abs(momRet), confidence, neighborCount: 1 };
 }
 
+/** 低ER(レンジ)局面向けの平均回帰予測（OBS000025）: RSI14が極値のときだけ逆張りする */
+function predictFromMeanReversion(rsi14: number): Prediction {
+  const direction = rsi14 < 30 ? 'up' : rsi14 > 70 ? 'down' : 'neutral';
+  return { direction, strength: Math.abs(rsi14 - 50) / 50, confidence: MEAN_REVERSION_CONFIDENCE, neighborCount: 1 };
+}
+
 function median(sortedInput: number[]): number {
   if (sortedInput.length === 0) return 0;
   const s = [...sortedInput].sort((a, b) => a - b);
@@ -74,7 +82,7 @@ export function simulatePortfolio(
   riskLimits: RiskLimits = DEFAULT_RISK_LIMITS,
   executionCost: ExecutionCostModel = DEFAULT_EXECUTION_COST,
 ): PipelineResult {
-  const { horizon, k, testRatio, testEndFraction = 1, initialEquity, marketContextForDay, minEfficiencyRatio, adaptiveErGateWarmup, momentumLookback, momentumConfidenceScale } = config;
+  const { horizon, k, testRatio, testEndFraction = 1, initialEquity, marketContextForDay, minEfficiencyRatio, adaptiveErGateWarmup, momentumLookback, momentumConfidenceScale, regimeSwitchErGateWarmup } = config;
   const n = candles.length;
 
   const minIndex = 20;
@@ -142,11 +150,18 @@ export function simulatePortfolio(
       const forwardReturns = neighbors.map(nb => pctChange(candles[nb.index].close, candles[nb.index + horizon].close));
       patternPrediction = predictFromNeighborReturns(forwardReturns);
     }
-    if (patternPrediction.direction === 'neutral') continue;
 
-    // ②レジームゲート（OBS000018）: 効率比が低い＝レンジ局面では②のエッジが消えるため見送る
+    // ②レジームゲート／スイッチ（OBS000018/OBS000025）: 効率比が低い＝レンジ局面では
+    // ②(モメンタム/k-NN)のエッジが消えるため、見送る(ゲート)か平均回帰に切り替える(スイッチ)
     const efficiencyRatio = rawVectors[t][EFFICIENCY_RATIO_INDEX];
-    if (adaptiveErGateWarmup !== undefined) {
+    if (regimeSwitchErGateWarmup !== undefined && momentumLookback !== undefined) {
+      // レジームスイッチ方式（OBS000025）: 低ER局面ではモメンタムの代わりにRSI逆張りを使う
+      const gatePassed = pastErValues.length >= regimeSwitchErGateWarmup && efficiencyRatio >= median(pastErValues);
+      pastErValues.push(efficiencyRatio);
+      if (!gatePassed) {
+        patternPrediction = predictFromMeanReversion(rawVectors[t][RSI_INDEX]);
+      }
+    } else if (adaptiveErGateWarmup !== undefined) {
       // 適応的中央値方式（推奨）: 過去の効率比の中央値を自己校正の閾値にする
       const gatePassed = pastErValues.length >= adaptiveErGateWarmup && efficiencyRatio >= median(pastErValues);
       pastErValues.push(efficiencyRatio); // 現局面は判定後に記録（先読み防止）
@@ -155,6 +170,7 @@ export function simulatePortfolio(
       // 固定閾値方式（検証用・過最適傾向）
       continue;
     }
+    if (patternPrediction.direction === 'neutral') continue;
 
     // ③ LLM特徴量層
     // marketContextForDay が与えられていれば事前計算済みの実LLM/mock特徴量を使用（OBS000014）。
