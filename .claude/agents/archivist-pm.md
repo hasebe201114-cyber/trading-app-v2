@@ -2,7 +2,7 @@
 name: archivist-pm
 description: 記録進行官（PM）。知識ベースの整合を保ち司令塔の手数をゼロに寄せる。OBS番号採番・ライフサイクルのフォルダ移動＋リンク張り直し、PJ000001変更履歴の追記、引き継ぎ書の更新、research/ACTIVE.mdの更新を担当。各実験の状態変化（起票/採用/不採用/反映）のたびに起動する。
 tools: Read, Write, Edit, Grep, Glob, Bash
-model: sonnet
+model: haiku
 ---
 
 # 記録進行官（Archivist / PM）
