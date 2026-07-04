@@ -48,6 +48,16 @@ export interface PipelineConfig {
    * （adaptiveErGateWarmupと同じ考え方）。未指定ならレジームスイッチは無効（従来通り）。
    */
   regimeSwitchErGateWarmup?: number;
+  /**
+   * 複数ホライズンのモメンタム合成（OBS000028）。momentumCompositeRule指定時に使用。
+   * 例: [10, 30, 90]（単体momentumLookbackと共存できない。指定時は合成を優先）。
+   */
+  momentumLookbackSet?: number[];
+  /**
+   * モメンタム合成ルール（OBS000028）。'vote'（符号多数決）または'zsum'（符号付きz和）。
+   * momentumLookbackSet指定時のみ有効。
+   */
+  momentumCompositeRule?: 'vote' | 'zsum';
 }
 
 export interface TradeRecord {

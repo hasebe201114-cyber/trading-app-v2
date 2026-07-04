@@ -1,0 +1,97 @@
+=== EXP-OBS000028 実行ログ ===
+
+実行日時: 2026-07-04
+実行者: B検証実装官（Quant Researcher）
+
+【実行環境メタ情報】
+- Git commit hash: 9411dd903b76e531160fdcfc70f83f4896803c55
+- Node バージョン: v22.22.2
+- OS: Windows 11 Pro 10.0.26200
+- Working directory: C:\Users\Atsushi Hasebe\Project\trading-app-v2
+
+【再現コマンド】
+
+# 前提: npm run build を実行してTSをコンパイル
+npm run build
+
+# 予測単位スクリプト実行（決定性確認用に2回）
+node --experimental-strip-types scripts/momentum-composite-robustness.ts
+node --experimental-strip-types scripts/momentum-composite-robustness.ts
+
+# パイプラインスクリプト実行（決定性確認用に2回）
+node --experimental-strip-types scripts/pipeline-backtest-momentum-composite.ts
+node --experimental-strip-types scripts/pipeline-backtest-momentum-composite.ts
+
+【実行結果】
+
+予測単位スクリプト：
+- 1回目と2回目の標準出力が完全一致 → 決定性確認 ✓
+- 選定構成：S2 {20,60,120} (rule=zsum)
+- 選定期間Sharpe: 1.331, hit-rate: 57.8% (n=418)
+- ベースラインL=30（選定期間）: Sharpe 1.054
+
+パイプラインスクリプト：
+- 1回目と2回目の標準出力が完全一致 → 決定性確認 ✓
+- 選定構成：S2 {20,60,120} (rule=zsum)
+- 両スクリプト選定構成が一致 → 仕様要件充足 ✓
+
+【確認フェーズ結果（予測単位）】
+
+ETH確認プール（2020-2023 + 2024-2025、選定に一切不使用）:
+  合成 (S2, rule=zsum):
+    n=147, hit-rate=55.8%, Sharpe=0.748, permP=0.1516 (seed=20260704, N_PERM=5000)
+  ベースラインL=30:
+    n=168, hit-rate=60.7%, Sharpe=1.358, permP=0.0018
+
+BTC直近（2023-末尾、副次確認）:
+  合成 (S2, rule=zsum):
+    n=116, hit-rate=48.7%, Sharpe=0.511, permP=0.4365
+  ベースラインL=30:
+    n=127, hit-rate=52.4%, Sharpe=0.811, permP=0.0854
+
+Q1（方向エッジ・ETH未見）: hit-rate=55.8% (>50% ✓) but permP=0.1516 (p<0.05 ✗)
+Q2（単一比較・ETH未見）: Sharpe=0.748 (ベースラインSharpe=1.358 未達 ✗)
+
+【確認フェーズ結果（パイプライン）】
+
+5ウィンドウ結果:
+  W1 (BTC 2023):      ベースライン Sharpe 1.62, 合成 0.95, Δ=-0.674
+  W2 (BTC 2024):      ベースライン Sharpe 0.37, 合成 0.83, Δ=+0.458
+  W3 (BTC 2025):      ベースライン Sharpe -0.19, 合成 0.61, Δ=+0.800
+  W4 (ETH 2021-2026): ベースライン Sharpe 0.91, 合成 0.91, Δ=-0.006
+  W5 (ETH 2023-2026): ベースライン Sharpe 0.67, 合成 0.15, Δ=-0.516
+
+サマリー:
+  平均Sharpe差分（5枠）: 0.012 (P1要件 >=+0.15 未達)
+  改善枠数: 2/5 (P2要件 >=3/5 未達)
+  最悪Sharpe差分: -0.674 (P3要件 >=-0.15 未達)
+  全枠Sharpe非負: ✓
+  全枠DD増加: W5で+4.0pt (P3要件 <=+3pt 超過)
+  ETH平均差分: -0.261 (P4要件 >=0 未達)
+
+【採用判定基準チェック】
+
+予測単位：
+  - Q1 方向エッジ（ETH未見）: 未達
+  - Q2 単一比較（ETH未見）: 未達
+  → 予測単位で不採用条件成立
+
+パイプライン：
+  - P1 平均改善：未達
+  - P2 広がり：未達
+  - P3 最悪下限・DD：未達
+  - P4 ETH必須：未達
+  → パイプラインで不採用条件成立
+
+【判定】
+仮説棄却。合成版は単一L=30を未見データで超えず、採用不可。
+
+【生データ出力ファイル】
+- research/EXP-OBS000028/10-result/prediction-unit.json
+- research/EXP-OBS000028/10-result/pipeline.json
+- research/EXP-OBS000028/10-result/params.json
+- research/EXP-OBS000028/10-result/run.log
+
+【注記】
+実装上の技術的曖昧さなし。spec指定の値・式・8候補・選定アルゴリズムは全てハードコード。
+解釈語・採否判定は含めず、生データのみを出力。判定はC懐疑検証官に委譲。

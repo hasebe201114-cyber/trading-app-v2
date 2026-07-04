@@ -1,0 +1,148 @@
+{
+  "experiment": "OBS000028: マルチ時間軸モメンタム合成のパイプライン統合バックテスト",
+  "selected_composite": {
+    "setName": "S2",
+    "set": [20, 60, 120],
+    "rule": "zsum",
+    "confidence_scale": 30
+  },
+  "baseline": {
+    "momentumLookback": 30,
+    "momentumConfidenceScale": 30
+  },
+  "common_parameters": {
+    "horizon": 10,
+    "k": 30,
+    "initialEquity": 1000000
+  },
+  "windows": [
+    {
+      "label": "W1: BTC 2023",
+      "period": "2023-01-01 ~ 2024-01-01",
+      "baseline": {
+        "trades": 37,
+        "win_rate": 0.49,
+        "total_return": 0.150,
+        "max_drawdown": 0.033,
+        "sharpe": 1.62
+      },
+      "composite": {
+        "trades": 37,
+        "win_rate": 0.46,
+        "total_return": 0.082,
+        "max_drawdown": 0.067,
+        "sharpe": 0.95
+      },
+      "sharpe_diff": -0.674
+    },
+    {
+      "label": "W2: BTC 2024",
+      "period": "2024-01-01 ~ 2025-01-01",
+      "baseline": {
+        "trades": 37,
+        "win_rate": 0.54,
+        "total_return": 0.034,
+        "max_drawdown": 0.095,
+        "sharpe": 0.37
+      },
+      "composite": {
+        "trades": 36,
+        "win_rate": 0.50,
+        "total_return": 0.084,
+        "max_drawdown": 0.091,
+        "sharpe": 0.83
+      },
+      "sharpe_diff": 0.458
+    },
+    {
+      "label": "W3: BTC 2025",
+      "period": "2025-01-01 ~ 末尾",
+      "baseline": {
+        "trades": 54,
+        "win_rate": 0.48,
+        "total_return": -0.021,
+        "max_drawdown": 0.072,
+        "sharpe": -0.19
+      },
+      "composite": {
+        "trades": 54,
+        "win_rate": 0.52,
+        "total_return": 0.055,
+        "max_drawdown": 0.046,
+        "sharpe": 0.61
+      },
+      "sharpe_diff": 0.800
+    },
+    {
+      "label": "W4: ETH 2021-2026",
+      "period": "2021-01-01 ~ 末尾（連続）",
+      "baseline": {
+        "trades": 200,
+        "win_rate": 0.52,
+        "total_return": 0.811,
+        "max_drawdown": 0.102,
+        "sharpe": 0.91
+      },
+      "composite": {
+        "trades": 70,
+        "win_rate": 0.57,
+        "total_return": 0.336,
+        "max_drawdown": 0.151,
+        "sharpe": 0.91
+      },
+      "sharpe_diff": -0.006
+    },
+    {
+      "label": "W5: ETH 2023-2026",
+      "period": "2023-01-01 ~ 末尾（直近）",
+      "baseline": {
+        "trades": 127,
+        "win_rate": 0.51,
+        "total_return": 0.200,
+        "max_drawdown": 0.098,
+        "sharpe": 0.67
+      },
+      "composite": {
+        "trades": 126,
+        "win_rate": 0.49,
+        "total_return": 0.037,
+        "max_drawdown": 0.138,
+        "sharpe": 0.15
+      },
+      "sharpe_diff": -0.516
+    }
+  ],
+  "summary": {
+    "average_sharpe_diff_5windows": 0.012,
+    "improvement_windows_count": 2,
+    "improvement_windows_ratio": "2/5",
+    "worst_sharpe_diff": -0.674,
+    "max_dd_composite_all_windows": 0.151,
+    "sharpe_sign_composite_all_windows": "全て非負",
+    "eth_windows_avg_sharpe_diff": -0.261,
+    "eth_windows_count": 2
+  },
+  "p1_requirement": {
+    "description": "5枠の平均 Sharpe(合成) - Sharpe(ベースライン) >= +0.15",
+    "actual": 0.012,
+    "status": "未達"
+  },
+  "p2_requirement": {
+    "description": "Sharpe(合成) >= Sharpe(ベースライン) の枠が >= 3/5",
+    "improvement_windows": 2,
+    "total_windows": 5,
+    "status": "未達"
+  },
+  "p3_requirement": {
+    "description": "5枠の最小Sharpe差分 >= -0.15 かつ 全枠で Sharpe(合成) >= 0 かつ 全枠で最大DD増加 <= +3pt",
+    "min_sharpe_diff": -0.674,
+    "all_sharpe_non_negative": true,
+    "dd_check": "W5で+4.0pt（13.8-9.8）→ +3pt超過",
+    "status": "未達（複数項目）"
+  },
+  "p4_requirement": {
+    "description": "ETH枠（W4, W5）の平均 Sharpe(合成) - Sharpe(ベースライン) >= 0",
+    "actual": -0.261,
+    "status": "未達"
+  }
+}

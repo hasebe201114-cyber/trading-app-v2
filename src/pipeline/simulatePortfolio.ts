@@ -30,6 +30,7 @@ const pctChange = (from: number, to: number): number => (to - from) / from;
 const EFFICIENCY_RATIO_INDEX = 9; // features.ts FEATURE_NAMES: efficiencyRatio20
 const RSI_INDEX = 7; // features.ts FEATURE_NAMES: rsi14
 const NEUTRAL_THRESHOLD = 0.0005;
+const Z_NEUTRAL = 0.10; // OBS000028: モメンタム合成・R-zsumの neutral判定閾値
 const MEAN_REVERSION_CONFIDENCE = 55; // OBS000025: RSI逆張りの暫定固定確信度
 const MOMENTUM_CONFIDENCE = 60; // OBS000020: k-NNの近傍合意率に相当する概念がないため固定値を用いる（confidenceScale未指定時のフォールバック）
 const MIN_MOMENTUM_CONFIDENCE = 50; // risk-layerのminConfidenceToEnter(50)と整合させる下限
@@ -63,6 +64,72 @@ function predictFromMomentum(
   return { direction, strength: Math.abs(momRet), confidence, neighborCount: 1 };
 }
 
+/**
+ * 複数ホライズンのモメンタム合成（OBS000028）。
+ * ルール'vote'（符号多数決）または'zsum'（符号付きz和）で方向を決定。
+ * 等加重固定、confidenceScale=30固定、Z_NEUTRAL=0.10固定。
+ */
+function predictFromMomentumComposite(
+  candles: OHLCV[],
+  currentCandleIndex: number,
+  lookbackSet: number[],
+  rule: 'vote' | 'zsum',
+  volatility20: number,
+  confidenceScale: number,
+): Prediction {
+  if (lookbackSet.length === 0 || !lookbackSet.every(L => currentCandleIndex - L >= 0)) {
+    return { direction: 'neutral', strength: 0, confidence: 0, neighborCount: 0 };
+  }
+
+  const currentClose = candles[currentCandleIndex].close;
+  const momRets = lookbackSet.map(L => pctChange(candles[currentCandleIndex - L].close, currentClose));
+  const zValues = lookbackSet.map((L, idx) => {
+    const expectedMoveStd = volatility20 * Math.sqrt(L);
+    return expectedMoveStd > 0 ? momRets[idx] / expectedMoveStd : 0;
+  });
+
+  let direction: 'up' | 'down' | 'neutral';
+  let confidence = MIN_MOMENTUM_CONFIDENCE;
+
+  if (rule === 'vote') {
+    // R-vote: 符号多数決
+    const signs = momRets.map(r => (r > NEUTRAL_THRESHOLD ? 1 : r < -NEUTRAL_THRESHOLD ? -1 : 0));
+    const V = signs.reduce((a, b) => a + b, 0 as number);
+    direction = V > 0 ? 'up' : V < 0 ? 'down' : 'neutral';
+
+    if (direction !== 'neutral') {
+      // zbarを計算：多数派方向の z値 の平均
+      const majoritySign = direction === 'up' ? 1 : -1;
+      const majorityZs = signs
+        .map((s, i) => (s === majoritySign ? zValues[i] : null))
+        .filter((z): z is number => z !== null);
+      const zbar = majorityZs.length > 0 ? majorityZs.reduce((a, b) => a + b, 0) / majorityZs.length : 0;
+      confidence = Math.min(
+        MAX_MOMENTUM_CONFIDENCE,
+        Math.max(MIN_MOMENTUM_CONFIDENCE, 50 + confidenceScale * (Math.abs(V) / lookbackSet.length) * zbar),
+      );
+    }
+  } else {
+    // R-zsum: 符号付きz和の平均
+    const composite = zValues.reduce((a, b) => a + b, 0) / zValues.length;
+    direction = composite > Z_NEUTRAL ? 'up' : composite < -Z_NEUTRAL ? 'down' : 'neutral';
+
+    if (direction !== 'neutral') {
+      confidence = Math.min(
+        MAX_MOMENTUM_CONFIDENCE,
+        Math.max(MIN_MOMENTUM_CONFIDENCE, 50 + confidenceScale * Math.abs(composite)),
+      );
+    }
+  }
+
+  return {
+    direction,
+    strength: Math.max(...momRets.map(Math.abs)),
+    confidence,
+    neighborCount: lookbackSet.length,
+  };
+}
+
 /** 低ER(レンジ)局面向けの平均回帰予測（OBS000025）: RSI14が極値のときだけ逆張りする */
 function predictFromMeanReversion(rsi14: number): Prediction {
   const direction = rsi14 < 30 ? 'up' : rsi14 > 70 ? 'down' : 'neutral';
@@ -82,7 +149,7 @@ export function simulatePortfolio(
   riskLimits: RiskLimits = DEFAULT_RISK_LIMITS,
   executionCost: ExecutionCostModel = DEFAULT_EXECUTION_COST,
 ): PipelineResult {
-  const { horizon, k, testRatio, testEndFraction = 1, initialEquity, marketContextForDay, minEfficiencyRatio, adaptiveErGateWarmup, momentumLookback, momentumConfidenceScale, regimeSwitchErGateWarmup } = config;
+  const { horizon, k, testRatio, testEndFraction = 1, initialEquity, marketContextForDay, minEfficiencyRatio, adaptiveErGateWarmup, momentumLookback, momentumConfidenceScale, regimeSwitchErGateWarmup, momentumLookbackSet, momentumCompositeRule } = config;
   const n = candles.length;
 
   const minIndex = 20;
@@ -135,9 +202,11 @@ export function simulatePortfolio(
       continue; // 日次損失による一時停止 → この足は見送り、次の足で再評価
     }
 
-    // ② パターン認識層（momentumLookback指定時はk-NNの代わりにモメンタムを使用。OBS000020）
+    // ② パターン認識層（momentumLookbackSet指定時は合成、momentumLookback指定時は単一モメンタム、いずれもなければk-NN。OBS000020/OBS000028）
     let patternPrediction: Prediction;
-    if (momentumLookback !== undefined) {
+    if (momentumLookbackSet !== undefined && momentumCompositeRule !== undefined) {
+      patternPrediction = predictFromMomentumComposite(candles, currentCandleIndex, momentumLookbackSet, momentumCompositeRule, rawVectors[t][5], momentumConfidenceScale ?? 30);
+    } else if (momentumLookback !== undefined) {
       patternPrediction = predictFromMomentum(candles, currentCandleIndex, momentumLookback, rawVectors[t][5], momentumConfidenceScale);
     } else {
       const targetVector = normalizedAll[t];

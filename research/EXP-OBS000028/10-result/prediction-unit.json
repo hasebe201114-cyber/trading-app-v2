@@ -1,0 +1,128 @@
+{
+  "experiment": "OBS000028: マルチ時間軸モメンタム合成の頑健性検証（予測単位）",
+  "selection_period": "BTC 2011-01-01 ~ 2022-12-31",
+  "confirmation_periods": {
+    "eth_pool": "ETH 2020-2023 + 2024-2025（確認プール、選定に不使用）",
+    "btc_recent": "BTC 2023-01-01 ~ 末尾（副次確認）"
+  },
+  "candidates_8_evaluated": [
+    {
+      "setName": "S1",
+      "set": [10, 30, 90],
+      "rule": "vote",
+      "selection_period_sharpe": 1.157,
+      "selection_period_hit_rate": 0.570
+    },
+    {
+      "setName": "S1",
+      "set": [10, 30, 90],
+      "rule": "zsum",
+      "selection_period_sharpe": 1.269,
+      "selection_period_hit_rate": 0.560
+    },
+    {
+      "setName": "S2",
+      "set": [20, 60, 120],
+      "rule": "vote",
+      "selection_period_sharpe": 1.264,
+      "selection_period_hit_rate": 0.559
+    },
+    {
+      "setName": "S2",
+      "set": [20, 60, 120],
+      "rule": "zsum",
+      "selection_period_sharpe": 1.331,
+      "selection_period_hit_rate": 0.578,
+      "selected": true
+    },
+    {
+      "setName": "S3",
+      "set": [15, 30, 60],
+      "rule": "vote",
+      "selection_period_sharpe": 1.081,
+      "selection_period_hit_rate": 0.554
+    },
+    {
+      "setName": "S3",
+      "set": [15, 30, 60],
+      "rule": "zsum",
+      "selection_period_sharpe": 1.143,
+      "selection_period_hit_rate": 0.560
+    },
+    {
+      "setName": "S4",
+      "set": [30, 90, 180],
+      "rule": "vote",
+      "selection_period_sharpe": 1.125,
+      "selection_period_hit_rate": 0.570
+    },
+    {
+      "setName": "S4",
+      "set": [30, 90, 180],
+      "rule": "zsum",
+      "selection_period_sharpe": 1.133,
+      "selection_period_hit_rate": 0.570
+    }
+  ],
+  "baseline_selection_period": {
+    "lookback": 30,
+    "sharpe": 1.054,
+    "hit_rate": 0.575,
+    "n": 439
+  },
+  "selected_composite": {
+    "setName": "S2",
+    "set": [20, 60, 120],
+    "rule": "zsum",
+    "reason": "selection_period(BTC 2011-2022)で最高Sharpe=1.331、hit-rate=57.8%"
+  },
+  "confirmation_eth_pool": {
+    "composite": {
+      "n": 147,
+      "hit_rate": 0.558,
+      "sharpe": 0.748,
+      "perm_p": 0.1516,
+      "perm_seed": 20260704,
+      "n_perm": 5000
+    },
+    "baseline_L30": {
+      "n": 168,
+      "hit_rate": 0.607,
+      "sharpe": 1.358,
+      "perm_p": 0.0018,
+      "perm_seed": 20260704,
+      "n_perm": 5000
+    },
+    "note": "合成はQ1(hit-rate>50%かつp<0.05)未達（p=0.1516）。Q2(合成Sharpe>=ベースラインSharpe)も未達（0.748<1.358）"
+  },
+  "confirmation_btc_recent": {
+    "composite": {
+      "n": 116,
+      "hit_rate": 0.487,
+      "sharpe": 0.511,
+      "perm_p": 0.4365,
+      "perm_seed": 20260704,
+      "n_perm": 5000
+    },
+    "baseline_L30": {
+      "n": 127,
+      "hit_rate": 0.524,
+      "sharpe": 0.811,
+      "perm_p": 0.0854,
+      "perm_seed": 20260704,
+      "n_perm": 5000
+    },
+    "note": "副次確認。合成はp=0.4365で有意でない"
+  },
+  "q1_requirement": {
+    "description": "ETH確認プールで、合成生シグナルの hit-rate > 50% かつ permutation p < 0.05",
+    "composite_result": "hit-rate=55.8%（✓）, p=0.1516（✗ 0.05未満ではない）",
+    "status": "未達"
+  },
+  "q2_requirement": {
+    "description": "同ETH確認プールで、合成生シグナルの方向調整Sharpe >= ベースラインL=30の方向調整Sharpe",
+    "composite_result": "0.748",
+    "baseline_result": "1.358",
+    "status": "未達"
+  }
+}

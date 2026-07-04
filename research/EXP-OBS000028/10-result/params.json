@@ -1,0 +1,66 @@
+{
+  "experiment": "OBS000028: マルチ時間軸モメンタム合成",
+  "selection_algorithm": "BTC 2011-2022期間の生シグナル方向調整Sharpeで最大を選ぶ（同点はhit-rate高い方）",
+  "candidates_total": 8,
+  "time_axis_sets": {
+    "S1": [10, 30, 90],
+    "S2": [20, 60, 120],
+    "S3": [15, 30, 60],
+    "S4": [30, 90, 180]
+  },
+  "composite_rules": ["vote", "zsum"],
+  "selected_set": {
+    "setName": "S2",
+    "set": [20, 60, 120],
+    "rule": "zsum"
+  },
+  "fixed_parameters": {
+    "baseline_momentum_lookback": 30,
+    "baseline_momentum_confidence_scale": 30,
+    "composite_confidence_scale": 30,
+    "horizon": 10,
+    "k": 30,
+    "initial_equity": 1000000,
+    "neutral_threshold": 0.0005,
+    "z_neutral": 0.10
+  },
+  "permutation_test": {
+    "seed": 20260704,
+    "n_perm": 5000
+  },
+  "data_files": {
+    "selection_btc": {
+      "name": "btc-daily-2010-2026.csv",
+      "period": "2011-01-01 ~ 2022-12-31 (for selection)",
+      "records": 4366,
+      "note": "選定フェーズでのみ使用、確認に一切不使用"
+    },
+    "confirmation_eth": [
+      {
+        "name": "eth-daily-2020-2023.csv",
+        "period": "2020-01-01 ~ 2023-12-31",
+        "records": 1461
+      },
+      {
+        "name": "eth-daily-2024-2025.csv",
+        "period": "2024-01-01 ~ 2025-12-31",
+        "records": 365
+      }
+    ],
+    "confirmation_btc_recent": {
+      "name": "btc-daily-2010-2026.csv",
+      "period": "2023-01-01 ~ 2026-07-03 (subset)",
+      "note": "副次確認用"
+    },
+    "pipeline_btc": {
+      "name": "btc-daily-binance-2017-2026.csv",
+      "period": "2017-08-17 ~ 2026-07-03",
+      "records": 3243
+    },
+    "pipeline_eth": {
+      "name": "eth-daily-binance-2017-2026.csv",
+      "period": "2017-08-17 ~ 2026-07-03",
+      "records": 3243
+    }
+  }
+}
