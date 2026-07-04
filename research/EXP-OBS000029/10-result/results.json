@@ -1,0 +1,225 @@
+{
+  "experiment": "EXP-OBS000029",
+  "title": "BTC-ETH相対クロスセクション・マーケットニュートラル戦略検証",
+  "date": "2026-07-04",
+  "specification": {
+    "edge": "相対モメンタム（ETH/BTC比の順張り）",
+    "lookback": 30,
+    "horizon": 10,
+    "neutral_threshold": 0.0005,
+    "permutation_n": 5000,
+    "seed": 20260704,
+    "dollar_neutral": true,
+    "notion": "equal_notional",
+    "funding_constraint": "2019-09-19以降のみ有効"
+  },
+  "stage1_prediction_unit": {
+    "gate": "G1: hitRate > 50% && permutation_p < 0.05 (confirmation_period)",
+    "status": "FAIL",
+    "selection_period": {
+      "date_range": "2017-08-01〜2022-12-31",
+      "sample_size": 194,
+      "hitRate": 0.523,
+      "sharpe": 0.248,
+      "perm_p": 0.2398,
+      "reference_L20": {
+        "n": 195,
+        "hitRate": 0.521,
+        "sharpe": 0.494,
+        "perm_p": 0.1186
+      },
+      "reference_L60": {
+        "n": 191,
+        "hitRate": 0.516,
+        "sharpe": 0.356,
+        "perm_p": 0.2022
+      }
+    },
+    "confirmation_period_overall": {
+      "date_range": "2023-01-01〜末尾",
+      "sample_size": 127,
+      "hitRate": 0.484,
+      "sharpe": -0.121,
+      "perm_p": 0.6627,
+      "result": "G1_FAIL - no edge in unseen period"
+    },
+    "confirmation_period_halves": {
+      "first_half": {
+        "date_range": "2023-01-01〜2023-12-31",
+        "sample_size": 37,
+        "hitRate": 0.343,
+        "sharpe": -1.955,
+        "perm_p": 0.9832
+      },
+      "second_half": {
+        "date_range": "2024-01-01以降",
+        "sample_size": 91,
+        "hitRate": 0.615,
+        "sharpe": 0.712,
+        "perm_p": 0.1612
+      }
+    },
+    "regime_windows": {
+      "R1_altseason": {
+        "date_range": "2020-07-01〜2021-05-31",
+        "sample_size": 34,
+        "hitRate": 0.647,
+        "sharpe": 1.231,
+        "perm_p": 0.2434,
+        "note": "in-sample"
+      },
+      "R2_bear_2022": {
+        "date_range": "2022-01-01〜2022-12-31",
+        "sample_size": 37,
+        "hitRate": 0.595,
+        "sharpe": 0.251,
+        "perm_p": 0.3773,
+        "note": "in-sample, weak evidence"
+      },
+      "R3_2023": {
+        "date_range": "2023-01-01〜2023-12-31",
+        "sample_size": 37,
+        "hitRate": 0.343,
+        "sharpe": -1.955,
+        "perm_p": 0.9832,
+        "note": "OOS"
+      },
+      "R3_2024": {
+        "date_range": "2024-01-01〜2024-12-31",
+        "sample_size": 37,
+        "hitRate": 0.568,
+        "sharpe": -0.335,
+        "perm_p": 0.7485,
+        "note": "OOS"
+      },
+      "R3_2025": {
+        "date_range": "2025-01-01以降",
+        "sample_size": 54,
+        "hitRate": 0.556,
+        "sharpe": 0.336,
+        "perm_p": 0.3409,
+        "note": "OOS"
+      }
+    }
+  },
+  "stage2_sleeve_solo": {
+    "gate": "G2: sleeve_sharpe > 0 (confirmation_period)",
+    "status": "FAIL",
+    "selection_period": {
+      "date_range": "2019-09-19〜2022-12-31",
+      "sample_size": 1200,
+      "sharpe": 0.961,
+      "total_return": 2.467,
+      "max_dd": 0.404
+    },
+    "confirmation_period": {
+      "date_range": "2023-01-01以降",
+      "sample_size": 1270,
+      "sharpe": -0.643,
+      "total_return": -0.662,
+      "max_dd": 0.795,
+      "result": "G2_FAIL - negative sharpe after funding costs"
+    }
+  },
+  "stage3_composite": {
+    "frozen_inverse_volatility_weights": {
+      "sleeve": 0.573,
+      "btc_momentum": 0.427,
+      "calculation_period": "2019-09-19〜2022-12-31"
+    },
+    "confirmation_period_metrics": {
+      "sleeve_sharpe": -0.643,
+      "btc_sharpe": 0.826,
+      "eth_sharpe": 0.359,
+      "sleeve_return": -0.662,
+      "btc_return": 1.634,
+      "eth_return": 0.088,
+      "sleeve_max_dd": 0.795,
+      "btc_max_dd": 0.472,
+      "eth_max_dd": 0.717
+    },
+    "G3_correlation": {
+      "gate": "G3: |correlation| < 0.3",
+      "status": "PASS",
+      "full_period": -0.046,
+      "first_half": -0.030,
+      "second_half": -0.060,
+      "note": "low correlation achieved, but sleeve has negative returns"
+    },
+    "G4_composite_improvement": {
+      "gate": "G4a: Sharpe_improvement >= +0.15 OR G4b: DD_reduction >= 5pt",
+      "status": "FAIL",
+      "composed_sharpe": 0.095,
+      "composed_max_dd": 0.424,
+      "G4a_sharpe_improvement": {
+        "value": -0.732,
+        "required": 0.15,
+        "result": "FAIL"
+      },
+      "G4b_dd_reduction": {
+        "value": 0.048,
+        "required": -0.05,
+        "result": "FAIL",
+        "note": "DD actually worsens slightly with sleeve"
+      },
+      "naive_5050": {
+        "sharpe": 0.248,
+        "max_dd": 0.363
+      }
+    }
+  },
+  "regime_analysis_sleeve": {
+    "R1_altseason": {
+      "date_range": "2020-07-01〜2021-05-31",
+      "sample_size": 335,
+      "sharpe": 1.880,
+      "total_return": 1.827,
+      "max_dd": 0.396,
+      "note": "in-sample, strong performance"
+    },
+    "R2_bear_2022": {
+      "date_range": "2022-01-01〜2022-12-31",
+      "sample_size": 365,
+      "sharpe": 0.166,
+      "total_return": -0.016,
+      "max_dd": 0.356,
+      "note": "in-sample, barely positive"
+    },
+    "R3_2023": {
+      "date_range": "2023-01-01〜2023-12-31",
+      "sample_size": 365,
+      "sharpe": -1.282,
+      "total_return": -0.318,
+      "max_dd": 0.397,
+      "note": "OOS, deterioration"
+    },
+    "R3_2024": {
+      "date_range": "2024-01-01〜2024-12-31",
+      "sample_size": 366,
+      "sharpe": -0.914,
+      "total_return": -0.354,
+      "max_dd": 0.470,
+      "note": "OOS, continues to underperform"
+    },
+    "R3_2025": {
+      "date_range": "2025-01-01以降",
+      "sample_size": 539,
+      "sharpe": -0.183,
+      "total_return": -0.216,
+      "max_dd": 0.502,
+      "note": "OOS, ongoing deterioration"
+    }
+  },
+  "degeneration_risk": {
+    "top1_single_rebalance_contribution_ratio": 0.184,
+    "note": "18.4% of total PnL from single largest rebalance - acceptable concentration"
+  },
+  "final_verdict": {
+    "G1": "FAIL - confirmation period hitRate 48.4% <= 50%, permP 0.6627 >> 0.05",
+    "G2": "FAIL - confirmation period sleeve sharpe -0.643 < 0",
+    "G3": "PASS - |correlation| -0.046 < 0.3",
+    "G4": "FAIL - sharpe improvement -0.732 << +0.15, DD reduction 4.8pt > -5pt",
+    "overall_adoption": "NOT_ADOPTED - G1 miss triggers immediate halt per spec",
+    "halt_reason": "Relative momentum has no predictive edge in unseen 2023-2026 confirmation period"
+  }
+}

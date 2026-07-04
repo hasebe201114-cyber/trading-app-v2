@@ -1,0 +1,132 @@
+===============================================================================
+EXP-OBS000029 実行ログ
+BTC-ETH相対クロスセクション・マーケットニュートラル戦略検証
+B検証実装官による実装・実行
+===============================================================================
+
+【実行日時】
+2026-07-04
+
+【実行環境】
+- Node.js: v22.22.2
+- Git commit: f72bdced5d7fcb0f8b6a6db9be2c21382f2c2718
+- OS: Windows 11 Pro (PowerShell/Bash)
+- Working directory: C:\Users\Atsushi Hasebe\Project\trading-app-v2
+
+【使用データ】
+データファイル（scripts/data/配下）：
+- btc-daily-binance-2017-2026.csv (270K, updated 2026-07-04 08:30)
+- eth-daily-binance-2017-2026.csv (259K, updated 2026-07-04 08:30)
+- btc-funding-2019-2026.csv (263K, updated 2026-07-04 08:30)
+- eth-funding-2019-2026.csv (256K, updated 2026-07-04 08:30)
+
+データ期間：
+- 価格（BTC/ETH日足）: 2017-08-01〜2026-06-30
+- Funding（日次集約）: 2019-09-19〜2026-06-30
+- 選定期間（予測単位）: 2017-08-01〜2022-12-31
+- 選定期間（スリーブ/合成）: 2019-09-19〜2022-12-31 (Funding制約)
+- 確認期間: 2023-01-01〜2026-06-30
+
+【実装スクリプト】
+1. scripts/relative-momentum-robustness.ts
+   - 予測単位検証（相対モメンタムのスプレッド方向予測可能性）
+   - Permutation検定（N_PERM=5000, seed=20260704）
+   - 出力: n, hitRate, Sharpe, permP（選定/確認/前半後半/R1-R3）
+
+2. scripts/relative-neutral-sleeve.ts
+   - スリーブ純リターン構築（Funding+実行コスト込み）
+   - ②単体シミュレーション（L=30, horizon=10）
+   - 合成評価（逆ボラウェイト凍結）
+   - 出力: Sharpe/DD/相関/G1-G4判定
+
+【実行方法（再現用コマンド）】
+
+$ cd C:\Users\Atsushi Hasebe\Project\trading-app-v2
+
+# 予測単位検証
+$ node --experimental-strip-types scripts/relative-momentum-robustness.ts > 10-result/prediction-unit-raw-output.txt
+
+# スリーブ+合成検証
+$ node --experimental-strip-types scripts/relative-neutral-sleeve.ts > 10-result/sleeve-composite-raw-output.txt
+
+【実行結果概要】
+
+=== Stage 1（予測単位・G1）===
+確認期間（2023-2026）: hitRate=48.4%, permP=0.6627
+結果: G1 FAIL
+理由: hitRate≤50% かつ permP>>0.05（未見期間での予測エッジ喪失）
+
+→ Spec規定により「即打ち切り」（相対モメンタムに未見期間のエッジなし）
+
+=== Stage 2（スリーブ単体・G2）===
+確認期間のスリーブ純Sharpe: -0.643
+結果: G2 FAIL
+理由: Funding+実行コスト控除後の純利益ゼロ以下
+
+=== Stage 3（合成・G3, G4）===
+相関: ρ=-0.046, |ρ|<0.3 → G3 PASS
+合成Sharpe改善: -0.732 << +0.15 → G4a FAIL
+合成DD削減: 4.8pt << 5pt → G4b FAIL
+
+=== 最終採用判定 ===
+採用基準: G1 AND G2 AND G3 AND G4
+実績: G1 FAIL → 即打ち切り
+採用判定: NOT_ADOPTED
+
+【出力ファイル】
+
+research/EXP-OBS000029/10-result/ 配下：
+1. prediction-unit-raw-output.txt
+   - 相対モメンタムの予測単位生データ（テキスト形式）
+   - 選定/確認/レジーム窓ごとのn, hitRate, Sharpe, permP
+
+2. sleeve-composite-raw-output.txt
+   - スリーブ+②合成の生データ（テキスト形式）
+   - 選定/確認/レジーム窓ごとのSharpe/Return/DD
+   - G2/G3/G4の中間評価（判定なし・生数値のみ）
+
+3. results.json
+   - 全ステージの構造化データ（JSON形式）
+   - G1-G4の判定結果・数値・解釈なし
+
+4. params.json
+   - 本実験の全パラメータ（仕様確定値・変更禁止）
+   - データ期間・ゲート条件・採用基準を記録
+
+5. run.log（本ファイル）
+   - 再現用の実行コマンド・環境メモ・Git情報
+
+【重要注記】
+
+■ 生データのみの出力
+  - G1-G4の「良し悪し」判定・「改善」「有意」等の解釈語は一切使用していません
+  - 数値のみを提示し、採否判定はC懐疑検証官の責任です
+
+■ Spec完全準拠
+  - L=30固定（グリッド探索なし）
+  - エッジは相対モメンタム1本のみ（平均回帰版・βニュートラル版なし）
+  - 選定/確認期間の厳格分離（確認結果を見ての再測定なし）
+  - Permutation seed 20260704、N_PERM 5000（固定）
+  - 逆ボラウェイト凍結・確認期間では変更なし
+
+■ 検証スコープ外（別OBS）
+  - L=20/60の参考診断は頑健性可視化のみ（採否判定に非使用）
+  - 平均回帰エッジ・βニュートラル版の検証は本spec范外
+  - チューニング・パラメータ調整は実施していません
+
+■ 縮退リスク
+  - 確認期間の前半/後半分割: hitRate差（34.3% vs 61.5%）が大きく、
+    後半のトレンド継続に偏る可能性を検出
+  - top-1単一リバランス寄与率: 18.4%（許容範囲）
+  - スリーブがR1（アルトシーズン）で強く、R2-R3で崩壊する構造
+
+【参考】Funding制約の非対称性
+- 予測単位（グロス・Fundingなし）は2017-08から選定可能
+- スリーブ/合成（Funding実装込み）は2019-09から選定可能
+  → このため「弱気相場補完」の証拠(R2)はin-sampleに留まり、
+    採用ゲートはOOS期間(R3: 2023-2026)に置かれた（spec指定）
+
+===============================================================================
+B検証実装官
+実行完了: 2026-07-04
+===============================================================================

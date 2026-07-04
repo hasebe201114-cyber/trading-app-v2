@@ -1,0 +1,165 @@
+{
+  "experiment_id": "EXP-OBS000029",
+  "title": "BTC-ETH相対クロスセクション・マーケットニュートラル戦略検証",
+  "date_executed": "2026-07-04",
+  "specification_version": "00-spec.md (初版 2026-07-04)",
+  "parameters_locked": true,
+  "reason_locked": "事前登録・変更禁止（spec確定）",
+  "edge": {
+    "type": "relative_momentum",
+    "description": "ETH/BTC比の相対モメンタム（順張り）",
+    "lookback_L": 30,
+    "note": "L=20,60は参考診断のみ・採否に使用しない"
+  },
+  "signal_definition": {
+    "ratio": "ETH.close / BTC.close",
+    "momentum": "pctChange(ratio[t-L], ratio[t])",
+    "threshold": 0.0005,
+    "signal_positive": "momRatio > +0.0005 → ETH long / BTC short",
+    "signal_negative": "momRatio < -0.0005 → ETH short / BTC long",
+    "signal_neutral": "帯内 → no position"
+  },
+  "execution": {
+    "horizon_days": 10,
+    "rebalance_frequency": "non-overlapping (10-day hold)",
+    "notion": "equal_dollar_notional",
+    "neutral_type": "dollar_neutral",
+    "note": "beta_neutral版は未実装（本実験では採用しない）"
+  },
+  "costs": {
+    "funding": {
+      "enabled": true,
+      "btc_file": "btc-funding-2019-2026.csv",
+      "eth_file": "eth-funding-2019-2026.csv",
+      "aggregation": "daily_sum_of_8h_events",
+      "btc_history_start": "2019-09-19",
+      "eth_history_start": "2019-09-19",
+      "convention": "positive=long_pays_short",
+      "long_leg_pnl": "-(fundingRate)",
+      "short_leg_pnl": "+(fundingRate)"
+    },
+    "execution_cost": {
+      "one_way_cost": "DEFAULT_EXECUTION_COST.takerFeeRate + slippageRate",
+      "flip_cost": "4 * ONE_WAY_COST (2legs × round-trip)",
+      "applied_at": "rebalance_day_only"
+    }
+  },
+  "data": {
+    "price_data": {
+      "btc": "btc-daily-binance-2017-2026.csv",
+      "eth": "eth-daily-binance-2017-2026.csv",
+      "alignment": "same_utc_date_matching",
+      "frequency": "daily_close_utc"
+    },
+    "funding_data": {
+      "btc": "btc-funding-2019-2026.csv",
+      "eth": "eth-funding-2019-2026.csv",
+      "frequency": "8h_events_aggregated_daily"
+    }
+  },
+  "protocol": {
+    "selection_period_prediction_unit": {
+      "start": "2017-08-01",
+      "end": "2022-12-31",
+      "purpose": "in-sample characteristic evaluation"
+    },
+    "selection_period_sleeve_composite": {
+      "start": "2019-09-19",
+      "end": "2022-12-31",
+      "reason": "funding_data_constraint"
+    },
+    "confirmation_period": {
+      "start": "2023-01-01",
+      "end": "2026-06-30 (末尾)",
+      "purpose": "unseen_OOS_gate_evaluation",
+      "note": "G1-G4判定はこの期間のみ"
+    },
+    "regime_windows": {
+      "R1": {
+        "name": "altseason",
+        "start": "2020-07-01",
+        "end": "2021-05-31",
+        "classification": "in-sample"
+      },
+      "R2": {
+        "name": "btc_dominance_bear_2022",
+        "start": "2022-01-01",
+        "end": "2022-12-31",
+        "classification": "in-sample",
+        "note": "②の弱点期間・選定期間のため証拠は弱い"
+      },
+      "R3_2023": {
+        "start": "2023-01-01",
+        "end": "2023-12-31",
+        "classification": "OOS"
+      },
+      "R3_2024": {
+        "start": "2024-01-01",
+        "end": "2024-12-31",
+        "classification": "OOS"
+      },
+      "R3_2025": {
+        "start": "2025-01-01",
+        "end": "末尾",
+        "classification": "OOS"
+      }
+    }
+  },
+  "permutation_test": {
+    "N_PERM": 5000,
+    "seed": 20260704,
+    "permutation_unit": "spread_return_shuffle",
+    "method": "Fisher-Yates",
+    "test_direction": "upper-tailed (ge_count / N_PERM + 1)"
+  },
+  "composite_weighting": {
+    "method": "frozen_inverse_volatility",
+    "calculation_period": "2019-09-19〜2022-12-31",
+    "application_period": "2023-01-01〜末尾",
+    "freeze_reason": "HARKing防止・確認期間での最適化禁止",
+    "reference_weights": {
+      "sleeve": 0.573,
+      "btc_momentum": 0.427
+    },
+    "secondary_reference": "naive_5050"
+  },
+  "gates": {
+    "G1": {
+      "name": "prediction_unit_edge",
+      "period": "confirmation_2023-2026",
+      "threshold_hitRate": "> 50%",
+      "threshold_permP": "< 0.05",
+      "logic": "AND",
+      "status": "MANDATORY_HALT_IF_FAIL"
+    },
+    "G2": {
+      "name": "sleeve_solo_profitability",
+      "period": "confirmation_2023-2026",
+      "threshold": "sharpe > 0",
+      "note": "existence check only, not adoption gate"
+    },
+    "G3": {
+      "name": "low_correlation",
+      "period": "confirmation_2023-2026",
+      "threshold": "|corr| < 0.3",
+      "logic": "diversification_prerequisite"
+    },
+    "G4": {
+      "name": "composite_improvement",
+      "period": "confirmation_2023-2026",
+      "option_a": "sharpe_improvement >= +0.15 AND max_dd_deterioration <= 2pt",
+      "option_b": "max_dd_reduction >= 5pt AND sharpe_deterioration <= -0.05",
+      "logic": "OR",
+      "note": "either (a) or (b) required"
+    }
+  },
+  "adoption_criteria": "G1 AND G2 AND G3 AND G4 全て確認期間で満たす必要",
+  "halt_if_g1_fail": true,
+  "interpretation_forbidden": true,
+  "reoptimization_forbidden": true,
+  "alternative_designs_prohibited_in_scope": "平均回帰版・Lグリッド探索・βニュートラル版 → 別OBSで新規起票のみ許可",
+  "scripts": {
+    "prediction_unit": "scripts/relative-momentum-robustness.ts",
+    "sleeve_composite": "scripts/relative-neutral-sleeve.ts"
+  }
+}
