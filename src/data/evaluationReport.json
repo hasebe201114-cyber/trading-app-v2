@@ -1,14 +1,17 @@
 {
-  "generatedAt": "2026-07-02T13:38:32.924Z",
+  "generatedAt": "2026-07-04T00:03:24.970Z",
   "config": {
     "horizon": 10,
     "k": 30,
+    "momentumLookback": 30,
+    "momentumConfidenceScale": 30,
     "initialEquity": 1000000
   },
-  "dataSource": "scripts/data/btc-daily-2010-2020.csv（GitHub経由の暫定データ、取引所API未接続。scripts/data/README.md参照）",
+  "dataSource": "Binance spot直接API取得（scripts/data/btc-daily-binance-2017-2026.csv、日次・欠落なし。scripts/data/README.md参照）",
   "caveats": [
+    "②はモメンタム（直近30日リターンの符号、確信度は変動幅をボラティリティ正規化したz値ベースで動的算出）。従来のk-NN方式はBTC固有の過学習だったためETHクロス検証(OBS000019)を経て撤退した（OBS000023/024）",
     "③LLM特徴量層はmockClient使用（実ニュースデータなし）。②④⑤⑥の配線確認であり③の実効果は含まない",
-    "単一銘柄(BTC)・単一データソースでの検証。複数銘柄・複数データソースでの再現性は未確認",
+    "ETH側でも同一設計で概ね同等以上の傾向を確認済み（OBS000019/020/023）。ただしSharpeはまだPJ000001目標(0.8)未達で、改善作業を継続中",
     "このレポートはNode側で事前計算したスナップショット。ブラウザでのリアルタイム再計算ではない"
   ],
   "targets": {
@@ -18,51 +21,51 @@
   },
   "folds": [
     {
-      "label": "フォールド1 [50-60%]",
-      "tradeCount": 35,
-      "winRate": 0.5142857142857142,
-      "totalReturn": 0.0740748512389555,
-      "maxDrawdown": 0.04067102329085643,
-      "sharpeRatio": 0.8034229453180689
-    },
-    {
-      "label": "フォールド2 [60-70%]",
+      "label": "2021年 [2021-01-01〜2022-01-01]",
       "tradeCount": 37,
-      "winRate": 0.5945945945945946,
-      "totalReturn": 0.22089514535103016,
-      "maxDrawdown": 0.044296500905991444,
-      "sharpeRatio": 2.2782838889441854
+      "winRate": 0.5675675675675675,
+      "totalReturn": 0.09274474691994092,
+      "maxDrawdown": 0.09296434914465998,
+      "sharpeRatio": 0.7397446848064155
     },
     {
-      "label": "フォールド3 [70-80%]",
+      "label": "2022年 [2022-01-01〜2023-01-01]",
       "tradeCount": 37,
       "winRate": 0.5405405405405406,
-      "totalReturn": 0.2014811006962601,
-      "maxDrawdown": 0.04975897310972101,
-      "sharpeRatio": 1.4606659784375975
+      "totalReturn": -0.018137807072019552,
+      "maxDrawdown": 0.07403107089603872,
+      "sharpeRatio": -0.13677454608000636
     },
     {
-      "label": "フォールド4 [80-90%]",
-      "tradeCount": 35,
-      "winRate": 0.6,
-      "totalReturn": 0.09988288349629659,
-      "maxDrawdown": 0.06646730838863679,
-      "sharpeRatio": 1.0029223430902272
+      "label": "2023年 [2023-01-01〜2024-01-01]",
+      "tradeCount": 37,
+      "winRate": 0.4864864864864865,
+      "totalReturn": 0.1501546879371847,
+      "maxDrawdown": 0.033058767688070555,
+      "sharpeRatio": 1.6225849656652922
     },
     {
-      "label": "フォールド5 [90-100%]",
-      "tradeCount": 36,
-      "winRate": 0.4166666666666667,
-      "totalReturn": 0.03036695640145033,
-      "maxDrawdown": 0.10985756775602896,
-      "sharpeRatio": 0.3575849973054408
+      "label": "2024年 [2024-01-01〜2025-01-01]",
+      "tradeCount": 37,
+      "winRate": 0.5405405405405406,
+      "totalReturn": 0.03352946640289365,
+      "maxDrawdown": 0.09461213922882475,
+      "sharpeRatio": 0.37250530909788226
+    },
+    {
+      "label": "2025年 [2025-01-01〜2026-07-03]",
+      "tradeCount": 54,
+      "winRate": 0.48148148148148145,
+      "totalReturn": -0.02119852897056879,
+      "maxDrawdown": 0.07181348182958962,
+      "sharpeRatio": -0.1932413502822253
     }
   ],
   "summary": {
-    "avgSharpeRatio": 1.180576030619104,
-    "minSharpeRatio": 0.3575849973054408,
-    "maxDrawdownAcrossFolds": 0.10985756775602896,
-    "foldsAboveSharpeTarget": 4,
+    "avgSharpeRatio": 0.48096381264147164,
+    "minSharpeRatio": -0.1932413502822253,
+    "maxDrawdownAcrossFolds": 0.09461213922882475,
+    "foldsAboveSharpeTarget": 1,
     "foldsWithinDrawdownTarget": 5,
     "totalFolds": 5
   }
