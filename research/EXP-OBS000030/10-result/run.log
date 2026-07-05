@@ -1,0 +1,330 @@
+=== EXP-OBS000030 Stage 0: Data Feasibility Spike ===
+Execution time: 2026-07-04T15:41:06.703Z
+Node version: v22.22.2
+Git commit: (run "git rev-parse HEAD" to get this)
+
+Execution log:
+[2026-07-04T15:41:06.709Z] 
+=== EXP-OBS000030 Stage 0: Data Feasibility Spike ===
+[2026-07-04T15:41:06.709Z] Script started: 2026-07-04T15:41:06.703Z
+[2026-07-04T15:41:06.709Z] Node version: v22.22.2
+[2026-07-04T15:41:06.709Z] === Tickers スナップショット取得開始 ===
+[2026-07-04T15:41:06.709Z] Request URL: https://api.bitget.com/api/v2/mix/market/tickers?productType=USDT-FUTURES
+[2026-07-04T15:41:06.709Z] Timestamp: 2026-07-04T15:41:06.709Z
+[2026-07-04T15:41:06.946Z] Total tickers received: 684
+[2026-07-04T15:41:06.949Z] Top 50 tickers extracted. Top 1: BTCUSDT (1584857858.67644)
+[2026-07-04T15:41:07.458Z] === Contracts エンドポイント取得開始（死銘柄status確認用） ===
+[2026-07-04T15:41:07.458Z] Request URL: https://api.bitget.com/api/v2/mix/market/contracts?productType=USDT-FUTURES
+[2026-07-04T15:41:07.531Z] Total contracts in list: 684
+[2026-07-04T15:41:07.531Z] Contract schema (fields): symbol, baseCoin, quoteCoin, buyLimitPriceRatio, sellLimitPriceRatio, feeRateUpRatio, makerFeeRate, takerFeeRate, openCostUpRatio, supportMarginCoins, minTradeNum, priceEndStep, volumePlace, pricePlace, sizeMultiplier, symbolType, minTradeUSDT, maxSymbolOrderNum, maxProductOrderNum, maxPositionNum, symbolStatus, offTime, limitOpenTime, deliveryTime, deliveryStartTime, deliveryPeriod, launchTime, fundInterval, minLever, maxLever, posLimit, maintainTime, openTime, maxMarketOrderQty, maxOrderQty, isRwa
+[2026-07-04T15:41:07.532Z] Status-related fields found: symbolStatus
+[2026-07-04T15:41:08.057Z] 
+=== History-candles と History-fund-rate の取得開始 ===
+[2026-07-04T15:41:08.057Z] 
+[1/50] BTCUSDT の履歴取得開始
+[2026-07-04T15:41:08.105Z]   BTCUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:08.105Z]   BTCUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:08.172Z]   BTCUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:08.172Z]   BTCUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:08.500Z] 
+[2/50] ETHUSDT の履歴取得開始
+[2026-07-04T15:41:08.575Z]   ETHUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:08.576Z]   ETHUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:08.617Z]   ETHUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:08.617Z]   ETHUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:08.925Z] 
+[3/50] SOLUSDT の履歴取得開始
+[2026-07-04T15:41:08.964Z]   SOLUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:08.964Z]   SOLUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:09.004Z]   SOLUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:09.004Z]   SOLUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:09.320Z] 
+[4/50] XRPUSDT の履歴取得開始
+[2026-07-04T15:41:09.359Z]   XRPUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:09.359Z]   XRPUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:09.405Z]   XRPUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:09.405Z]   XRPUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:09.711Z] 
+[5/50] LABUSDT の履歴取得開始
+[2026-07-04T15:41:09.748Z]   LABUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:09.748Z]   LABUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:09.789Z]   LABUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:09.789Z]   LABUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:10.101Z] 
+[6/50] HYPEUSDT の履歴取得開始
+[2026-07-04T15:41:10.143Z]   HYPEUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:10.143Z]   HYPEUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:10.178Z]   HYPEUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:10.178Z]   HYPEUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:10.494Z] 
+[7/50] ZECUSDT の履歴取得開始
+[2026-07-04T15:41:10.537Z]   ZECUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:10.537Z]   ZECUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:10.577Z]   ZECUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:10.577Z]   ZECUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:10.888Z] 
+[8/50] TLMUSDT の履歴取得開始
+[2026-07-04T15:41:10.923Z]   TLMUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:10.923Z]   TLMUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:10.953Z]   TLMUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:10.953Z]   TLMUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:11.267Z] 
+[9/50] ADAUSDT の履歴取得開始
+[2026-07-04T15:41:11.304Z]   ADAUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:11.304Z]   ADAUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:11.346Z]   ADAUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:11.346Z]   ADAUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:11.661Z] 
+[10/50] MAGMAUSDT の履歴取得開始
+[2026-07-04T15:41:11.698Z]   MAGMAUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:11.698Z]   MAGMAUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:11.744Z]   MAGMAUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:11.744Z]   MAGMAUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:12.053Z] 
+[11/50] PEPEUSDT の履歴取得開始
+[2026-07-04T15:41:12.094Z]   PEPEUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:12.094Z]   PEPEUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:12.134Z]   PEPEUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:12.134Z]   PEPEUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:12.446Z] 
+[12/50] VELVETUSDT の履歴取得開始
+[2026-07-04T15:41:12.488Z]   VELVETUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:12.488Z]   VELVETUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:12.523Z]   VELVETUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:12.523Z]   VELVETUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:12.826Z] 
+[13/50] WLDUSDT の履歴取得開始
+[2026-07-04T15:41:12.922Z]   WLDUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:12.922Z]   WLDUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:12.962Z]   WLDUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:12.962Z]   WLDUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:13.265Z] 
+[14/50] SUIUSDT の履歴取得開始
+[2026-07-04T15:41:13.341Z]   SUIUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:13.341Z]   SUIUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:13.399Z]   SUIUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:13.399Z]   SUIUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:13.702Z] 
+[15/50] NEARUSDT の履歴取得開始
+[2026-07-04T15:41:13.746Z]   NEARUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:13.747Z]   NEARUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:13.782Z]   NEARUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:13.782Z]   NEARUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:14.094Z] 
+[16/50] DOGEUSDT の履歴取得開始
+[2026-07-04T15:41:14.143Z]   DOGEUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:14.143Z]   DOGEUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:14.177Z]   DOGEUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:14.177Z]   DOGEUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:14.483Z] 
+[17/50] XLMUSDT の履歴取得開始
+[2026-07-04T15:41:14.519Z]   XLMUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:14.519Z]   XLMUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:14.553Z]   XLMUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:14.553Z]   XLMUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:14.863Z] 
+[18/50] SOXLUSDT の履歴取得開始
+[2026-07-04T15:41:14.907Z]   SOXLUSDT: candles 86件（最古 2026-07-02）
+[2026-07-04T15:41:14.907Z]   SOXLUSDT: reached pagination limit (86 < 200)
+[2026-07-04T15:41:14.947Z]   SOXLUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:14.947Z]   SOXLUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:15.255Z] 
+[19/50] ARPAUSDT の履歴取得開始
+[2026-07-04T15:41:15.299Z]   ARPAUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:15.299Z]   ARPAUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:15.339Z]   ARPAUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:15.339Z]   ARPAUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:15.647Z] 
+[20/50] SKHYNIXUSDT の履歴取得開始
+[2026-07-04T15:41:15.761Z]   SKHYNIXUSDT: candles 32件（最古 2026-07-02）
+[2026-07-04T15:41:15.761Z]   SKHYNIXUSDT: reached pagination limit (32 < 200)
+[2026-07-04T15:41:15.803Z]   SKHYNIXUSDT: funding rates 97件（page 1）
+[2026-07-04T15:41:15.803Z]   SKHYNIXUSDT: reached pagination end (97 < 500)
+[2026-07-04T15:41:16.105Z] 
+[21/50] XAUUSDT の履歴取得開始
+[2026-07-04T15:41:16.150Z]   XAUUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:16.150Z]   XAUUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:16.190Z]   XAUUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:16.190Z]   XAUUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:16.498Z] 
+[22/50] SPCXUSDT の履歴取得開始
+[2026-07-04T15:41:16.599Z]   SPCXUSDT: candles 25件（最古 2026-07-02）
+[2026-07-04T15:41:16.599Z]   SPCXUSDT: reached pagination limit (25 < 200)
+[2026-07-04T15:41:16.651Z]   SPCXUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:16.651Z]   SPCXUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:16.954Z] 
+[23/50] MSTRUSDT の履歴取得開始
+[2026-07-04T15:41:16.998Z]   MSTRUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:16.998Z]   MSTRUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:17.036Z]   MSTRUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:17.036Z]   MSTRUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:17.347Z] 
+[24/50] SLXUSDT の履歴取得開始
+[2026-07-04T15:41:17.426Z]   SLXUSDT: candles 33件（最古 2026-07-02）
+[2026-07-04T15:41:17.426Z]   SLXUSDT: reached pagination limit (33 < 200)
+[2026-07-04T15:41:17.489Z]   SLXUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:17.489Z]   SLXUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:17.803Z] 
+[25/50] BNBUSDT の履歴取得開始
+[2026-07-04T15:41:17.847Z]   BNBUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:17.847Z]   BNBUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:17.888Z]   BNBUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:17.888Z]   BNBUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:18.195Z] 
+[26/50] XPLUSDT の履歴取得開始
+[2026-07-04T15:41:18.240Z]   XPLUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:18.240Z]   XPLUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:18.289Z]   XPLUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:18.289Z]   XPLUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:18.604Z] 
+[27/50] REUSDT の履歴取得開始
+[2026-07-04T15:41:18.640Z]   REUSDT: candles 16件（最古 2026-07-02）
+[2026-07-04T15:41:18.640Z]   REUSDT: reached pagination limit (16 < 200)
+[2026-07-04T15:41:18.677Z]   REUSDT: funding rates 97件（page 1）
+[2026-07-04T15:41:18.677Z]   REUSDT: reached pagination end (97 < 500)
+[2026-07-04T15:41:18.984Z] 
+[28/50] AAVEUSDT の履歴取得開始
+[2026-07-04T15:41:19.079Z]   AAVEUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:19.079Z]   AAVEUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:19.121Z]   AAVEUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:19.121Z]   AAVEUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:19.437Z] 
+[29/50] TAOUSDT の履歴取得開始
+[2026-07-04T15:41:19.480Z]   TAOUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:19.480Z]   TAOUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:19.519Z]   TAOUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:19.519Z]   TAOUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:19.829Z] 
+[30/50] 1000BONKUSDT の履歴取得開始
+[2026-07-04T15:41:19.873Z]   1000BONKUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:19.873Z]   1000BONKUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:19.913Z]   1000BONKUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:19.913Z]   1000BONKUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:20.219Z] 
+[31/50] LINKUSDT の履歴取得開始
+[2026-07-04T15:41:20.256Z]   LINKUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:20.256Z]   LINKUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:20.296Z]   LINKUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:20.296Z]   LINKUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:20.621Z] 
+[32/50] BEATUSDT の履歴取得開始
+[2026-07-04T15:41:20.673Z]   BEATUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:20.673Z]   BEATUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:20.714Z]   BEATUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:20.714Z]   BEATUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:21.028Z] 
+[33/50] MUUSDT の履歴取得開始
+[2026-07-04T15:41:21.066Z]   MUUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:21.066Z]   MUUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:21.099Z]   MUUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:21.099Z]   MUUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:21.404Z] 
+[34/50] THEUSDT の履歴取得開始
+[2026-07-04T15:41:21.478Z]   THEUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:21.478Z]   THEUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:21.514Z]   THEUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:21.514Z]   THEUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:21.828Z] 
+[35/50] 10000NEXUSDT の履歴取得開始
+[2026-07-04T15:41:21.915Z]   10000NEXUSDT: candles 44件（最古 2026-07-02）
+[2026-07-04T15:41:21.915Z]   10000NEXUSDT: reached pagination limit (44 < 200)
+[2026-07-04T15:41:21.982Z]   10000NEXUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:21.982Z]   10000NEXUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:22.294Z] 
+[36/50] CLUSDT の履歴取得開始
+[2026-07-04T15:41:22.330Z]   CLUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:22.330Z]   CLUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:22.402Z]   CLUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:22.402Z]   CLUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:22.719Z] 
+[37/50] FILUSDT の履歴取得開始
+[2026-07-04T15:41:22.800Z]   FILUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:22.800Z]   FILUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:22.845Z]   FILUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:22.845Z]   FILUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:23.157Z] 
+[38/50] AVAXUSDT の履歴取得開始
+[2026-07-04T15:41:23.205Z]   AVAXUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:23.205Z]   AVAXUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:23.285Z]   AVAXUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:23.286Z]   AVAXUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:23.596Z] 
+[39/50] BCHUSDT の履歴取得開始
+[2026-07-04T15:41:23.655Z]   BCHUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:23.656Z]   BCHUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:23.692Z]   BCHUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:23.692Z]   BCHUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:24.003Z] 
+[40/50] SYNUSDT の履歴取得開始
+[2026-07-04T15:41:24.052Z]   SYNUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:24.052Z]   SYNUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:24.086Z]   SYNUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:24.086Z]   SYNUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:24.397Z] 
+[41/50] ENAUSDT の履歴取得開始
+[2026-07-04T15:41:24.433Z]   ENAUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:24.433Z]   ENAUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:24.508Z]   ENAUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:24.508Z]   ENAUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:24.856Z] 
+[42/50] MIRAUSDT の履歴取得開始
+[2026-07-04T15:41:24.917Z]   MIRAUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:24.917Z]   MIRAUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:24.950Z]   MIRAUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:24.950Z]   MIRAUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:25.265Z] 
+[43/50] EPICUSDT の履歴取得開始
+[2026-07-04T15:41:25.308Z]   EPICUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:25.308Z]   EPICUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:25.371Z]   EPICUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:25.371Z]   EPICUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:25.688Z] 
+[44/50] ZKPUSDT の履歴取得開始
+[2026-07-04T15:41:25.726Z]   ZKPUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:25.726Z]   ZKPUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:25.781Z]   ZKPUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:25.781Z]   ZKPUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:26.093Z] 
+[45/50] LTCUSDT の履歴取得開始
+[2026-07-04T15:41:26.134Z]   LTCUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:26.134Z]   LTCUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:26.185Z]   LTCUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:26.186Z]   LTCUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:26.498Z] 
+[46/50] BASUSDT の履歴取得開始
+[2026-07-04T15:41:26.535Z]   BASUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:26.535Z]   BASUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:26.571Z]   BASUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:26.571Z]   BASUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:26.877Z] 
+[47/50] GWEIUSDT の履歴取得開始
+[2026-07-04T15:41:26.928Z]   GWEIUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:26.928Z]   GWEIUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:26.999Z]   GWEIUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:26.999Z]   GWEIUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:27.315Z] 
+[48/50] MUSDT の履歴取得開始
+[2026-07-04T15:41:27.350Z]   MUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:27.350Z]   MUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:27.416Z]   MUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:27.416Z]   MUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:27.724Z] 
+[49/50] MINIMAXUSDT の履歴取得開始
+[2026-07-04T15:41:27.758Z]   MINIMAXUSDT: candles 10件（最古 2026-07-02）
+[2026-07-04T15:41:27.758Z]   MINIMAXUSDT: reached pagination limit (10 < 200)
+[2026-07-04T15:41:27.790Z]   MINIMAXUSDT: funding rates 31件（page 1）
+[2026-07-04T15:41:27.790Z]   MINIMAXUSDT: reached pagination end (31 < 500)
+[2026-07-04T15:41:28.099Z] 
+[50/50] OGNUSDT の履歴取得開始
+[2026-07-04T15:41:28.140Z]   OGNUSDT: candles 90件（最古 2026-07-02）
+[2026-07-04T15:41:28.140Z]   OGNUSDT: reached pagination limit (90 < 200)
+[2026-07-04T15:41:28.172Z]   OGNUSDT: funding rates 100件（page 1）
+[2026-07-04T15:41:28.172Z]   OGNUSDT: reached pagination end (100 < 500)
+[2026-07-04T15:41:28.173Z] 
+=== G0-1 履歴深度集計 ===
+[2026-07-04T15:41:28.174Z] N=20: 3年ライン(2022-07-05以前)カバー=0本, 2022通年=0本
+[2026-07-04T15:41:28.174Z] N=30: 3年ライン(2022-07-05以前)カバー=0本, 2022通年=0本
+[2026-07-04T15:41:28.174Z] N=50: 3年ライン(2022-07-05以前)カバー=0本, 2022通年=0本
+
+COMMANDS TO REPRODUCE:
+node --experimental-strip-types scripts/fetch-bitget-data.ts

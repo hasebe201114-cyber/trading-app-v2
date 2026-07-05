@@ -1,0 +1,356 @@
+{
+  "timestamp": "2026-07-04T16:01:43.285Z",
+  "note": "修正版スクリプト実行結果（pageSize=100で逐次実行）",
+  "analysis": [
+    {
+      "symbol": "10000NEXUSDT",
+      "fundingCount": 271,
+      "oldestDatetime": "2026-05-20T12:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 45
+    },
+    {
+      "symbol": "1000BONKUSDT",
+      "fundingCount": 540,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "AAVEUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "ADAUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "ARPAUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "AVAXUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-06T00:00:00.000Z",
+      "newestDatetime": "2026-07-04T16:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "BASUSDT",
+      "fundingCount": 100,
+      "oldestDatetime": "2026-06-18T00:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 17
+    },
+    {
+      "symbol": "BCHUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-06T00:00:00.000Z",
+      "newestDatetime": "2026-07-04T16:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "BEATUSDT",
+      "fundingCount": 540,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "BNBUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "BTCUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "CLUSDT",
+      "fundingCount": 540,
+      "oldestDatetime": "2026-04-05T20:00:00.000Z",
+      "newestDatetime": "2026-07-04T16:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "ENAUSDT",
+      "fundingCount": 540,
+      "oldestDatetime": "2026-04-05T20:00:00.000Z",
+      "newestDatetime": "2026-07-04T16:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "EPICUSDT",
+      "fundingCount": 100,
+      "oldestDatetime": "2026-06-18T00:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 17
+    },
+    {
+      "symbol": "ETHUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "FILUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-06T00:00:00.000Z",
+      "newestDatetime": "2026-07-04T16:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "GWEIUSDT",
+      "fundingCount": 100,
+      "oldestDatetime": "2026-06-18T00:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 17
+    },
+    {
+      "symbol": "HYPEUSDT",
+      "fundingCount": 540,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "LABUSDT",
+      "fundingCount": 836,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T15:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "LINKUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "LTCUSDT",
+      "fundingCount": 100,
+      "oldestDatetime": "2026-06-01T08:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 33
+    },
+    {
+      "symbol": "MAGMAUSDT",
+      "fundingCount": 540,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "MINIMAXUSDT",
+      "fundingCount": 31,
+      "oldestDatetime": "2026-06-24T08:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 10
+    },
+    {
+      "symbol": "MIRAUSDT",
+      "fundingCount": 100,
+      "oldestDatetime": "2026-06-18T00:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 17
+    },
+    {
+      "symbol": "MSTRUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "MUSDT",
+      "fundingCount": 100,
+      "oldestDatetime": "2026-06-18T00:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 17
+    },
+    {
+      "symbol": "MUUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "NEARUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "OGNUSDT",
+      "fundingCount": 100,
+      "oldestDatetime": "2026-06-18T00:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 17
+    },
+    {
+      "symbol": "PEPEUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "REUSDT",
+      "fundingCount": 97,
+      "oldestDatetime": "2026-06-18T12:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 16
+    },
+    {
+      "symbol": "SKHYNIXUSDT",
+      "fundingCount": 97,
+      "oldestDatetime": "2026-06-02T08:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 32
+    },
+    {
+      "symbol": "SLXUSDT",
+      "fundingCount": 313,
+      "oldestDatetime": "2026-05-25T12:00:00.000Z",
+      "newestDatetime": "2026-07-04T15:00:00.000Z",
+      "depthDays": 40
+    },
+    {
+      "symbol": "SOLUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "SOXLUSDT",
+      "fundingCount": 261,
+      "oldestDatetime": "2026-04-08T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 87
+    },
+    {
+      "symbol": "SPCXUSDT",
+      "fundingCount": 133,
+      "oldestDatetime": "2026-05-21T08:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 44
+    },
+    {
+      "symbol": "SUIUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "SYNUSDT",
+      "fundingCount": 540,
+      "oldestDatetime": "2026-04-05T20:00:00.000Z",
+      "newestDatetime": "2026-07-04T16:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "TAOUSDT",
+      "fundingCount": 540,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "THEUSDT",
+      "fundingCount": 540,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "TLMUSDT",
+      "fundingCount": 540,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "VELVETUSDT",
+      "fundingCount": 540,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "WLDUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "XAUUSDT",
+      "fundingCount": 540,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "XLMUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "XPLUSDT",
+      "fundingCount": 540,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "XRPUSDT",
+      "fundingCount": 270,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "ZECUSDT",
+      "fundingCount": 523,
+      "oldestDatetime": "2026-04-05T16:00:00.000Z",
+      "newestDatetime": "2026-07-04T08:00:00.000Z",
+      "depthDays": 90
+    },
+    {
+      "symbol": "ZKPUSDT",
+      "fundingCount": 100,
+      "oldestDatetime": "2026-06-18T00:00:00.000Z",
+      "newestDatetime": "2026-07-04T12:00:00.000Z",
+      "depthDays": 17
+    }
+  ]
+}

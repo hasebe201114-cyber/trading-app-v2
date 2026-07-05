@@ -1,0 +1,25 @@
+{
+  "scriptStartTime": "2026-07-04T15:41:06.703Z",
+  "apiMetrics": {
+    "tickersRequest": {
+      "url": "https://api.bitget.com/api/v2/mix/market/tickers?productType=USDT-FUTURES",
+      "timestamp": "2026-07-04T15:41:06.709Z",
+      "responseType": "object"
+    },
+    "contractsRequest": {
+      "url": "https://api.bitget.com/api/v2/mix/market/contracts?productType=USDT-FUTURES",
+      "responseType": "object"
+    },
+    "historyCandles": {
+      "requestCount": 50,
+      "successCount": 50,
+      "failureCount": 0
+    },
+    "historyFundRate": {
+      "requestCount": 50,
+      "successCount": 50,
+      "failureCount": 0
+    }
+  },
+  "contractsCount": 684
+}

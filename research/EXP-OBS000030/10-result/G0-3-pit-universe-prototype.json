@@ -1,0 +1,45 @@
+{
+  "timestamp": "2026-07-04T15:43:00.563Z",
+  "period": {
+    "start": "2025-07-05",
+    "end": "2026-07-05"
+  },
+  "rebalanceDateCount": 13,
+  "tiersEvaluated": [
+    20,
+    30,
+    50
+  ],
+  "sampleUniverses": [
+    {
+      "rebalanceDate": "2025-07-05",
+      "topNSymbols": []
+    },
+    {
+      "rebalanceDate": "2025-08-05",
+      "topNSymbols": []
+    },
+    {
+      "rebalanceDate": "2025-09-05",
+      "topNSymbols": []
+    },
+    {
+      "rebalanceDate": "2025-10-05",
+      "topNSymbols": []
+    },
+    {
+      "rebalanceDate": "2025-11-05",
+      "topNSymbols": []
+    },
+    {
+      "rebalanceDate": "2025-12-05",
+      "topNSymbols": []
+    }
+  ],
+  "reproducibilityTest": "PASS (deterministic)",
+  "notes": {
+    "futureDataExclusion": "Data used for t is only candles with date < t (as-of principle)",
+    "deadSymbolLogic": "Skeleton implemented; blocked by Bitget API returning only current contracts",
+    "coverageByDate": "Candle coverage ranges from 2026-04-03 to 2026-07-01 (3 months)"
+  }
+}

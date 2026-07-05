@@ -1,0 +1,20 @@
+=== EXP-OBS000031 Stage 1-A: Prediction Unit ===
+Timestamp: 2026-07-05T02:37:14.292Z
+Node: v22.22.2
+
+SPECIFICATION:
+K=3, W=168, Z_enter=2, N=3
+Notional: $50000
+Selection: 2019-08-10 ~ 2021-12-31
+Confirmation: 2022-01-01 ~ data end
+Permutation: N=5000, seed=20260705
+
+REPRODUCTION:
+node --experimental-strip-types scripts/intraday-meanrev-robustness.ts
+
+INPUT FILES:
+BTCUSDT_1h.json (60935 candles)
+ETHUSDT_1h.json (60199 candles)
+
+OUTPUT:
+stage1-prediction-unit.json (results)

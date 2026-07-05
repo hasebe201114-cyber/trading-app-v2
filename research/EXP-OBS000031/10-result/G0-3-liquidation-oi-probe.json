@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-07-04T21:05:22.813Z",
+  "baseline_date": "2026-07-05",
+  "probe_results": [
+    {
+      "timestamp": "2026-07-04T21:05:22.822Z",
+      "symbol": "BTCUSDT",
+      "liquidationHistory": {
+        "endpoint": "https://api.bitget.com/api/v2/mix/market/liquidation-orders",
+        "probed": true,
+        "httpStatus": 404,
+        "exists": false
+      },
+      "oiHistory": {
+        "endpoint": "https://api.bitget.com/api/v2/mix/market/open-interest",
+        "probed": true,
+        "httpStatus": 200,
+        "exists": true
+      },
+      "currentOISnapshot": {
+        "endpoint": "https://api.bitget.com/api/v2/mix/market/open-interest (snapshot)",
+        "probed": true,
+        "httpStatus": 200,
+        "exists": false
+      }
+    },
+    {
+      "timestamp": "2026-07-04T21:05:24.388Z",
+      "symbol": "ETHUSDT",
+      "liquidationHistory": {
+        "endpoint": "https://api.bitget.com/api/v2/mix/market/liquidation-orders",
+        "probed": true,
+        "httpStatus": 404,
+        "exists": false
+      },
+      "oiHistory": {
+        "endpoint": "https://api.bitget.com/api/v2/mix/market/open-interest",
+        "probed": true,
+        "httpStatus": 200,
+        "exists": true
+      },
+      "currentOISnapshot": {
+        "endpoint": "https://api.bitget.com/api/v2/mix/market/open-interest (snapshot)",
+        "probed": true,
+        "httpStatus": 200,
+        "exists": false
+      }
+    }
+  ],
+  "info_gate_assessment": {
+    "liquidation_or_oi_exists": true,
+    "covers_2022": false,
+    "route_beta_available": false
+  }
+}

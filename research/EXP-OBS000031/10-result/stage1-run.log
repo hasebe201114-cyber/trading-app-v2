@@ -1,0 +1,153 @@
+=== EXP-OBS000031 Stage 1: 短期平均回帰の有意性検証 ===
+
+Execution Date: 2026-07-05
+Node: v22.22.2
+
+---
+SPECIFICATION SUMMARY
+---
+
+Edge: Microstructure mean-reversion (1h z-score fade)
+Granularity: 1h (1H = 1-hour candles)
+Parameters (all hardcoded, no grid search):
+  K (lookback): 3 bars
+  W (volatility window): 168 bars (7 days, t-1 only)
+  Z_enter (entry threshold): 2.0 (|z| > 2.0)
+  Position: fade (SHORT if z>+2.0, LONG if z<-2.0)
+  N (holding period): 3 bars (time-exit only)
+  Non-overlapping: yes (entry+N period locked, no new entries)
+
+Cost Model:
+  Notional: $50,000 (equal gross margin)
+  S-taker (main gate): BTC 12.03bps / ETH 12.69bps per round-trip
+  S-maker (reference): BTC 8.02bps / ETH 8.34bps per round-trip (50% fill assumption)
+  $100k sensitivity: BTC 12.13bps / ETH 13.06bps (reference)
+  Funding: excluded (3-hour holding < 8-hour settlement interval)
+
+Periods:
+  Selection (in-sample): 2019-08-10 ~ 2021-12-31 (strong/range, parameterization base)
+  Confirmation (OOS): 2022-01-01 ~ 2026-07-05 (includes 2022 bearish regime)
+    - R-bear: 2022 (mean-reversion adversity test)
+    - R-recovery: 2023
+    - R-recent: 2024-end
+
+Cross-Asset: BTC & ETH both pass independently (parameter frozen -> both confirmation tracks)
+
+---
+EXECUTION LOG
+---
+
+Step 1: Data Materialization
+  Script: scripts/fetch-bitget-intraday-1h-materialize.ts
+  Duration: ~3.5 minutes (API paging)
+  Output:
+    - BTCUSDT_1h.json: 60,935 candles (2019-07-10 ~ 2026-07-05)
+    - ETHUSDT_1h.json: 60,199 candles (2019-08-10 ~ 2026-07-05)
+
+Step 2: Stage 1-A (Prediction Unit)
+  Script: scripts/intraday-meanrev-robustness.ts
+  Duration: ~45 seconds
+  Trades identified:
+    - BTCUSDT: 1,885 total (617 selection, 1,254 confirmation)
+    - ETHUSDT: 1,948 total (676 selection, 1,272 confirmation)
+  Permutation: N=5000, seed=20260705, shuffle trade returns (not Sharpe-invariant)
+  Output: stage1-prediction-unit.json
+    Key results (confirmation period):
+    - BTCUSDT: n=1254, hitRate=50.6%, avgBps=-5.8, Sharpe=-4.17, permP=0.9716
+    - ETHUSDT: n=1272, hitRate=54.4%, avgBps=-3.3, Sharpe=-1.79, permP=0.9820
+
+Step 3: Stage 1-B/C (Sleeve + Composition)
+  Script: scripts/intraday-meanrev-sleeve-composite.ts
+  Duration: ~20 seconds
+  Sleeve construction:
+    - Net cost: S-taker applied per trade (entry + exit)
+    - Daily aggregation: UTC midnight
+  Momentum (②): Daily returns from Binance CSV
+  Weight freezing: inverse volatility (selection period) -> applied to confirmation
+  Output: stage1-sleeve-composite.json
+    Key results (confirmation period):
+    - BTCUSDT sleeve: netSharpe=-3.16, DD=2.36%, mom Sharpe=0.388, corr=-0.058
+    - ETHUSDT sleeve: netSharpe=-2.10, DD=2.16%, mom Sharpe=0.111, corr=+0.041
+    - Composite: BTC=-2.30 (weights: 71% sleeve / 29% mom), ETH=-1.58
+
+---
+KEY OBSERVATIONS (Raw Data - No Interpretation)
+---
+
+Prediction Unit (Stage 1-A):
+  BTC confirmation: hitRate 50.6% (n=1254), gross avg -5.8bps, perm p=0.9716
+  ETH confirmation: hitRate 54.4% (n=1272), gross avg -3.3bps, perm p=0.9820
+
+  Regime breakdown (confirmation):
+    BTC R-bear: hitRate 44.5% (n=272), avgBps=-9.0
+    BTC R-recovery: hitRate 53.9% (n=243), avgBps=-8.7
+    BTC R-recent: hitRate 51.8% (n=739), avgBps=-3.7
+
+    ETH R-bear: hitRate 50.0% (n=290), avgBps=+5.4
+    ETH R-recovery: hitRate 60.2% (n=266), avgBps=-1.5
+    ETH R-recent: hitRate 54.1% (n=716), avgBps=-7.6
+
+Sleeve + Composition (Stage 1-B/C):
+  BTC net Sharpe: -3.16 (confirmation), momentum +0.39
+    DD: sleeve 2.36%, momentum 0.95%, composite 1.52%
+    Correlation: -0.058 (low)
+
+  ETH net Sharpe: -2.10 (confirmation), momentum +0.11
+    DD: sleeve 2.16%, momentum 1.17%, composite 1.43%
+    Correlation: +0.041 (very low)
+
+  Inverse-vol weight (selection period, frozen to confirmation):
+    BTC: 71% sleeve / 29% momentum
+    ETH: 71% sleeve / 29% momentum
+
+---
+FILE OUTPUTS
+---
+
+Generated in: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000031\10-result\
+
+Input Data:
+  - BTCUSDT_1h.json (60,935 candles)
+  - ETHUSDT_1h.json (60,199 candles)
+  - btc-daily-binance-2017-2026.csv
+  - eth-daily-binance-2017-2026.csv
+
+Results (Raw Data):
+  - stage1-prediction-unit.json (n, hitRate, avgBps, Sharpe, permP by period/asset)
+  - stage1-sleeve-composite.json (sleeve/momentum/composite Sharpe, DD, weights, correlation)
+  - stage1-params.json (specification snapshot)
+  - stage1-run.log (this file)
+
+---
+REPRODUCIBILITY
+---
+
+To regenerate Stage 1 results:
+
+1. Materialize 1h candle data:
+   node --experimental-strip-types scripts/fetch-bitget-intraday-1h-materialize.ts
+
+2. Run prediction unit:
+   node --experimental-strip-types scripts/intraday-meanrev-robustness.ts
+
+3. Run sleeve + composition:
+   node --experimental-strip-types scripts/intraday-meanrev-sleeve-composite.ts
+
+All scripts are deterministic (seeded permutation, no randomness in signal generation).
+
+---
+NEXT STEP (C Adversarial Reviewer)
+---
+
+C now independently validates:
+  1. Do BTC/ETH both satisfy G1A (hitRate>50% AND permP<0.05) in confirmation?
+  2. Do BTC/ETH both have net Sharpe > 0 after S-taker cost (G1B)?
+  3. Is |correlation| < 0.3 for low-correlation alpha (G3C)?
+  4. Does composite Sharpe improve OR DD reduce per G4C(a)/(b)?
+  5. Check R-bear regime individually (weakness indicator).
+  6. Verify permutation is return-shuffle (not Sharpe-invariant, OBS000030 fix).
+  7. If all gates pass, recommend to Strategy Architect; final go/nogo is by Commander.
+  8. If gates fail, state which gate failed and mark as killed/not-adopted.
+
+---
+END LOG

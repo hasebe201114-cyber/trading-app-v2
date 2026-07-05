@@ -1,0 +1,108 @@
+{
+  "experiment_id": "EXP-OBS000031",
+  "stage": "Stage 0",
+  "gate_g0_1": {
+    "test_type": "Short-term OHLCV Depth Analysis",
+    "symbols": ["BTCUSDT", "ETHUSDT"],
+    "granularities": [
+      {
+        "display_name": "4h",
+        "api_code": "4H",
+        "expected_candles_2022": 2190
+      },
+      {
+        "display_name": "1h",
+        "api_code": "1H",
+        "expected_candles_2022": 8760
+      },
+      {
+        "display_name": "15m",
+        "api_code": "15m",
+        "expected_candles_2022": 35040
+      }
+    ],
+    "baseline_date": "2026-07-05",
+    "year_2022_coverage_criteria": {
+      "oldest_date_requirement": "2022-01-01 or earlier (00:00 UTC)",
+      "gap_ratio_requirement": "< 5%"
+    },
+    "paging_parameters": {
+      "termination_condition": "empty response (candles.length === 0)",
+      "cursor_method": "min(timestamp) from ascending-order data",
+      "page_size": 200,
+      "rate_limit_delay_ms": 250
+    },
+    "endpoint": "https://api.bitget.com/api/v2/mix/market/history-candles"
+  },
+  "gate_g0_2": {
+    "test_type": "Execution Cost Measurement",
+    "symbols": ["BTCUSDT", "ETHUSDT"],
+    "measurement_components": [
+      "taker_fee",
+      "maker_fee",
+      "bid_ask_spread_bps",
+      "slippage_by_size"
+    ],
+    "order_sizes_usd": [10000, 50000, 100000],
+    "roundtrip_scenarios": [
+      {
+        "name": "S-taker",
+        "description": "All market execution (conservative anchor)"
+      },
+      {
+        "name": "S-maker",
+        "description": "Limit execution 50% + market fallback 50% (pessimistic assumption)"
+      }
+    ],
+    "endpoints": {
+      "fees": "https://api.bitget.com/api/v2/mix/market/contracts?productType=USDT-FUTURES",
+      "spread": "https://api.bitget.com/api/v2/mix/market/tickers?productType=USDT-FUTURES",
+      "orderbook": "https://api.bitget.com/api/v2/mix/market/merge-depth"
+    },
+    "fee_source": "API or VIP0 public tier fallback"
+  },
+  "gate_g0_3": {
+    "test_type": "Liquidation/OI History Availability Probe",
+    "symbols": ["BTCUSDT", "ETHUSDT"],
+    "information_gate": true,
+    "role": "Determines route-beta (liquidation-reversion) eligibility for Stage 1",
+    "depth_criteria": "oldest_timestamp <= 2022-01-01 (full 2022 coverage)",
+    "endpoints_probed": [
+      "https://api.bitget.com/api/v2/mix/market/liquidation-orders",
+      "https://api.bitget.com/api/v2/mix/market/open-interest"
+    ]
+  },
+  "script_metadata": {
+    "fetch_bitget_intraday": {
+      "file": "scripts/fetch-bitget-intraday.ts",
+      "language": "TypeScript",
+      "execution": "node --experimental-strip-types scripts/fetch-bitget-intraday.ts"
+    },
+    "measure_execution_cost": {
+      "file": "scripts/measure-bitget-execution-cost.ts",
+      "language": "TypeScript",
+      "execution": "node --experimental-strip-types scripts/measure-bitget-execution-cost.ts"
+    },
+    "probe_liquidation_oi": {
+      "file": "scripts/probe-bitget-liquidation-oi.ts",
+      "language": "TypeScript",
+      "execution": "node --experimental-strip-types scripts/probe-bitget-liquidation-oi.ts"
+    }
+  },
+  "bug_prevention_checklist_obs000030": {
+    "note": "OBS000030 Stage 0 had 3 paging bugs. This Stage 0 implements fixes:",
+    "item_1": {
+      "bug": "Termination on 'candles.length < limit' caused premature break",
+      "fix": "Use empty response (candles.length === 0) as sole termination"
+    },
+    "item_2": {
+      "bug": "Mistook candles[length-1] as oldest in ascending-order data",
+      "fix": "Use candles[0] and verify with actual response order"
+    },
+    "item_3": {
+      "bug": "Assumed limit parameter always returned exactly that many candles",
+      "fix": "Measure actual response length per granularity, use as actual page size"
+    }
+  },
+  "reference_spec": "research/EXP-OBS000031/00-spec-stage0.md"
+}

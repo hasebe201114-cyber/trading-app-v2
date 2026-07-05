@@ -1,0 +1,110 @@
+=== EXP-OBS000031 バグ修正・実装 ===
+
+実行日時: 2026-07-05
+修正官: B検証実装官（Quant Researcher）
+対象: EXP-OBS000031 Stage 0 G0-2（執行コスト測定）＆ G0-1（短時間足データ実現可能性）
+
+## 修正内容
+
+### 修正1: バグA（SELL側逆走査除去）
+ファイル: scripts/measure-bitget-execution-cost.ts, L327
+問題: `.reverse()` により orderbook.bids を逆順にしてから走査していた
+    → bids は既に降順（最良気配先頭）なので、逆順すると最悪気配から歩いていた
+修正: `.reverse()` を除去
+        const sellWalk = walkOrderbook('SELL', orderbook.bids, size, orderbookMidPrice);
+影響: SELL側スリッページが虚数（≈1.43bps・サイズ不変）から正値（≈0.008bps）に修正
+
+### 修正2: バグB（BUYゼロ張り付き）
+ファイル: scripts/measure-bitget-execution-cost.ts, L311-330付近
+問題: スリッページ計算の基準mid価格を、別タイミングの tickers API（measureSpread）から取得していた
+    → inter-call ドリフトで、orderbook時点の best ask が ticker 時点の mid より低くなり、
+    → Math.max(0, ...) クランプで常に 0 になっていた
+修正: スリッページ計算に使うのと同じ orderbook の best bid/ask から mid を再計算
+        const orderbookMidPrice = (orderbook.bids[0].price + orderbook.asks[0].price) / 2;
+        const buyWalk = walkOrderbook('BUY', orderbook.asks, size, orderbookMidPrice);
+影響: BUY側スリッページがゼロ張り付きから正値に修正、同一時点のデータで一貫性確保
+
+### 修正3: G0-1プレースホルダ実装（軽微）
+ファイル: scripts/fetch-bitget-intraday.ts, L162-163 → L159-177
+問題: candles2022, gapRatio2022 がハードコード値 0（プレースホルダ）のまま
+修正: ページング中に全candles のタイムスタンプを収集し、2022年内を計数
+        const allCandleTimestamps: number[] = [];
+        for (const candle of candles) {
+          allCandleTimestamps.push(parseInt(candle[0]));
+        }
+        const candles2022Count = allCandleTimestamps.filter(ts => ts >= year2022Start && ts <= year2022End).length;
+        const gapRatio2022Value = expected2022 > 0 ? (expected2022 - candles2022Count) / expected2022 : 0;
+効果: 2022年内の実本数・欠損率を実計算に変更
+
+## 実行結果（G0-2）
+
+修正後の measure-bitget-execution-cost.ts 実行結果:
+
+【手数料（bps）】
+| 銘柄 | テイカー | メイカー |
+|---|---|---|
+| BTCUSDT | 6.0 | 2.0 |
+| ETHUSDT | 6.0 | 2.0 |
+
+【実効スプレッド（bps）】
+| 銘柄 | スプレッド |
+|---|---|
+| BTCUSDT | 0.02 |
+| ETHUSDT | 0.06 |
+
+【板厚スリッページ（bps）】
+| 銘柄 | 方向 | $10k | $50k | $100k |
+|---|---|---|---|---|
+| BTCUSDT | BUY | 0.01 | 0.01 | 0.11 |
+| BTCUSDT | SELL | 0.01 | 0.01 | 0.01 |
+| ETHUSDT | BUY | 0.03 | 0.03 | 0.03 |
+| ETHUSDT | SELL | 0.03 | 0.60 | 0.98 |
+
+【往復コストモデル（bps）】
+(S-taker)
+| 銘柄 | $10k | $50k | $100k |
+|---|---|---|---|
+| BTCUSDT | 12.03 | 12.03 | 12.13 |
+| ETHUSDT | 12.11 | 12.69 | 13.06 |
+
+(S-maker)
+| 銘柄 | $10k | $50k | $100k |
+|---|---|---|---|
+| BTCUSDT | 8.02 | 8.02 | 8.07 |
+| ETHUSDT | 8.06 | 8.34 | 8.53 |
+
+## 修正の検証
+
+✅ バグA修正検証:
+  - BTCUSDT SELL: 全サイズで≈0.008bps（正しい値、C独立測定と一致）
+  - ETHUSDT SELL: $10k=0.028, $50k=0.601, $100k=0.981bps（単調増加・妥当）
+  - 修正前虚数（≈1.43bps）から正値へ修正完了
+
+✅ バグB修正検証:
+  - BUY側がゼロ張り付きから解放
+  - BTCUSDT BUY: $10k=0.0079, $50k=0.0079, $100k=0.1086bps（単調増加）
+  - ETHUSDT BUY: $10k=0.0281, $50k=0.0281, $100k=0.0281bps（板が厚い）
+
+✅ スリッページ合理性:
+  - BTC/ETHUSDT両銘柄でサイズに対して単調増加（または板が極厚で変化小）
+  - 往復コストは手数料主導（taker 12～13bps / maker 8～9bps）
+  - spec基準（往復コスト14～16bps概算）と整合
+
+## 実行コマンド
+
+G0-2（執行コスト）:
+  node --experimental-strip-types scripts/measure-bitget-execution-cost.ts
+
+G0-1（短時間足深度）:
+  node --experimental-strip-types scripts/fetch-bitget-intraday.ts
+
+## 修正後ファイル保存先
+
+- G0-2-execution-costs.json （修正反映済、タイムスタンプ: 2026-07-04T23:18:30Z）
+- G0-1-depth-summary.json （実行中、完了後に更新予定）
+
+## 次ステップ
+
+1. G0-1実行完了待ち → G0-1-depth-summary.json 確認（candles2022, gapRatio2022 が実計算値）
+2. research/ACTIVE.md を「C懐疑検証官の再確認待ち」に更新
+3. C懐疑検証官が修正内容を独立検証

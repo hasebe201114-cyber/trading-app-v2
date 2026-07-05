@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-07-05T02:31:09.697Z",
+  "symbol": "ETHUSDT",
+  "results": [
+    {
+      "symbol": "ETHUSDT",
+      "period": "confirmation",
+      "netSharpe": -2.103112184841096,
+      "grossSharpe": 0,
+      "cumulativeNetReturn": -2.03826172914873,
+      "maxDrawdown": 2.159191052963985,
+      "yearlyTradeCount": 282,
+      "yearlyNetCostDrag": 3582
+    },
+    {
+      "symbol": "ETHUSDT",
+      "period": "R-bear",
+      "netSharpe": -0.733359679778866,
+      "grossSharpe": 0,
+      "cumulativeNetReturn": -0.21114105065701727,
+      "maxDrawdown": 0.5248084649521579,
+      "yearlyTradeCount": 290,
+      "yearlyNetCostDrag": 3683
+    },
+    {
+      "symbol": "ETHUSDT",
+      "period": "R-recovery",
+      "netSharpe": -3.0891699093518254,
+      "grossSharpe": 0,
+      "cumulativeNetReturn": -0.37767063730159756,
+      "maxDrawdown": 0.4158346482926073,
+      "yearlyTradeCount": 266,
+      "yearlyNetCostDrag": 3378
+    },
+    {
+      "symbol": "ETHUSDT",
+      "period": "R-recent",
+      "netSharpe": -2.7577193081543956,
+      "grossSharpe": 0,
+      "cumulativeNetReturn": -1.4494500411901163,
+      "maxDrawdown": 1.5614461121618293,
+      "yearlyTradeCount": 285,
+      "yearlyNetCostDrag": 3623
+    }
+  ],
+  "note": "Sleeve only (Stage 1-B). Stage 1-C composition with ② requires simulatePortfolio integration."
+}

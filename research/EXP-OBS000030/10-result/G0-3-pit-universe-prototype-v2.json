@@ -1,0 +1,1158 @@
+{
+  "timestamp": "2026-07-04T16:02:23.266Z",
+  "note": "修正版スクリプト実行結果。月次リバランス日時点でのユニバース構成可能性",
+  "rebalancePeriod": "2025-07-01 to 2026-07-01",
+  "rebalanceFrequency": "monthly",
+  "results": [
+    {
+      "rebalanceDate": "2025-07-01",
+      "rebalanceYear": 2025,
+      "rebalanceMonth": 7,
+      "symbolsWithData": 25,
+      "candidateSymbols": [
+        {
+          "symbol": "BNBUSDT",
+          "candleCount": 2162
+        },
+        {
+          "symbol": "BTCUSDT",
+          "candleCount": 2161
+        },
+        {
+          "symbol": "ETHUSDT",
+          "candleCount": 2131
+        },
+        {
+          "symbol": "XRPUSDT",
+          "candleCount": 2113
+        },
+        {
+          "symbol": "BCHUSDT",
+          "candleCount": 2086
+        },
+        {
+          "symbol": "LINKUSDT",
+          "candleCount": 1774
+        },
+        {
+          "symbol": "ADAUSDT",
+          "candleCount": 1760
+        },
+        {
+          "symbol": "FILUSDT",
+          "candleCount": 1700
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "candleCount": 1553
+        },
+        {
+          "symbol": "XLMUSDT",
+          "candleCount": 1550
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "candleCount": 1488
+        },
+        {
+          "symbol": "SOLUSDT",
+          "candleCount": 1426
+        },
+        {
+          "symbol": "AVAXUSDT",
+          "candleCount": 1358
+        },
+        {
+          "symbol": "NEARUSDT",
+          "candleCount": 1274
+        },
+        {
+          "symbol": "TLMUSDT",
+          "candleCount": 815
+        },
+        {
+          "symbol": "ARPAUSDT",
+          "candleCount": 798
+        },
+        {
+          "symbol": "SUIUSDT",
+          "candleCount": 783
+        },
+        {
+          "symbol": "PEPEUSDT",
+          "candleCount": 782
+        },
+        {
+          "symbol": "WLDUSDT",
+          "candleCount": 702
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "candleCount": 476
+        }
+      ]
+    },
+    {
+      "rebalanceDate": "2025-08-01",
+      "rebalanceYear": 2025,
+      "rebalanceMonth": 8,
+      "symbolsWithData": 26,
+      "candidateSymbols": [
+        {
+          "symbol": "BNBUSDT",
+          "candleCount": 2192
+        },
+        {
+          "symbol": "BTCUSDT",
+          "candleCount": 2191
+        },
+        {
+          "symbol": "ETHUSDT",
+          "candleCount": 2161
+        },
+        {
+          "symbol": "XRPUSDT",
+          "candleCount": 2143
+        },
+        {
+          "symbol": "BCHUSDT",
+          "candleCount": 2116
+        },
+        {
+          "symbol": "LINKUSDT",
+          "candleCount": 1804
+        },
+        {
+          "symbol": "ADAUSDT",
+          "candleCount": 1790
+        },
+        {
+          "symbol": "FILUSDT",
+          "candleCount": 1730
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "candleCount": 1583
+        },
+        {
+          "symbol": "XLMUSDT",
+          "candleCount": 1580
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "candleCount": 1518
+        },
+        {
+          "symbol": "SOLUSDT",
+          "candleCount": 1456
+        },
+        {
+          "symbol": "AVAXUSDT",
+          "candleCount": 1388
+        },
+        {
+          "symbol": "NEARUSDT",
+          "candleCount": 1304
+        },
+        {
+          "symbol": "TLMUSDT",
+          "candleCount": 845
+        },
+        {
+          "symbol": "ARPAUSDT",
+          "candleCount": 828
+        },
+        {
+          "symbol": "SUIUSDT",
+          "candleCount": 813
+        },
+        {
+          "symbol": "PEPEUSDT",
+          "candleCount": 812
+        },
+        {
+          "symbol": "WLDUSDT",
+          "candleCount": 732
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "candleCount": 506
+        }
+      ]
+    },
+    {
+      "rebalanceDate": "2025-09-01",
+      "rebalanceYear": 2025,
+      "rebalanceMonth": 9,
+      "symbolsWithData": 28,
+      "candidateSymbols": [
+        {
+          "symbol": "BNBUSDT",
+          "candleCount": 2223
+        },
+        {
+          "symbol": "BTCUSDT",
+          "candleCount": 2222
+        },
+        {
+          "symbol": "ETHUSDT",
+          "candleCount": 2192
+        },
+        {
+          "symbol": "XRPUSDT",
+          "candleCount": 2174
+        },
+        {
+          "symbol": "BCHUSDT",
+          "candleCount": 2147
+        },
+        {
+          "symbol": "LINKUSDT",
+          "candleCount": 1835
+        },
+        {
+          "symbol": "ADAUSDT",
+          "candleCount": 1821
+        },
+        {
+          "symbol": "FILUSDT",
+          "candleCount": 1761
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "candleCount": 1614
+        },
+        {
+          "symbol": "XLMUSDT",
+          "candleCount": 1611
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "candleCount": 1549
+        },
+        {
+          "symbol": "SOLUSDT",
+          "candleCount": 1487
+        },
+        {
+          "symbol": "AVAXUSDT",
+          "candleCount": 1419
+        },
+        {
+          "symbol": "NEARUSDT",
+          "candleCount": 1335
+        },
+        {
+          "symbol": "TLMUSDT",
+          "candleCount": 876
+        },
+        {
+          "symbol": "ARPAUSDT",
+          "candleCount": 859
+        },
+        {
+          "symbol": "SUIUSDT",
+          "candleCount": 844
+        },
+        {
+          "symbol": "PEPEUSDT",
+          "candleCount": 843
+        },
+        {
+          "symbol": "WLDUSDT",
+          "candleCount": 763
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "candleCount": 537
+        }
+      ]
+    },
+    {
+      "rebalanceDate": "2025-10-01",
+      "rebalanceYear": 2025,
+      "rebalanceMonth": 10,
+      "symbolsWithData": 28,
+      "candidateSymbols": [
+        {
+          "symbol": "BNBUSDT",
+          "candleCount": 2253
+        },
+        {
+          "symbol": "BTCUSDT",
+          "candleCount": 2252
+        },
+        {
+          "symbol": "ETHUSDT",
+          "candleCount": 2222
+        },
+        {
+          "symbol": "XRPUSDT",
+          "candleCount": 2204
+        },
+        {
+          "symbol": "BCHUSDT",
+          "candleCount": 2177
+        },
+        {
+          "symbol": "LINKUSDT",
+          "candleCount": 1865
+        },
+        {
+          "symbol": "ADAUSDT",
+          "candleCount": 1851
+        },
+        {
+          "symbol": "FILUSDT",
+          "candleCount": 1791
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "candleCount": 1644
+        },
+        {
+          "symbol": "XLMUSDT",
+          "candleCount": 1641
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "candleCount": 1579
+        },
+        {
+          "symbol": "SOLUSDT",
+          "candleCount": 1517
+        },
+        {
+          "symbol": "AVAXUSDT",
+          "candleCount": 1449
+        },
+        {
+          "symbol": "NEARUSDT",
+          "candleCount": 1365
+        },
+        {
+          "symbol": "TLMUSDT",
+          "candleCount": 906
+        },
+        {
+          "symbol": "ARPAUSDT",
+          "candleCount": 889
+        },
+        {
+          "symbol": "SUIUSDT",
+          "candleCount": 874
+        },
+        {
+          "symbol": "PEPEUSDT",
+          "candleCount": 873
+        },
+        {
+          "symbol": "WLDUSDT",
+          "candleCount": 793
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "candleCount": 567
+        }
+      ]
+    },
+    {
+      "rebalanceDate": "2025-11-01",
+      "rebalanceYear": 2025,
+      "rebalanceMonth": 11,
+      "symbolsWithData": 30,
+      "candidateSymbols": [
+        {
+          "symbol": "BNBUSDT",
+          "candleCount": 2283
+        },
+        {
+          "symbol": "BTCUSDT",
+          "candleCount": 2282
+        },
+        {
+          "symbol": "ETHUSDT",
+          "candleCount": 2252
+        },
+        {
+          "symbol": "XRPUSDT",
+          "candleCount": 2234
+        },
+        {
+          "symbol": "BCHUSDT",
+          "candleCount": 2207
+        },
+        {
+          "symbol": "LINKUSDT",
+          "candleCount": 1895
+        },
+        {
+          "symbol": "ADAUSDT",
+          "candleCount": 1881
+        },
+        {
+          "symbol": "FILUSDT",
+          "candleCount": 1821
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "candleCount": 1674
+        },
+        {
+          "symbol": "XLMUSDT",
+          "candleCount": 1671
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "candleCount": 1609
+        },
+        {
+          "symbol": "SOLUSDT",
+          "candleCount": 1547
+        },
+        {
+          "symbol": "AVAXUSDT",
+          "candleCount": 1479
+        },
+        {
+          "symbol": "NEARUSDT",
+          "candleCount": 1395
+        },
+        {
+          "symbol": "TLMUSDT",
+          "candleCount": 936
+        },
+        {
+          "symbol": "ARPAUSDT",
+          "candleCount": 919
+        },
+        {
+          "symbol": "SUIUSDT",
+          "candleCount": 904
+        },
+        {
+          "symbol": "PEPEUSDT",
+          "candleCount": 903
+        },
+        {
+          "symbol": "WLDUSDT",
+          "candleCount": 823
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "candleCount": 597
+        }
+      ]
+    },
+    {
+      "rebalanceDate": "2025-12-01",
+      "rebalanceYear": 2025,
+      "rebalanceMonth": 12,
+      "symbolsWithData": 31,
+      "candidateSymbols": [
+        {
+          "symbol": "BNBUSDT",
+          "candleCount": 2313
+        },
+        {
+          "symbol": "BTCUSDT",
+          "candleCount": 2312
+        },
+        {
+          "symbol": "ETHUSDT",
+          "candleCount": 2282
+        },
+        {
+          "symbol": "XRPUSDT",
+          "candleCount": 2264
+        },
+        {
+          "symbol": "BCHUSDT",
+          "candleCount": 2237
+        },
+        {
+          "symbol": "LINKUSDT",
+          "candleCount": 1925
+        },
+        {
+          "symbol": "ADAUSDT",
+          "candleCount": 1911
+        },
+        {
+          "symbol": "FILUSDT",
+          "candleCount": 1851
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "candleCount": 1704
+        },
+        {
+          "symbol": "XLMUSDT",
+          "candleCount": 1701
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "candleCount": 1639
+        },
+        {
+          "symbol": "SOLUSDT",
+          "candleCount": 1577
+        },
+        {
+          "symbol": "AVAXUSDT",
+          "candleCount": 1509
+        },
+        {
+          "symbol": "NEARUSDT",
+          "candleCount": 1425
+        },
+        {
+          "symbol": "TLMUSDT",
+          "candleCount": 966
+        },
+        {
+          "symbol": "ARPAUSDT",
+          "candleCount": 949
+        },
+        {
+          "symbol": "SUIUSDT",
+          "candleCount": 934
+        },
+        {
+          "symbol": "PEPEUSDT",
+          "candleCount": 933
+        },
+        {
+          "symbol": "WLDUSDT",
+          "candleCount": 853
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "candleCount": 627
+        }
+      ]
+    },
+    {
+      "rebalanceDate": "2026-01-01",
+      "rebalanceYear": 2026,
+      "rebalanceMonth": 1,
+      "symbolsWithData": 33,
+      "candidateSymbols": [
+        {
+          "symbol": "BNBUSDT",
+          "candleCount": 2344
+        },
+        {
+          "symbol": "BTCUSDT",
+          "candleCount": 2343
+        },
+        {
+          "symbol": "ETHUSDT",
+          "candleCount": 2313
+        },
+        {
+          "symbol": "XRPUSDT",
+          "candleCount": 2295
+        },
+        {
+          "symbol": "BCHUSDT",
+          "candleCount": 2268
+        },
+        {
+          "symbol": "LINKUSDT",
+          "candleCount": 1956
+        },
+        {
+          "symbol": "ADAUSDT",
+          "candleCount": 1942
+        },
+        {
+          "symbol": "FILUSDT",
+          "candleCount": 1882
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "candleCount": 1735
+        },
+        {
+          "symbol": "XLMUSDT",
+          "candleCount": 1732
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "candleCount": 1670
+        },
+        {
+          "symbol": "SOLUSDT",
+          "candleCount": 1608
+        },
+        {
+          "symbol": "AVAXUSDT",
+          "candleCount": 1540
+        },
+        {
+          "symbol": "NEARUSDT",
+          "candleCount": 1456
+        },
+        {
+          "symbol": "TLMUSDT",
+          "candleCount": 997
+        },
+        {
+          "symbol": "ARPAUSDT",
+          "candleCount": 980
+        },
+        {
+          "symbol": "SUIUSDT",
+          "candleCount": 965
+        },
+        {
+          "symbol": "PEPEUSDT",
+          "candleCount": 964
+        },
+        {
+          "symbol": "WLDUSDT",
+          "candleCount": 884
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "candleCount": 658
+        }
+      ]
+    },
+    {
+      "rebalanceDate": "2026-02-01",
+      "rebalanceYear": 2026,
+      "rebalanceMonth": 2,
+      "symbolsWithData": 33,
+      "candidateSymbols": [
+        {
+          "symbol": "BNBUSDT",
+          "candleCount": 2374
+        },
+        {
+          "symbol": "BTCUSDT",
+          "candleCount": 2373
+        },
+        {
+          "symbol": "ETHUSDT",
+          "candleCount": 2343
+        },
+        {
+          "symbol": "XRPUSDT",
+          "candleCount": 2325
+        },
+        {
+          "symbol": "BCHUSDT",
+          "candleCount": 2298
+        },
+        {
+          "symbol": "LINKUSDT",
+          "candleCount": 1986
+        },
+        {
+          "symbol": "ADAUSDT",
+          "candleCount": 1972
+        },
+        {
+          "symbol": "FILUSDT",
+          "candleCount": 1912
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "candleCount": 1765
+        },
+        {
+          "symbol": "XLMUSDT",
+          "candleCount": 1762
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "candleCount": 1700
+        },
+        {
+          "symbol": "SOLUSDT",
+          "candleCount": 1638
+        },
+        {
+          "symbol": "AVAXUSDT",
+          "candleCount": 1570
+        },
+        {
+          "symbol": "NEARUSDT",
+          "candleCount": 1486
+        },
+        {
+          "symbol": "TLMUSDT",
+          "candleCount": 1027
+        },
+        {
+          "symbol": "ARPAUSDT",
+          "candleCount": 1010
+        },
+        {
+          "symbol": "SUIUSDT",
+          "candleCount": 995
+        },
+        {
+          "symbol": "PEPEUSDT",
+          "candleCount": 994
+        },
+        {
+          "symbol": "WLDUSDT",
+          "candleCount": 914
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "candleCount": 688
+        }
+      ]
+    },
+    {
+      "rebalanceDate": "2026-03-01",
+      "rebalanceYear": 2026,
+      "rebalanceMonth": 3,
+      "symbolsWithData": 34,
+      "candidateSymbols": [
+        {
+          "symbol": "BNBUSDT",
+          "candleCount": 2402
+        },
+        {
+          "symbol": "BTCUSDT",
+          "candleCount": 2401
+        },
+        {
+          "symbol": "ETHUSDT",
+          "candleCount": 2371
+        },
+        {
+          "symbol": "XRPUSDT",
+          "candleCount": 2353
+        },
+        {
+          "symbol": "BCHUSDT",
+          "candleCount": 2326
+        },
+        {
+          "symbol": "LINKUSDT",
+          "candleCount": 2014
+        },
+        {
+          "symbol": "ADAUSDT",
+          "candleCount": 2000
+        },
+        {
+          "symbol": "FILUSDT",
+          "candleCount": 1940
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "candleCount": 1793
+        },
+        {
+          "symbol": "XLMUSDT",
+          "candleCount": 1790
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "candleCount": 1728
+        },
+        {
+          "symbol": "SOLUSDT",
+          "candleCount": 1666
+        },
+        {
+          "symbol": "AVAXUSDT",
+          "candleCount": 1598
+        },
+        {
+          "symbol": "NEARUSDT",
+          "candleCount": 1514
+        },
+        {
+          "symbol": "TLMUSDT",
+          "candleCount": 1055
+        },
+        {
+          "symbol": "ARPAUSDT",
+          "candleCount": 1038
+        },
+        {
+          "symbol": "SUIUSDT",
+          "candleCount": 1023
+        },
+        {
+          "symbol": "PEPEUSDT",
+          "candleCount": 1022
+        },
+        {
+          "symbol": "WLDUSDT",
+          "candleCount": 942
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "candleCount": 716
+        }
+      ]
+    },
+    {
+      "rebalanceDate": "2026-04-01",
+      "rebalanceYear": 2026,
+      "rebalanceMonth": 4,
+      "symbolsWithData": 35,
+      "candidateSymbols": [
+        {
+          "symbol": "BNBUSDT",
+          "candleCount": 2433
+        },
+        {
+          "symbol": "BTCUSDT",
+          "candleCount": 2432
+        },
+        {
+          "symbol": "ETHUSDT",
+          "candleCount": 2402
+        },
+        {
+          "symbol": "XRPUSDT",
+          "candleCount": 2384
+        },
+        {
+          "symbol": "BCHUSDT",
+          "candleCount": 2357
+        },
+        {
+          "symbol": "LINKUSDT",
+          "candleCount": 2045
+        },
+        {
+          "symbol": "ADAUSDT",
+          "candleCount": 2031
+        },
+        {
+          "symbol": "FILUSDT",
+          "candleCount": 1971
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "candleCount": 1824
+        },
+        {
+          "symbol": "XLMUSDT",
+          "candleCount": 1821
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "candleCount": 1759
+        },
+        {
+          "symbol": "SOLUSDT",
+          "candleCount": 1697
+        },
+        {
+          "symbol": "AVAXUSDT",
+          "candleCount": 1629
+        },
+        {
+          "symbol": "NEARUSDT",
+          "candleCount": 1545
+        },
+        {
+          "symbol": "TLMUSDT",
+          "candleCount": 1086
+        },
+        {
+          "symbol": "ARPAUSDT",
+          "candleCount": 1069
+        },
+        {
+          "symbol": "SUIUSDT",
+          "candleCount": 1054
+        },
+        {
+          "symbol": "PEPEUSDT",
+          "candleCount": 1053
+        },
+        {
+          "symbol": "WLDUSDT",
+          "candleCount": 973
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "candleCount": 747
+        }
+      ]
+    },
+    {
+      "rebalanceDate": "2026-05-01",
+      "rebalanceYear": 2026,
+      "rebalanceMonth": 5,
+      "symbolsWithData": 44,
+      "candidateSymbols": [
+        {
+          "symbol": "BNBUSDT",
+          "candleCount": 2462
+        },
+        {
+          "symbol": "BTCUSDT",
+          "candleCount": 2461
+        },
+        {
+          "symbol": "ETHUSDT",
+          "candleCount": 2431
+        },
+        {
+          "symbol": "XRPUSDT",
+          "candleCount": 2413
+        },
+        {
+          "symbol": "BCHUSDT",
+          "candleCount": 2386
+        },
+        {
+          "symbol": "LINKUSDT",
+          "candleCount": 2074
+        },
+        {
+          "symbol": "ADAUSDT",
+          "candleCount": 2060
+        },
+        {
+          "symbol": "FILUSDT",
+          "candleCount": 2000
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "candleCount": 1853
+        },
+        {
+          "symbol": "XLMUSDT",
+          "candleCount": 1850
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "candleCount": 1788
+        },
+        {
+          "symbol": "SOLUSDT",
+          "candleCount": 1726
+        },
+        {
+          "symbol": "AVAXUSDT",
+          "candleCount": 1658
+        },
+        {
+          "symbol": "NEARUSDT",
+          "candleCount": 1574
+        },
+        {
+          "symbol": "TLMUSDT",
+          "candleCount": 1115
+        },
+        {
+          "symbol": "ARPAUSDT",
+          "candleCount": 1098
+        },
+        {
+          "symbol": "SUIUSDT",
+          "candleCount": 1083
+        },
+        {
+          "symbol": "PEPEUSDT",
+          "candleCount": 1082
+        },
+        {
+          "symbol": "WLDUSDT",
+          "candleCount": 1002
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "candleCount": 776
+        }
+      ]
+    },
+    {
+      "rebalanceDate": "2026-06-01",
+      "rebalanceYear": 2026,
+      "rebalanceMonth": 6,
+      "symbolsWithData": 47,
+      "candidateSymbols": [
+        {
+          "symbol": "BNBUSDT",
+          "candleCount": 2493
+        },
+        {
+          "symbol": "BTCUSDT",
+          "candleCount": 2492
+        },
+        {
+          "symbol": "ETHUSDT",
+          "candleCount": 2462
+        },
+        {
+          "symbol": "XRPUSDT",
+          "candleCount": 2444
+        },
+        {
+          "symbol": "BCHUSDT",
+          "candleCount": 2417
+        },
+        {
+          "symbol": "LINKUSDT",
+          "candleCount": 2105
+        },
+        {
+          "symbol": "ADAUSDT",
+          "candleCount": 2091
+        },
+        {
+          "symbol": "FILUSDT",
+          "candleCount": 2031
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "candleCount": 1884
+        },
+        {
+          "symbol": "XLMUSDT",
+          "candleCount": 1881
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "candleCount": 1819
+        },
+        {
+          "symbol": "SOLUSDT",
+          "candleCount": 1757
+        },
+        {
+          "symbol": "AVAXUSDT",
+          "candleCount": 1689
+        },
+        {
+          "symbol": "NEARUSDT",
+          "candleCount": 1605
+        },
+        {
+          "symbol": "TLMUSDT",
+          "candleCount": 1146
+        },
+        {
+          "symbol": "ARPAUSDT",
+          "candleCount": 1129
+        },
+        {
+          "symbol": "SUIUSDT",
+          "candleCount": 1114
+        },
+        {
+          "symbol": "PEPEUSDT",
+          "candleCount": 1113
+        },
+        {
+          "symbol": "WLDUSDT",
+          "candleCount": 1033
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "candleCount": 807
+        }
+      ]
+    },
+    {
+      "rebalanceDate": "2026-07-01",
+      "rebalanceYear": 2026,
+      "rebalanceMonth": 7,
+      "symbolsWithData": 50,
+      "candidateSymbols": [
+        {
+          "symbol": "BNBUSDT",
+          "candleCount": 2523
+        },
+        {
+          "symbol": "BTCUSDT",
+          "candleCount": 2522
+        },
+        {
+          "symbol": "ETHUSDT",
+          "candleCount": 2492
+        },
+        {
+          "symbol": "XRPUSDT",
+          "candleCount": 2474
+        },
+        {
+          "symbol": "BCHUSDT",
+          "candleCount": 2447
+        },
+        {
+          "symbol": "LINKUSDT",
+          "candleCount": 2135
+        },
+        {
+          "symbol": "ADAUSDT",
+          "candleCount": 2121
+        },
+        {
+          "symbol": "FILUSDT",
+          "candleCount": 2061
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "candleCount": 1914
+        },
+        {
+          "symbol": "XLMUSDT",
+          "candleCount": 1911
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "candleCount": 1849
+        },
+        {
+          "symbol": "SOLUSDT",
+          "candleCount": 1787
+        },
+        {
+          "symbol": "AVAXUSDT",
+          "candleCount": 1719
+        },
+        {
+          "symbol": "NEARUSDT",
+          "candleCount": 1635
+        },
+        {
+          "symbol": "TLMUSDT",
+          "candleCount": 1176
+        },
+        {
+          "symbol": "ARPAUSDT",
+          "candleCount": 1159
+        },
+        {
+          "symbol": "SUIUSDT",
+          "candleCount": 1144
+        },
+        {
+          "symbol": "PEPEUSDT",
+          "candleCount": 1143
+        },
+        {
+          "symbol": "WLDUSDT",
+          "candleCount": 1063
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "candleCount": 837
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "totalRebalanceDates": 13,
+    "avgSymbolsAvailable": 34,
+    "minSymbolsAvailable": 25,
+    "maxSymbolsAvailable": 50
+  }
+}

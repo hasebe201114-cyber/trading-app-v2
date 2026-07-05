@@ -1,0 +1,63 @@
+[2026-07-04T15:42:06.114Z] === G0-2: 死銘柄再構成可否調査 ===
+[2026-07-04T15:42:06.114Z] Timestamp: 2026-07-04T15:42:06.111Z
+[2026-07-04T15:42:06.114Z] 
+### Step 1: Contracts エンドポイントの symbolStatus フィールド確認
+[2026-07-04T15:42:06.567Z] Total contracts: 684
+[2026-07-04T15:42:06.571Z] Unique symbolStatus values: normal
+[2026-07-04T15:42:06.571Z] Contracts with offline/closed/delisted status: 0
+[2026-07-04T15:42:06.571Z] 
+### Step 2: 廃止シンボルの候補特定
+[2026-07-04T15:42:06.571Z] Test symbols (known or suspected delistings): LUNAUSDT, LUNA2USDT, TERRUSDT
+[2026-07-04T15:42:06.572Z] 
+### Step 3: 削除シンボルの history-candles / fund-rate テスト
+[2026-07-04T15:42:06.572Z] 
+#### Testing LUNAUSDT
+[2026-07-04T15:42:06.572Z]   In current contracts list: YES
+[2026-07-04T15:42:06.572Z]   Requesting: https://api.bitget.com/api/v2/mix/market/history-candles?symbol=LUNAUSDT&productType=USDT-FUTURES&granularity=1D&limit=10
+[2026-07-04T15:42:06.861Z]   history-candles response: 10 records
+[2026-07-04T15:42:06.861Z]     Oldest date: 2026-07-02
+[2026-07-04T15:42:07.173Z]   Requesting: https://api.bitget.com/api/v2/mix/market/history-fund-rate?symbol=LUNAUSDT&productType=USDT-FUTURES&pageSize=10&pageNo=1
+[2026-07-04T15:42:07.213Z]   history-fund-rate response: 10 records
+[2026-07-04T15:42:07.213Z]     Oldest: 1783036800000
+[2026-07-04T15:42:07.515Z] 
+#### Testing LUNA2USDT
+[2026-07-04T15:42:07.516Z]   In current contracts list: NO
+[2026-07-04T15:42:07.516Z]   Requesting: https://api.bitget.com/api/v2/mix/market/history-candles?symbol=LUNA2USDT&productType=USDT-FUTURES&granularity=1D&limit=10
+[2026-07-04T15:42:07.555Z]   history-candles ERROR: HTTP 400 for https://api.bitget.com/api/v2/mix/market/history-candles?symbol=LUNA2USDT&productType=USDT-FUTURES&granularity=1D&limit=10
+Response: {"code":"40034","msg":"Parameter LUNA2USDT does not exist","requestTime":1783179730485,"data":null}
+[2026-07-04T15:42:07.863Z]   Requesting: https://api.bitget.com/api/v2/mix/market/history-fund-rate?symbol=LUNA2USDT&productType=USDT-FUTURES&pageSize=10&pageNo=1
+[2026-07-04T15:42:07.893Z]   history-fund-rate ERROR: HTTP 400 for https://api.bitget.com/api/v2/mix/market/history-fund-rate?symbol=LUNA2USDT&productType=USDT-FUTURES&pageSize=10&pageNo=1
+Response: {"code":"40034","msg":"Parameter LUNA2USDT does not exist","requestTime":1783179730829,"data":null}
+[2026-07-04T15:42:08.209Z] 
+#### Testing TERRUSDT
+[2026-07-04T15:42:08.209Z]   In current contracts list: NO
+[2026-07-04T15:42:08.210Z]   Requesting: https://api.bitget.com/api/v2/mix/market/history-candles?symbol=TERRUSDT&productType=USDT-FUTURES&granularity=1D&limit=10
+[2026-07-04T15:42:08.241Z]   history-candles ERROR: HTTP 400 for https://api.bitget.com/api/v2/mix/market/history-candles?symbol=TERRUSDT&productType=USDT-FUTURES&granularity=1D&limit=10
+Response: {"code":"40034","msg":"Parameter TERRUSDT does not exist","requestTime":1783179731179,"data":null}
+[2026-07-04T15:42:08.551Z]   Requesting: https://api.bitget.com/api/v2/mix/market/history-fund-rate?symbol=TERRUSDT&productType=USDT-FUTURES&pageSize=10&pageNo=1
+[2026-07-04T15:42:08.582Z]   history-fund-rate ERROR: HTTP 400 for https://api.bitget.com/api/v2/mix/market/history-fund-rate?symbol=TERRUSDT&productType=USDT-FUTURES&pageSize=10&pageNo=1
+Response: {"code":"40034","msg":"Parameter TERRUSDT does not exist","requestTime":1783179731519,"data":null}
+[2026-07-04T15:42:08.899Z] 
+### Step 4: 外部無料ソース（CoinGecko）での再構成可能性調査
+[2026-07-04T15:42:08.899Z] CoinGecko API（認証不要）を使用して、廃止シンボルのメタデータ取得を試行
+[2026-07-04T15:42:08.899Z] 
+#### CoinGecko: Searching for 'luna'
+[2026-07-04T15:42:08.899Z]   Request: https://api.coingecko.com/api/v3/coins/luna
+[2026-07-04T15:42:09.155Z]   CoinGecko ERROR: HTTP 404 for https://api.coingecko.com/api/v3/coins/luna
+Response: {"error":"coin not found"}
+[2026-07-04T15:42:09.464Z] 
+#### CoinGecko: Searching for 'terra'
+[2026-07-04T15:42:09.464Z]   Request: https://api.coingecko.com/api/v3/coins/terra
+[2026-07-04T15:42:09.684Z]   CoinGecko ERROR: HTTP 404 for https://api.coingecko.com/api/v3/coins/terra
+Response: {"error":"coin not found"}
+[2026-07-04T15:42:09.984Z] 
+#### CoinGecko: Searching for 'luna-2'
+[2026-07-04T15:42:09.984Z]   Request: https://api.coingecko.com/api/v3/coins/luna-2
+[2026-07-04T15:42:10.241Z]   CoinGecko ERROR: HTTP 404 for https://api.coingecko.com/api/v3/coins/luna-2
+Response: {"error":"coin not found"}
+[2026-07-04T15:42:10.550Z] 
+### Step 5: サバイバーシップ規模の見積り材料
+[2026-07-04T15:42:10.551Z] Current contracts in Bitget USDT-FUTURES: 684
+[2026-07-04T15:42:10.551Z] Suspected dead symbols tested: LUNAUSDT, LUNA2USDT, TERRUSDT
+[2026-07-04T15:42:10.551Z] Symbols with publicly documented status (return data via history API): TBD (based on test results above)
+[2026-07-04T15:42:10.551Z] Note: Complete historical delisting record requires Bitget announcement pages or historical data providers

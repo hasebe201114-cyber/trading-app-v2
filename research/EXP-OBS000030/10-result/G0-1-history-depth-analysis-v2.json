@@ -1,0 +1,920 @@
+{
+  "timestamp": "2026-07-04T16:01:12.873Z",
+  "timestamp_note": "修正版スクリプト実行結果（昇順正しく解釈）",
+  "analysis": [
+    {
+      "symbol": "BNBUSDT",
+      "candles": {
+        "count": 2524,
+        "oldestDate": "2019-07-08",
+        "newestDate": "2026-07-02",
+        "coveredDays": 1824,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "YES",
+      "covers2022FullYear": true
+    },
+    {
+      "symbol": "BTCUSDT",
+      "candles": {
+        "count": 2523,
+        "oldestDate": "2019-07-09",
+        "newestDate": "2026-07-02",
+        "coveredDays": 1823,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "YES",
+      "covers2022FullYear": true
+    },
+    {
+      "symbol": "ETHUSDT",
+      "candles": {
+        "count": 2493,
+        "oldestDate": "2019-08-09",
+        "newestDate": "2026-07-02",
+        "coveredDays": 1800,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "YES",
+      "covers2022FullYear": true
+    },
+    {
+      "symbol": "XRPUSDT",
+      "candles": {
+        "count": 2475,
+        "oldestDate": "2019-08-27",
+        "newestDate": "2026-07-02",
+        "coveredDays": 1788,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "YES",
+      "covers2022FullYear": true
+    },
+    {
+      "symbol": "BCHUSDT",
+      "candles": {
+        "count": 2449,
+        "oldestDate": "2019-09-23",
+        "newestDate": "2026-07-03",
+        "coveredDays": 1770,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775433600000",
+        "newestDatetime": "1783180800000"
+      },
+      "covers3YearsFrom": "YES",
+      "covers2022FullYear": true
+    },
+    {
+      "symbol": "LINKUSDT",
+      "candles": {
+        "count": 2136,
+        "oldestDate": "2020-08-04",
+        "newestDate": "2026-07-02",
+        "coveredDays": 1543,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "YES",
+      "covers2022FullYear": true
+    },
+    {
+      "symbol": "ADAUSDT",
+      "candles": {
+        "count": 2122,
+        "oldestDate": "2020-08-18",
+        "newestDate": "2026-07-02",
+        "coveredDays": 1533,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "YES",
+      "covers2022FullYear": true
+    },
+    {
+      "symbol": "FILUSDT",
+      "candles": {
+        "count": 2062,
+        "oldestDate": "2020-10-18",
+        "newestDate": "2026-07-02",
+        "coveredDays": 1489,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775433600000",
+        "newestDatetime": "1783180800000"
+      },
+      "covers3YearsFrom": "YES",
+      "covers2022FullYear": true
+    },
+    {
+      "symbol": "AAVEUSDT",
+      "candles": {
+        "count": 1915,
+        "oldestDate": "2021-03-15",
+        "newestDate": "2026-07-02",
+        "coveredDays": 1384,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "YES",
+      "covers2022FullYear": true
+    },
+    {
+      "symbol": "XLMUSDT",
+      "candles": {
+        "count": 1912,
+        "oldestDate": "2021-03-18",
+        "newestDate": "2026-07-02",
+        "coveredDays": 1381,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "YES",
+      "covers2022FullYear": true
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "candles": {
+        "count": 1850,
+        "oldestDate": "2021-05-20",
+        "newestDate": "2026-07-02",
+        "coveredDays": 1336,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "YES",
+      "covers2022FullYear": true
+    },
+    {
+      "symbol": "SOLUSDT",
+      "candles": {
+        "count": 1788,
+        "oldestDate": "2021-07-22",
+        "newestDate": "2026-07-02",
+        "coveredDays": 1291,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "YES",
+      "covers2022FullYear": true
+    },
+    {
+      "symbol": "AVAXUSDT",
+      "candles": {
+        "count": 1721,
+        "oldestDate": "2021-09-28",
+        "newestDate": "2026-07-03",
+        "coveredDays": 1244,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775433600000",
+        "newestDatetime": "1783180800000"
+      },
+      "covers3YearsFrom": "YES",
+      "covers2022FullYear": true
+    },
+    {
+      "symbol": "NEARUSDT",
+      "candles": {
+        "count": 1636,
+        "oldestDate": "2021-12-22",
+        "newestDate": "2026-07-02",
+        "coveredDays": 1182,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "YES",
+      "covers2022FullYear": true
+    },
+    {
+      "symbol": "TLMUSDT",
+      "candles": {
+        "count": 1177,
+        "oldestDate": "2023-03-31",
+        "newestDate": "2026-07-02",
+        "coveredDays": 850,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 540,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "ARPAUSDT",
+      "candles": {
+        "count": 1160,
+        "oldestDate": "2023-04-18",
+        "newestDate": "2026-07-02",
+        "coveredDays": 838,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "SUIUSDT",
+      "candles": {
+        "count": 1145,
+        "oldestDate": "2023-05-03",
+        "newestDate": "2026-07-02",
+        "coveredDays": 827,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "PEPEUSDT",
+      "candles": {
+        "count": 1144,
+        "oldestDate": "2023-05-04",
+        "newestDate": "2026-07-02",
+        "coveredDays": 826,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "WLDUSDT",
+      "candles": {
+        "count": 1064,
+        "oldestDate": "2023-07-24",
+        "newestDate": "2026-07-02",
+        "coveredDays": 769,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "1000BONKUSDT",
+      "candles": {
+        "count": 838,
+        "oldestDate": "2024-03-08",
+        "newestDate": "2026-07-02",
+        "coveredDays": 605,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 540,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "ENAUSDT",
+      "candles": {
+        "count": 813,
+        "oldestDate": "2024-04-03",
+        "newestDate": "2026-07-03",
+        "coveredDays": 588,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 540,
+        "oldestDatetime": "1775419200000",
+        "newestDatetime": "1783180800000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "TAOUSDT",
+      "candles": {
+        "count": 806,
+        "oldestDate": "2024-04-10",
+        "newestDate": "2026-07-02",
+        "coveredDays": 582,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 540,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "SYNUSDT",
+      "candles": {
+        "count": 676,
+        "oldestDate": "2024-08-20",
+        "newestDate": "2026-07-03",
+        "coveredDays": 489,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 540,
+        "oldestDatetime": "1775419200000",
+        "newestDatetime": "1783180800000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "THEUSDT",
+      "candles": {
+        "count": 578,
+        "oldestDate": "2024-11-26",
+        "newestDate": "2026-07-02",
+        "coveredDays": 418,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 540,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "HYPEUSDT",
+      "candles": {
+        "count": 556,
+        "oldestDate": "2024-12-18",
+        "newestDate": "2026-07-02",
+        "coveredDays": 402,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 540,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "VELVETUSDT",
+      "candles": {
+        "count": 351,
+        "oldestDate": "2025-07-14",
+        "newestDate": "2026-07-02",
+        "coveredDays": 254,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 540,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "XPLUSDT",
+      "candles": {
+        "count": 309,
+        "oldestDate": "2025-08-25",
+        "newestDate": "2026-07-02",
+        "coveredDays": 224,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 540,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "MSTRUSDT",
+      "candles": {
+        "count": 308,
+        "oldestDate": "2025-08-26",
+        "newestDate": "2026-07-02",
+        "coveredDays": 223,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "ZECUSDT",
+      "candles": {
+        "count": 259,
+        "oldestDate": "2025-10-15",
+        "newestDate": "2026-07-02",
+        "coveredDays": 187,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 523,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "LABUSDT",
+      "candles": {
+        "count": 258,
+        "oldestDate": "2025-10-16",
+        "newestDate": "2026-07-02",
+        "coveredDays": 186,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 836,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783177200000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "BEATUSDT",
+      "candles": {
+        "count": 232,
+        "oldestDate": "2025-11-11",
+        "newestDate": "2026-07-02",
+        "coveredDays": 168,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 540,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "XAUUSDT",
+      "candles": {
+        "count": 201,
+        "oldestDate": "2025-12-12",
+        "newestDate": "2026-07-02",
+        "coveredDays": 145,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 540,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "MAGMAUSDT",
+      "candles": {
+        "count": 185,
+        "oldestDate": "2025-12-28",
+        "newestDate": "2026-07-02",
+        "coveredDays": 134,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 540,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "MUUSDT",
+      "candles": {
+        "count": 142,
+        "oldestDate": "2026-02-10",
+        "newestDate": "2026-07-02",
+        "coveredDays": 103,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 270,
+        "oldestDatetime": "1775404800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "CLUSDT",
+      "candles": {
+        "count": 110,
+        "oldestDate": "2026-03-15",
+        "newestDate": "2026-07-03",
+        "coveredDays": 80,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 540,
+        "oldestDatetime": "1775419200000",
+        "newestDatetime": "1783180800000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "BASUSDT",
+      "candles": {
+        "count": 90,
+        "oldestDate": "2026-04-04",
+        "newestDate": "2026-07-02",
+        "coveredDays": 64,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 100,
+        "oldestDatetime": "1781740800000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "EPICUSDT",
+      "candles": {
+        "count": 90,
+        "oldestDate": "2026-04-04",
+        "newestDate": "2026-07-02",
+        "coveredDays": 64,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 100,
+        "oldestDatetime": "1781740800000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "GWEIUSDT",
+      "candles": {
+        "count": 90,
+        "oldestDate": "2026-04-04",
+        "newestDate": "2026-07-02",
+        "coveredDays": 64,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 100,
+        "oldestDatetime": "1781740800000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "LTCUSDT",
+      "candles": {
+        "count": 90,
+        "oldestDate": "2026-04-04",
+        "newestDate": "2026-07-02",
+        "coveredDays": 64,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 100,
+        "oldestDatetime": "1780300800000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "MIRAUSDT",
+      "candles": {
+        "count": 90,
+        "oldestDate": "2026-04-04",
+        "newestDate": "2026-07-02",
+        "coveredDays": 64,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 100,
+        "oldestDatetime": "1781740800000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "MUSDT",
+      "candles": {
+        "count": 90,
+        "oldestDate": "2026-04-04",
+        "newestDate": "2026-07-02",
+        "coveredDays": 64,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 100,
+        "oldestDatetime": "1781740800000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "OGNUSDT",
+      "candles": {
+        "count": 90,
+        "oldestDate": "2026-04-04",
+        "newestDate": "2026-07-02",
+        "coveredDays": 64,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 100,
+        "oldestDatetime": "1781740800000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "ZKPUSDT",
+      "candles": {
+        "count": 90,
+        "oldestDate": "2026-04-04",
+        "newestDate": "2026-07-02",
+        "coveredDays": 64,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 100,
+        "oldestDatetime": "1781740800000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "SOXLUSDT",
+      "candles": {
+        "count": 86,
+        "oldestDate": "2026-04-08",
+        "newestDate": "2026-07-02",
+        "coveredDays": 62,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 261,
+        "oldestDatetime": "1775664000000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "10000NEXUSDT",
+      "candles": {
+        "count": 44,
+        "oldestDate": "2026-05-20",
+        "newestDate": "2026-07-02",
+        "coveredDays": 32,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 271,
+        "oldestDatetime": "1779278400000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "SLXUSDT",
+      "candles": {
+        "count": 33,
+        "oldestDate": "2026-05-31",
+        "newestDate": "2026-07-02",
+        "coveredDays": 24,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 313,
+        "oldestDatetime": "1779710400000",
+        "newestDatetime": "1783177200000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "SKHYNIXUSDT",
+      "candles": {
+        "count": 32,
+        "oldestDate": "2026-06-01",
+        "newestDate": "2026-07-02",
+        "coveredDays": 24,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 97,
+        "oldestDatetime": "1780387200000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "SPCXUSDT",
+      "candles": {
+        "count": 25,
+        "oldestDate": "2026-06-08",
+        "newestDate": "2026-07-02",
+        "coveredDays": 19,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 133,
+        "oldestDatetime": "1779350400000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "REUSDT",
+      "candles": {
+        "count": 16,
+        "oldestDate": "2026-06-17",
+        "newestDate": "2026-07-02",
+        "coveredDays": 12,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 97,
+        "oldestDatetime": "1781784000000",
+        "newestDatetime": "1783166400000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    },
+    {
+      "symbol": "MINIMAXUSDT",
+      "candles": {
+        "count": 10,
+        "oldestDate": "2026-06-23",
+        "newestDate": "2026-07-02",
+        "coveredDays": 8,
+        "gapDays": 0,
+        "gapRatio": 0
+      },
+      "fundingRate": {
+        "count": 31,
+        "oldestDatetime": "1782288000000",
+        "newestDatetime": "1783152000000"
+      },
+      "covers3YearsFrom": "NO",
+      "covers2022FullYear": false
+    }
+  ],
+  "summary": {
+    "N20": {
+      "threeYears": 14,
+      "fullYear2022": 14
+    },
+    "N30": {
+      "threeYears": 14,
+      "fullYear2022": 14
+    },
+    "N50": {
+      "threeYears": 14,
+      "fullYear2022": 14
+    }
+  }
+}

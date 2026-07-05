@@ -1,0 +1,69 @@
+=== EXP-OBS000031 Stage 0 G0-3: Liquidation/OI Availability Probe ===
+Execution time: 2026-07-04T21:05:22.813Z
+Node version: v22.22.2
+
+INVESTIGATION SCOPE:
+1. Liquidation history endpoint (liquidation-orders)
+2. OI history endpoint (open-interest with pagination)
+3. Current OI snapshot availability
+4. Coverage check: can 2022 full-year be covered?
+
+ROLE OF G0-3:
+Information gate only - does NOT block overall GO/HOLD decision.
+Determines whether route-beta (liquidation-reversion edge) can be
+registered as a candidate in Stage 1, vs restricted to route-alpha
+(mean-reversion) only.
+
+SPECIFICATION:
+- Symbols: BTCUSDT, ETHUSDT
+- Baseline date: 2026-07-05
+- Target: 2022-01-01 or earlier coverage
+
+MEASUREMENT METHODOLOGY:
+- Paginate through each endpoint until empty response
+- Extract oldest timestamp from all pages
+- Determine 2022 coverage status
+- Record both history and snapshot availability
+
+OUTPUT FILES:
+- G0-3-liquidation-oi-probe.json (full probe results + assessment)
+- liquidation-oi-run.log (this file)
+
+REPRODUCTION COMMAND:
+node --experimental-strip-types scripts/probe-bitget-liquidation-oi.ts
+
+EXECUTION LOG:
+[2026-07-04T21:05:22.815Z] 
+=== EXP-OBS000031 Stage 0 G0-3: Liquidation/OI Availability Probe ===
+[2026-07-04T21:05:22.822Z] Script started: 2026-07-04T21:05:22.813Z
+[2026-07-04T21:05:22.822Z] Node version: v22.22.2
+[2026-07-04T21:05:22.822Z] 情報ゲート: Stage 1での路線β（清算反発）採用可否の材料を事前取得
+[2026-07-04T21:05:22.822Z] 
+【BTCUSDT】清算/OI履歴プローブ開始
+[2026-07-04T21:05:22.823Z]   清算履歴（liquidation-orders）を試行...
+[2026-07-04T21:05:23.178Z]     ✗ 存在しない or 空応答
+[2026-07-04T21:05:23.494Z]   OI履歴（open-interest）を試行...
+[2026-07-04T21:05:23.528Z]     ✗ 存在しない or 空応答
+[2026-07-04T21:05:23.847Z]   現在のOIスナップショット（open-interest現在値）を試行...
+[2026-07-04T21:05:23.881Z]     ✗ 取得不可
+[2026-07-04T21:05:24.388Z] 
+【ETHUSDT】清算/OI履歴プローブ開始
+[2026-07-04T21:05:24.388Z]   清算履歴（liquidation-orders）を試行...
+[2026-07-04T21:05:24.415Z]     ✗ 存在しない or 空応答
+[2026-07-04T21:05:24.717Z]   OI履歴（open-interest）を試行...
+[2026-07-04T21:05:24.748Z]     ✗ 存在しない or 空応答
+[2026-07-04T21:05:25.062Z]   現在のOIスナップショット（open-interest現在値）を試行...
+[2026-07-04T21:05:25.107Z]     ✗ 取得不可
+[2026-07-04T21:05:25.107Z] 
+=== G0-3 可用性集計 ===
+[2026-07-04T21:05:25.108Z] 
+[2026-07-04T21:05:25.108Z] 【BTCUSDT】
+[2026-07-04T21:05:25.108Z]   清算履歴: ✗ 非存在
+[2026-07-04T21:05:25.108Z]   OI履歴: ✓ 存在
+[2026-07-04T21:05:25.108Z]   現在OI: ✗ 取得不可
+[2026-07-04T21:05:25.108Z] 
+[2026-07-04T21:05:25.108Z] 【ETHUSDT】
+[2026-07-04T21:05:25.108Z]   清算履歴: ✗ 非存在
+[2026-07-04T21:05:25.108Z]   OI履歴: ✓ 存在
+[2026-07-04T21:05:25.108Z]   現在OI: ✗ 取得不可
+[2026-07-04T21:05:25.108Z] 

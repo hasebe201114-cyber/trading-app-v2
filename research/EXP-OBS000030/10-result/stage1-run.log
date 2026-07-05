@@ -1,0 +1,45 @@
+Stage 1 Exploratory Run Log
+===========================
+
+Start: 2026-07-04T20:14:03.954Z
+End: 2026-07-04T20:14:10.762Z
+
+Command:
+  node --experimental-strip-types scripts/cross-sectional-momentum-exploratory.ts
+
+Working directory: C:\Users\Atsushi Hasebe\Project\trading-app-v2
+
+Data source: research/EXP-OBS000030/10-result/history-*.json (50 symbols)
+
+Config A symbols (14 fixed):
+  AAVEUSDT
+  ADAUSDT
+  AVAXUSDT
+  BCHUSDT
+  BNBUSDT
+  BTCUSDT
+  DOGEUSDT
+  ETHUSDT
+  FILUSDT
+  LINKUSDT
+  NEARUSDT
+  SOLUSDT
+  XLMUSDT
+  XRPUSDT
+
+Spec: research/EXP-OBS000030/00-spec-stage1-exploratory.md
+
+Boundary Conditions (absolute):
+  1. Production adoption banned: this exploratory result cannot be used for production (D staging).
+  2. Survivorship bias disclosed: all outputs tagged with "生存バイアス上振れ・非採用前提・現行生存銘柄のみ（死銘柄除外）".
+  3. No formal PASS/FAIL gates (G1-G4 not applied). Observation-based only.
+  4. No adoption path even if positive. Any hint → reference for paid data re-run as separate OBS.
+
+Output files:
+  - stage1-cross-sectional-momentum-exploratory.json
+  - stage1-exploratory-summary.md
+  - stage1-params.json
+  - stage1-run.log (this file)
+
+Reproducibility:
+  All results are deterministic (mulberry32 seed=20260705).

@@ -1,0 +1,70 @@
+{
+  "configA_symbols": [
+    "AAVEUSDT",
+    "ADAUSDT",
+    "AVAXUSDT",
+    "BCHUSDT",
+    "BNBUSDT",
+    "BTCUSDT",
+    "DOGEUSDT",
+    "ETHUSDT",
+    "FILUSDT",
+    "LINKUSDT",
+    "NEARUSDT",
+    "SOLUSDT",
+    "XLMUSDT",
+    "XRPUSDT"
+  ],
+  "lookbackL_primary": 30,
+  "lookbackL_sensitivity": [
+    15,
+    60
+  ],
+  "rebalanceFrequency": "monthly",
+  "portfolio": {
+    "tercileLong": "top_n/3",
+    "tercileShort": "bottom_n/3",
+    "neutrality": "dollar-neutral"
+  },
+  "costs": {
+    "takerFee_bps": 6,
+    "slippage_tiers": [
+      {
+        "max": 10,
+        "bps": 5
+      },
+      {
+        "max": 30,
+        "bps": 15
+      },
+      {
+        "max": null,
+        "bps": 30
+      }
+    ],
+    "fundingNote": "Funding履歴は3年取得不可のため全期間ネットから除外（ショート保有コストの過小評価）"
+  },
+  "permutation": {
+    "nPerm": 5000,
+    "seed": 20260705
+  },
+  "measurementPeriod": [
+    "2022-01-01",
+    "2026-07-02"
+  ],
+  "selectionConfirmationBoundary": "2024-06-30",
+  "regimeBoundaries": {
+    "r1": [
+      "2022-01-01",
+      "2022-12-31"
+    ],
+    "r2": [
+      "2023-01-01",
+      "2024-12-31"
+    ],
+    "r3": [
+      "2025-01-01",
+      "2026-07-02"
+    ]
+  }
+}

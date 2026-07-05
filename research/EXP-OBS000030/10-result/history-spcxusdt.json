@@ -1,0 +1,738 @@
+{
+  "candles": [
+    {
+      "date": "2026-06-08",
+      "open": 155.57,
+      "high": 160.84,
+      "low": 153.72,
+      "close": 156.11,
+      "volume": 40153.06
+    },
+    {
+      "date": "2026-06-09",
+      "open": 156.11,
+      "high": 166.32,
+      "low": 153.15,
+      "close": 164.7,
+      "volume": 102985.36
+    },
+    {
+      "date": "2026-06-10",
+      "open": 164.7,
+      "high": 168.91,
+      "low": 159.46,
+      "close": 167.39,
+      "volume": 148033.73
+    },
+    {
+      "date": "2026-06-11",
+      "open": 167.39,
+      "high": 185,
+      "low": 152.08,
+      "close": 161.58,
+      "volume": 1293894.3
+    },
+    {
+      "date": "2026-06-12",
+      "open": 161.58,
+      "high": 176.57,
+      "low": 156.1,
+      "close": 165.59,
+      "volume": 1895313.37
+    },
+    {
+      "date": "2026-06-13",
+      "open": 165.59,
+      "high": 167.82,
+      "low": 164.05,
+      "close": 166.57,
+      "volume": 122873.85
+    },
+    {
+      "date": "2026-06-14",
+      "open": 166.57,
+      "high": 177.97,
+      "low": 166.02,
+      "close": 175.71,
+      "volume": 919494.75
+    },
+    {
+      "date": "2026-06-15",
+      "open": 175.71,
+      "high": 228.11,
+      "low": 173.71,
+      "close": 211.19,
+      "volume": 3166568.49
+    },
+    {
+      "date": "2026-06-16",
+      "open": 211.19,
+      "high": 218.05,
+      "low": 187.49,
+      "close": 195.83,
+      "volume": 2765925.81
+    },
+    {
+      "date": "2026-06-17",
+      "open": 195.83,
+      "high": 200.33,
+      "low": 175.58,
+      "close": 176.45,
+      "volume": 2848558.68
+    },
+    {
+      "date": "2026-06-18",
+      "open": 176.45,
+      "high": 190.22,
+      "low": 172.5,
+      "close": 180.02,
+      "volume": 1587318.77
+    },
+    {
+      "date": "2026-06-19",
+      "open": 180.02,
+      "high": 182.02,
+      "low": 178.22,
+      "close": 180.7,
+      "volume": 182866.53
+    },
+    {
+      "date": "2026-06-20",
+      "open": 180.7,
+      "high": 181.99,
+      "low": 180.05,
+      "close": 181.41,
+      "volume": 91016.06
+    },
+    {
+      "date": "2026-06-21",
+      "open": 181.41,
+      "high": 181.85,
+      "low": 165.52,
+      "close": 167.09,
+      "volume": 2266240.44
+    },
+    {
+      "date": "2026-06-22",
+      "open": 167.09,
+      "high": 167.3,
+      "low": 147.24,
+      "close": 161.5,
+      "volume": 5299516.83
+    },
+    {
+      "date": "2026-06-23",
+      "open": 161.5,
+      "high": 165.61,
+      "low": 150.87,
+      "close": 159.01,
+      "volume": 4331737.59
+    },
+    {
+      "date": "2026-06-24",
+      "open": 159.01,
+      "high": 164.13,
+      "low": 150.51,
+      "close": 152.56,
+      "volume": 3084986.59
+    },
+    {
+      "date": "2026-06-25",
+      "open": 152.56,
+      "high": 157.15,
+      "low": 148.35,
+      "close": 156.44,
+      "volume": 1732367.77
+    },
+    {
+      "date": "2026-06-26",
+      "open": 156.44,
+      "high": 158.77,
+      "low": 150.83,
+      "close": 155.04,
+      "volume": 901102.64
+    },
+    {
+      "date": "2026-06-27",
+      "open": 155.04,
+      "high": 155.23,
+      "low": 152.84,
+      "close": 154.9,
+      "volume": 105031.06
+    },
+    {
+      "date": "2026-06-28",
+      "open": 154.9,
+      "high": 160.27,
+      "low": 152.21,
+      "close": 157.15,
+      "volume": 1319630.17
+    },
+    {
+      "date": "2026-06-29",
+      "open": 157.15,
+      "high": 172.78,
+      "low": 156.49,
+      "close": 169.76,
+      "volume": 1995115.09
+    },
+    {
+      "date": "2026-06-30",
+      "open": 169.76,
+      "high": 176.61,
+      "low": 158.05,
+      "close": 159.09,
+      "volume": 1814433.5
+    },
+    {
+      "date": "2026-07-01",
+      "open": 159.09,
+      "high": 163.81,
+      "low": 155.69,
+      "close": 159.39,
+      "volume": 1437544.29
+    },
+    {
+      "date": "2026-07-02",
+      "open": 159.39,
+      "high": 162.38,
+      "low": 156.21,
+      "close": 159.53,
+      "volume": 305420.77
+    }
+  ],
+  "fundingRates": [
+    {
+      "datetime": "1779350400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779379200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779408000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779436800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779465600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779494400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779523200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779552000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779580800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779609600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779638400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779667200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779696000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779724800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779753600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779782400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779811200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779840000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779868800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779897600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779926400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779955200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1779984000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780012800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780041600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780070400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780099200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780128000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780156800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780185600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780214400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780243200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780272000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780300800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780329600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780358400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780387200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780416000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780444800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780473600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780502400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780531200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780560000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780588800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780617600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780646400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780675200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780704000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780732800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780761600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780790400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780819200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780848000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780876800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780905600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780934400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780963200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1780992000000",
+      "fundingRate": -0.001
+    },
+    {
+      "datetime": "1781020800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781049600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781078400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781107200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781136000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781164800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781193600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781222400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781251200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781280000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781308800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781337600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781366400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781395200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781424000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781452800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781481600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781510400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781539200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781568000000",
+      "fundingRate": -0.000723
+    },
+    {
+      "datetime": "1781596800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781625600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781654400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781683200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781712000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781740800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781769600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781798400000",
+      "fundingRate": 0.000196
+    },
+    {
+      "datetime": "1781827200000",
+      "fundingRate": 0.000231
+    },
+    {
+      "datetime": "1781856000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781884800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781913600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781942400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1781971200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782000000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782028800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782057600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782086400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782115200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782144000000",
+      "fundingRate": 0.000481
+    },
+    {
+      "datetime": "1782172800000",
+      "fundingRate": 0.00026
+    },
+    {
+      "datetime": "1782201600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782230400000",
+      "fundingRate": 0.000232
+    },
+    {
+      "datetime": "1782259200000",
+      "fundingRate": 0.000194
+    },
+    {
+      "datetime": "1782288000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782316800000",
+      "fundingRate": 0.000195
+    },
+    {
+      "datetime": "1782345600000",
+      "fundingRate": 0.00054
+    },
+    {
+      "datetime": "1782374400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782403200000",
+      "fundingRate": 0.000602
+    },
+    {
+      "datetime": "1782432000000",
+      "fundingRate": 0.000525
+    },
+    {
+      "datetime": "1782460800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782489600000",
+      "fundingRate": 0.000169
+    },
+    {
+      "datetime": "1782518400000",
+      "fundingRate": 0.000027
+    },
+    {
+      "datetime": "1782547200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782576000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782604800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782633600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782662400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782691200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782720000000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782748800000",
+      "fundingRate": 0.000149
+    },
+    {
+      "datetime": "1782777600000",
+      "fundingRate": 0.000128
+    },
+    {
+      "datetime": "1782806400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782835200000",
+      "fundingRate": 0.000253
+    },
+    {
+      "datetime": "1782864000000",
+      "fundingRate": 0.000242
+    },
+    {
+      "datetime": "1782892800000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1782921600000",
+      "fundingRate": 0.000799
+    },
+    {
+      "datetime": "1782950400000",
+      "fundingRate": 0.000383
+    },
+    {
+      "datetime": "1782979200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1783008000000",
+      "fundingRate": 0.000525
+    },
+    {
+      "datetime": "1783036800000",
+      "fundingRate": 0.000133
+    },
+    {
+      "datetime": "1783065600000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1783094400000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1783123200000",
+      "fundingRate": 0
+    },
+    {
+      "datetime": "1783152000000",
+      "fundingRate": 0
+    }
+  ]
+}

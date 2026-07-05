@@ -1,0 +1,104 @@
+[2026-07-04T15:43:00.568Z] === G0-3: PIT Universe Prototype ===
+[2026-07-04T15:43:00.568Z] Script started: 2026-07-04T15:43:00.563Z
+[2026-07-04T15:43:00.568Z] Period: 2025-07-05 ~ 2026-07-05 (1 year)
+[2026-07-04T15:43:00.568Z] Rebalance frequency: Monthly (first trading day of each month)
+[2026-07-04T15:43:00.568Z] 
+[2026-07-04T15:43:00.568Z] Rebalance dates: 13 months
+[2026-07-04T15:43:00.568Z] First: 2025-07-05
+[2026-07-04T15:43:00.569Z] Last: 2026-07-05
+[2026-07-04T15:43:00.569Z] 
+### Phase 1: Current ticker snapshot (for universe universe)
+[2026-07-04T15:43:00.969Z] Current tickers: 684 symbols
+[2026-07-04T15:43:00.969Z] Top 1: BTCUSDT (1574778153.95041 USDT)
+[2026-07-04T15:43:00.969Z] 
+### Phase 2: Fetch candle data for top-50 symbols
+[2026-07-04T15:43:01.030Z]   [1/50] BTCUSDT: 90 candles
+[2026-07-04T15:43:01.075Z]   [2/50] ETHUSDT: 90 candles
+[2026-07-04T15:43:01.133Z]   [3/50] SOLUSDT: 90 candles
+[2026-07-04T15:43:01.235Z]   [4/50] XRPUSDT: 90 candles
+[2026-07-04T15:43:01.439Z]   [5/50] LABUSDT: 90 candles
+[2026-07-04T15:43:01.685Z]   [6/50] HYPEUSDT: 90 candles
+[2026-07-04T15:43:01.719Z]   [7/50] ZECUSDT: 90 candles
+[2026-07-04T15:43:01.760Z]   [8/50] TLMUSDT: 90 candles
+[2026-07-04T15:43:01.850Z]   [9/50] ADAUSDT: 90 candles
+[2026-07-04T15:43:02.024Z]   [10/50] MAGMAUSDT: 90 candles
+[2026-07-04T15:43:02.286Z]   [11/50] PEPEUSDT: 90 candles
+[2026-07-04T15:43:02.322Z]   [12/50] VELVETUSDT: 90 candles
+[2026-07-04T15:43:02.357Z]   [13/50] WLDUSDT: 90 candles
+[2026-07-04T15:43:02.392Z]   [14/50] SUIUSDT: 90 candles
+[2026-07-04T15:43:02.492Z]   [15/50] NEARUSDT: 90 candles
+[2026-07-04T15:43:02.727Z]   [16/50] DOGEUSDT: 90 candles
+[2026-07-04T15:43:02.763Z]   [17/50] XLMUSDT: 90 candles
+[2026-07-04T15:43:02.798Z]   [18/50] SOXLUSDT: 86 candles
+[2026-07-04T15:43:02.832Z]   [19/50] ARPAUSDT: 90 candles
+[2026-07-04T15:43:02.933Z]   [20/50] SKHYNIXUSDT: 32 candles
+[2026-07-04T15:43:03.190Z]   [21/50] XAUUSDT: 90 candles
+[2026-07-04T15:43:03.278Z]   [22/50] SPCXUSDT: 25 candles
+[2026-07-04T15:43:03.311Z]   [23/50] MSTRUSDT: 90 candles
+[2026-07-04T15:43:03.348Z]   [24/50] SLXUSDT: 33 candles
+[2026-07-04T15:43:03.384Z]   [25/50] BNBUSDT: 90 candles
+[2026-07-04T15:43:03.634Z]   [26/50] XPLUSDT: 90 candles
+[2026-07-04T15:43:03.671Z]   [27/50] REUSDT: 16 candles
+[2026-07-04T15:43:03.703Z]   [28/50] AAVEUSDT: 90 candles
+[2026-07-04T15:43:03.735Z]   [29/50] TAOUSDT: 90 candles
+[2026-07-04T15:43:03.766Z]   [30/50] 1000BONKUSDT: 90 candles
+[2026-07-04T15:43:04.009Z]   [31/50] LINKUSDT: 90 candles
+[2026-07-04T15:43:04.046Z]   [32/50] BEATUSDT: 90 candles
+[2026-07-04T15:43:04.079Z]   [33/50] MUUSDT: 90 candles
+[2026-07-04T15:43:04.119Z]   [34/50] THEUSDT: 90 candles
+[2026-07-04T15:43:04.153Z]   [35/50] 10000NEXUSDT: 44 candles
+[2026-07-04T15:43:04.400Z]   [36/50] CLUSDT: 90 candles
+[2026-07-04T15:43:04.433Z]   [37/50] FILUSDT: 90 candles
+[2026-07-04T15:43:04.469Z]   [38/50] AVAXUSDT: 90 candles
+[2026-07-04T15:43:04.501Z]   [39/50] BCHUSDT: 90 candles
+[2026-07-04T15:43:04.534Z]   [40/50] SYNUSDT: 90 candles
+[2026-07-04T15:43:04.774Z]   [41/50] ENAUSDT: 90 candles
+[2026-07-04T15:43:04.807Z]   [42/50] MIRAUSDT: 90 candles
+[2026-07-04T15:43:04.838Z]   [43/50] EPICUSDT: 90 candles
+[2026-07-04T15:43:04.872Z]   [44/50] ZKPUSDT: 90 candles
+[2026-07-04T15:43:04.907Z]   [45/50] LTCUSDT: 90 candles
+[2026-07-04T15:43:05.155Z]   [46/50] BASUSDT: 90 candles
+[2026-07-04T15:43:05.193Z]   [47/50] GWEIUSDT: 90 candles
+[2026-07-04T15:43:05.227Z]   [48/50] MUSDT: 90 candles
+[2026-07-04T15:43:05.374Z]   [49/50] MINIMAXUSDT: 10 candles
+[2026-07-04T15:43:05.411Z]   [50/50] OGNUSDT: 90 candles
+[2026-07-04T15:43:05.625Z] 
+### Phase 3: PIT Universe Construction (as-of ranking)
+[2026-07-04T15:43:05.634Z]   2025-07-05: Ranked 0 symbols (N=20: 0)
+[2026-07-04T15:43:05.640Z]   2025-08-05: Ranked 0 symbols (N=20: 0)
+[2026-07-04T15:43:05.646Z]   2025-09-05: Ranked 0 symbols (N=20: 0)
+[2026-07-04T15:43:05.654Z]   2025-10-05: Ranked 0 symbols (N=20: 0)
+[2026-07-04T15:43:05.660Z]   2025-11-05: Ranked 0 symbols (N=20: 0)
+[2026-07-04T15:43:05.665Z]   2025-12-05: Ranked 0 symbols (N=20: 0)
+[2026-07-04T15:43:05.671Z]   2026-01-05: Ranked 0 symbols (N=20: 0)
+[2026-07-04T15:43:05.677Z]   2026-02-05: Ranked 0 symbols (N=20: 0)
+[2026-07-04T15:43:05.683Z]   2026-03-05: Ranked 0 symbols (N=20: 0)
+[2026-07-04T15:43:05.691Z]   2026-04-05: Ranked 43 symbols (N=20: 20)
+[2026-07-04T15:43:05.697Z]   2026-05-05: Ranked 44 symbols (N=20: 20)
+[2026-07-04T15:43:05.703Z]   2026-06-05: Ranked 47 symbols (N=20: 20)
+[2026-07-04T15:43:05.710Z]   2026-07-05: Ranked 50 symbols (N=20: 20)
+[2026-07-04T15:43:05.710Z] 
+### Phase 4: Reproducibility Test (second run with same inputs)
+[2026-07-04T15:43:05.793Z] Reproducibility: PASS
+[2026-07-04T15:43:05.793Z] 
+### Phase 5: Dead symbol handling logic skeleton
+[2026-07-04T15:43:05.793Z] /**
+ * To handle dead symbols (delisted):
+ *
+ * 1. Maintain a "universe state" dict: symbol -> {listDate, delistDate}
+ * 2. For each rebalance at time t:
+ *    - Filter candidates to those where listDate <= t < delistDate (NULL = still active)
+ *    - Calculate 30-day avg volume using only historical candles
+ *    - Rank and select top-N
+ *
+ * Without historical delisting metadata (currently unavailable from Bitget API):
+ *    - Only current (active) symbols can be used
+ *    - Creates survivorship bias (living symbols appear overrepresented)
+ *
+ * Alternative (external source):
+ *    - Reconstruct from CoinGecko / Bitget announcements
+ *    - Limited coverage, manual effort
+ */
+[2026-07-04T15:43:05.794Z] 
+=== PIT Prototype Complete ===
+[2026-07-04T15:43:05.794Z] Results saved: G0-3-pit-universe-prototype.json

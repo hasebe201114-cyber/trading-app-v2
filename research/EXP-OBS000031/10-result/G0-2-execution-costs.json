@@ -1,0 +1,201 @@
+{
+  "timestamp": "2026-07-04T23:18:30.922Z",
+  "results": [
+    {
+      "symbol": "BTCUSDT",
+      "fees": {
+        "symbol": "BTCUSDT",
+        "takerFeeRate": 0.0006,
+        "makerFeeRate": 0.0002,
+        "source": "api"
+      },
+      "spread": {
+        "symbol": "BTCUSDT",
+        "timestamp": "2026-07-04T23:18:31.474Z",
+        "bidPrice": 63009.8,
+        "askPrice": 63009.9,
+        "midPrice": 63009.850000000006,
+        "spreadBps": 0.015870534527307207
+      },
+      "slippage": {
+        "buy": [
+          {
+            "symbol": "BTCUSDT",
+            "side": "BUY",
+            "sizeUSDT": 10000,
+            "avgExecutionPrice": 63009.9,
+            "midPrice": 63009.850000000006,
+            "slippageBps": 0.007935267263076237,
+            "depthLevels": 50,
+            "exhaustedDepth": false
+          },
+          {
+            "symbol": "BTCUSDT",
+            "side": "BUY",
+            "sizeUSDT": 50000,
+            "avgExecutionPrice": 63009.9,
+            "midPrice": 63009.850000000006,
+            "slippageBps": 0.007935267263076237,
+            "depthLevels": 50,
+            "exhaustedDepth": false
+          },
+          {
+            "symbol": "BTCUSDT",
+            "side": "BUY",
+            "sizeUSDT": 100000,
+            "avgExecutionPrice": 63010.534346135704,
+            "midPrice": 63009.850000000006,
+            "slippageBps": 0.108609389753893,
+            "depthLevels": 50,
+            "exhaustedDepth": false
+          }
+        ],
+        "sell": [
+          {
+            "symbol": "BTCUSDT",
+            "side": "SELL",
+            "sizeUSDT": 10000,
+            "avgExecutionPrice": 63009.8,
+            "midPrice": 63009.850000000006,
+            "slippageBps": 0.00793526726423097,
+            "depthLevels": 50,
+            "exhaustedDepth": false
+          },
+          {
+            "symbol": "BTCUSDT",
+            "side": "SELL",
+            "sizeUSDT": 50000,
+            "avgExecutionPrice": 63009.8,
+            "midPrice": 63009.850000000006,
+            "slippageBps": 0.00793526726423097,
+            "depthLevels": 50,
+            "exhaustedDepth": false
+          },
+          {
+            "symbol": "BTCUSDT",
+            "side": "SELL",
+            "sizeUSDT": 100000,
+            "avgExecutionPrice": 63009.8,
+            "midPrice": 63009.850000000006,
+            "slippageBps": 0.00793526726423097,
+            "depthLevels": 50,
+            "exhaustedDepth": false
+          }
+        ]
+      },
+      "orderbookDepth": 50,
+      "roundtripCosts": {
+        "scenarioTaker": {
+          "size_10k": 12.031741069054611,
+          "size_50k": 12.031741069054611,
+          "size_100k": 12.132415191545428,
+          "description": "全成行（テイカー）想定。往復コスト=2×テイカー手数料+2×（スプレッド/2）+スリッページ"
+        },
+        "scenarioMaker": {
+          "size_10k": 8.015870534527306,
+          "size_50k": 8.015870534527306,
+          "size_100k": 8.066207595772715,
+          "description": "指値約定率50%悲観想定。往復コスト=指値成立0.5×（2×メイカー手数料）+成行転換0.5×（S-takerと同等）"
+        }
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "fees": {
+        "symbol": "ETHUSDT",
+        "takerFeeRate": 0.0006,
+        "makerFeeRate": 0.0002,
+        "source": "api"
+      },
+      "spread": {
+        "symbol": "ETHUSDT",
+        "timestamp": "2026-07-04T23:18:32.669Z",
+        "bidPrice": 1776.34,
+        "askPrice": 1776.35,
+        "midPrice": 1776.3449999999998,
+        "spreadBps": 0.056295370550151616
+      },
+      "slippage": {
+        "buy": [
+          {
+            "symbol": "ETHUSDT",
+            "side": "BUY",
+            "sizeUSDT": 10000,
+            "avgExecutionPrice": 1776.35,
+            "midPrice": 1776.3449999999998,
+            "slippageBps": 0.028147685275715807,
+            "depthLevels": 50,
+            "exhaustedDepth": false
+          },
+          {
+            "symbol": "ETHUSDT",
+            "side": "BUY",
+            "sizeUSDT": 50000,
+            "avgExecutionPrice": 1776.35,
+            "midPrice": 1776.3449999999998,
+            "slippageBps": 0.028147685275715807,
+            "depthLevels": 50,
+            "exhaustedDepth": false
+          },
+          {
+            "symbol": "ETHUSDT",
+            "side": "BUY",
+            "sizeUSDT": 100000,
+            "avgExecutionPrice": 1776.35,
+            "midPrice": 1776.3449999999998,
+            "slippageBps": 0.028147685275715807,
+            "depthLevels": 50,
+            "exhaustedDepth": false
+          }
+        ],
+        "sell": [
+          {
+            "symbol": "ETHUSDT",
+            "side": "SELL",
+            "sizeUSDT": 10000,
+            "avgExecutionPrice": 1776.34,
+            "midPrice": 1776.3449999999998,
+            "slippageBps": 0.028147685274435803,
+            "depthLevels": 50,
+            "exhaustedDepth": false
+          },
+          {
+            "symbol": "ETHUSDT",
+            "side": "SELL",
+            "sizeUSDT": 50000,
+            "avgExecutionPrice": 1776.2381855346803,
+            "midPrice": 1776.3449999999998,
+            "slippageBps": 0.6013159905284753,
+            "depthLevels": 50,
+            "exhaustedDepth": false
+          },
+          {
+            "symbol": "ETHUSDT",
+            "side": "SELL",
+            "sizeUSDT": 100000,
+            "avgExecutionPrice": 1776.17124552313,
+            "midPrice": 1776.3449999999998,
+            "slippageBps": 0.9781572660143,
+            "depthLevels": 50,
+            "exhaustedDepth": false
+          }
+        ]
+      },
+      "orderbookDepth": 50,
+      "roundtripCosts": {
+        "scenarioTaker": {
+          "size_10k": 12.1125907411003,
+          "size_50k": 12.68575904635434,
+          "size_100k": 13.062600321840165,
+          "description": "全成行（テイカー）想定。往復コスト=2×テイカー手数料+2×（スプレッド/2）+スリッページ"
+        },
+        "scenarioMaker": {
+          "size_10k": 8.05629537055015,
+          "size_50k": 8.34287952317717,
+          "size_100k": 8.531300160920082,
+          "description": "指値約定率50%悲観想定。往復コスト=指値成立0.5×（2×メイカー手数料）+成行転換0.5×（S-takerと同等）"
+        }
+      }
+    }
+  ]
+}

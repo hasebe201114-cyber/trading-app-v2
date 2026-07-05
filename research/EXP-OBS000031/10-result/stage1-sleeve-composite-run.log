@@ -1,0 +1,18 @@
+=== EXP-OBS000031 Stage 1-B/C: Sleeve + Composite ===
+Timestamp: 2026-07-05T02:32:43.459Z
+Node: v22.22.2
+
+SPECIFICATION:
+K=3, W=168, Z_enter=2, N=3
+Notional: $50000
+S-taker costs: BTC=12.03bps, ETH=12.69bps
+
+REPRODUCTION:
+node --experimental-strip-types scripts/intraday-meanrev-sleeve-composite.ts
+
+INPUT FILES:
+BTCUSDT_1h.json, ETHUSDT_1h.json
+btc-daily-binance-2017-2026.csv, eth-daily-binance-2017-2026.csv
+
+OUTPUT:
+stage1-sleeve-composite.json

@@ -1,0 +1,42 @@
+{
+  "timestamp": "2026-07-05T02:32:43.459Z",
+  "specification": {
+    "K": 3,
+    "W": 168,
+    "Z_enter": 2,
+    "N": 3,
+    "notional": 50000,
+    "selection_start": "2019-08-10T00:00:00.000Z",
+    "selection_end": "2021-12-31T23:59:59.000Z",
+    "confirmation_start": "2022-01-01T00:00:00.000Z"
+  },
+  "results": [
+    {
+      "symbol": "BTCUSDT",
+      "period": "confirmation",
+      "sleeve_netSharpe": -3.1629413785750162,
+      "momentum_sharpe": 0.3879523446933452,
+      "composite_sharpe": -2.2971653729259724,
+      "correlation": -0.05787358901835161,
+      "sleeve_dd": 2.3595720546092496,
+      "momentum_dd": 0.9535156998130262,
+      "composite_dd": 1.5169038719696712,
+      "weight_sleeve": 0.7105152078465579,
+      "weight_momentum": 0.289484792153442
+    },
+    {
+      "symbol": "ETHUSDT",
+      "period": "confirmation",
+      "sleeve_netSharpe": -2.103112184841096,
+      "momentum_sharpe": 0.11075201394859333,
+      "composite_sharpe": -1.5825025869612526,
+      "correlation": 0.041303325481133905,
+      "sleeve_dd": 2.159191052963985,
+      "momentum_dd": 1.1734922550646614,
+      "composite_dd": 1.434997803368356,
+      "weight_sleeve": 0.7066044243461711,
+      "weight_momentum": 0.29339557565382873
+    }
+  ],
+  "note": "Stage 1-B (sleeve) + Stage 1-C (composition). Weights frozen from selection period."
+}

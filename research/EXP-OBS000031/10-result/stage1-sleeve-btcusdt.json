@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-07-05T02:31:08.684Z",
+  "symbol": "BTCUSDT",
+  "results": [
+    {
+      "symbol": "BTCUSDT",
+      "period": "confirmation",
+      "netSharpe": -3.1629413785750162,
+      "grossSharpe": 0,
+      "cumulativeNetReturn": -2.237719835717848,
+      "maxDrawdown": 2.3595720546092496,
+      "yearlyTradeCount": 278,
+      "yearlyNetCostDrag": 3347
+    },
+    {
+      "symbol": "BTCUSDT",
+      "period": "R-bear",
+      "netSharpe": -2.888150427253193,
+      "grossSharpe": 0,
+      "cumulativeNetReturn": -0.5724200251799206,
+      "maxDrawdown": 0.67682154749511,
+      "yearlyTradeCount": 272,
+      "yearlyNetCostDrag": 3274
+    },
+    {
+      "symbol": "BTCUSDT",
+      "period": "R-recovery",
+      "netSharpe": -3.966643297670473,
+      "grossSharpe": 0,
+      "cumulativeNetReturn": -0.5038675366260761,
+      "maxDrawdown": 0.5311157976171603,
+      "yearlyTradeCount": 243,
+      "yearlyNetCostDrag": 2925
+    },
+    {
+      "symbol": "BTCUSDT",
+      "period": "R-recent",
+      "netSharpe": -3.127030263284914,
+      "grossSharpe": 0,
+      "cumulativeNetReturn": -1.161432273911852,
+      "maxDrawdown": 1.2737716059542692,
+      "yearlyTradeCount": 295,
+      "yearlyNetCostDrag": 3545
+    }
+  ],
+  "note": "Sleeve only (Stage 1-B). Stage 1-C composition with ② requires simulatePortfolio integration."
+}

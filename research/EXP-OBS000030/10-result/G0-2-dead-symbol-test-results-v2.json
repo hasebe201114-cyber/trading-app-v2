@@ -1,0 +1,41 @@
+{
+  "timestamp": "2026-07-04T16:02:01.886Z",
+  "note": "修正版テスト: code 40034（不存在）vs 40309（廃止済）の識別",
+  "testResults": [
+    {
+      "symbol": "SRMUSDT",
+      "testEndTime": "1672531199999",
+      "httpStatus": 400,
+      "apiCode": "40309",
+      "apiMsg": "The symbol has been removed",
+      "interpretation": "removed",
+      "candlesDataAvailable": false,
+      "candlesCount": 0
+    },
+    {
+      "symbol": "LUNA2USDT",
+      "testEndTime": "1672531199999",
+      "httpStatus": 400,
+      "apiCode": "40034",
+      "apiMsg": "Parameter LUNA2USDT does not exist",
+      "interpretation": "nonexistent",
+      "candlesDataAvailable": false,
+      "candlesCount": 0
+    },
+    {
+      "symbol": "TERRUSDT",
+      "testEndTime": "1672531199999",
+      "httpStatus": 400,
+      "apiCode": "40034",
+      "apiMsg": "Parameter TERRUSDT does not exist",
+      "interpretation": "nonexistent",
+      "candlesDataAvailable": false,
+      "candlesCount": 0
+    }
+  ],
+  "summary": {
+    "nonexistentCount": 2,
+    "removedCount": 1,
+    "activeCount": 0
+  }
+}

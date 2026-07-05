@@ -1,0 +1,133 @@
+{
+  "experiment_id": "EXP-OBS000031",
+  "stage": "Stage 1 (Short-term Mean Reversion)",
+  "timestamp_generated": "2026-07-05T02:30:00Z",
+  "git_commit": "see run.log",
+  "specification": {
+    "edge_type": "microstructure mean-reversion",
+    "granularity_hours": 1,
+    "lookback_period_k": 3,
+    "volatility_window_w": 168,
+    "entry_threshold_z": 2.0,
+    "holding_period_n": 3,
+    "non_overlapping": true,
+    "position_type": "fade (short z>+2.0, long z<-2.0)"
+  },
+  "cost_model": {
+    "notional_usd": 50000,
+    "s_taker_bps": {
+      "btc": 12.03,
+      "eth": 12.69
+    },
+    "s_maker_bps": {
+      "btc": 8.02,
+      "eth": 8.34,
+      "note": "reference only, not used in main gate"
+    },
+    "taker_100k_usd_bps": {
+      "btc": 12.13,
+      "eth": 13.06,
+      "note": "sensitivity analysis"
+    },
+    "funding": "excluded (3h holding < 8h settlement interval, optimistic side)"
+  },
+  "period_split": {
+    "selection": {
+      "purpose": "in-sample feature extraction and weight freezing",
+      "start_utc": "2019-08-10T00:00:00Z",
+      "end_utc": "2021-12-31T23:59:59Z"
+    },
+    "confirmation": {
+      "purpose": "out-of-sample validation (all gates pass/fail here)",
+      "start_utc": "2022-01-01T00:00:00Z",
+      "end_utc": "data end (2026-07-05)",
+      "internal_breakdown": [
+        {
+          "regime": "R-bear",
+          "note": "2022 bearish (mean-reversion adversity)",
+          "start": "2022-01-01",
+          "end": "2022-12-31"
+        },
+        {
+          "regime": "R-recovery",
+          "note": "2023 recovery",
+          "start": "2023-01-01",
+          "end": "2023-12-31"
+        },
+        {
+          "regime": "R-recent",
+          "note": "2024 onwards",
+          "start": "2024-01-01",
+          "end": "data end"
+        }
+      ]
+    }
+  },
+  "cross_asset_protocol": {
+    "requirement": "BTC and ETH both pass gates independently",
+    "rationale": "parameter frozen theoretically -> both assets treated as independent confirmation tracks (OBS000019/020 precedent)"
+  },
+  "stage_gates": {
+    "stage_1a_prediction_unit": {
+      "metric": "hit rate and permutation p-value",
+      "criterion": {
+        "hitRate": "> 50%",
+        "permutation_p": "< 0.05",
+        "both_assets": "both BTC and ETH must pass (confirmation period)"
+      },
+      "failure_action": "kill experiment (no mean-reversion edge in OOS)"
+    },
+    "stage_1b_sleeve_net_cost": {
+      "metric": "net Sharpe (S-taker cost deducted)",
+      "criterion": "net annual Sharpe > 0 (both assets, confirmation period)",
+      "failure_action": "net-negative Sharpe after cost -> discard (gross>net trap)"
+    },
+    "stage_1c_composition": {
+      "low_correlation": {
+        "metric": "|correlation(sleeve, momentum)| < 0.3",
+        "purpose": "verify non-overlapping alpha"
+      },
+      "sharpe_improvement": {
+        "variant_a": "composite Sharpe - momentum Sharpe >= +0.15 AND max DD degradation <= +2%",
+        "variant_b": "OR composite max DD - momentum max DD <= -5% AND Sharpe degradation <= -0.05"
+      }
+    }
+  },
+  "permutation_test": {
+    "n_permutations": 5000,
+    "seed": 20260705,
+    "method": "shuffle trade returns (NOT Sharpe-invariant shuffle to avoid OBS000030 power-0 bug)",
+    "null_hypothesis": "mean return is zero",
+    "two_tailed": true
+  },
+  "data_sources": {
+    "1h_ohlcv": {
+      "script": "scripts/fetch-bitget-intraday-1h-materialize.ts",
+      "exchange": "Bitget",
+      "product_type": "USDT-FUTURES",
+      "symbols": ["BTCUSDT", "ETHUSDT"],
+      "granularity": "1h",
+      "btc_candles": 60935,
+      "eth_candles": 60199,
+      "date_range": "2019-07-10 .. 2026-07-05 (BTC), 2019-08-10 .. 2026-07-05 (ETH)"
+    },
+    "daily_momentum": {
+      "files": [
+        "scripts/data/btc-daily-binance-2017-2026.csv",
+        "scripts/data/eth-daily-binance-2017-2026.csv"
+      ],
+      "source": "Binance spot",
+      "granularity": "daily"
+    }
+  },
+  "output_files": {
+    "stage1_prediction_unit": "stage1-prediction-unit.json",
+    "stage1_sleeve_composite": "stage1-sleeve-composite.json",
+    "params": "stage1-params.json",
+    "logs": [
+      "stage1-prediction-unit-run.log",
+      "stage1-sleeve-composite-run.log",
+      "stage1-run.log (master)"
+    ]
+  }
+}
