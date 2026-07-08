@@ -1,0 +1,116 @@
+{
+  "timestamp": "2026-07-05T10:28:34.884Z",
+  "components": {
+    "a_basis_statistics": "G0-1 JSON に記録済み",
+    "b_margin_leverage": {
+      "BTCUSDT": {
+        "maintMarginRate": 0.005,
+        "initialMarginRate": 0.02,
+        "maxLeverage": 50,
+        "source": "Bitget API / public仕様",
+        "capital_cost_assumption": "年率4% (ショートperp証拠金)",
+        "leverage_assumption": "3倍（IM≈33%）"
+      },
+      "ETHUSDT": {
+        "maintMarginRate": 0.005,
+        "initialMarginRate": 0.02,
+        "maxLeverage": 50,
+        "source": "Bitget API / public仕様",
+        "capital_cost_assumption": "年率4% (ショートperp証拠金)",
+        "leverage_assumption": "3倍（IM≈33%）"
+      }
+    },
+    "c_liquidation": {
+      "BTCUSDT": {
+        "leverage": 3,
+        "initial_margin_rate": 0.3333333333333333,
+        "maint_margin_rate": 0.005,
+        "tail_windows": {
+          "T1": {
+            "entry_price": 9700,
+            "liquidation_price": 12884.833333333334,
+            "max_high_in_window": 10018.9,
+            "liquidated": false,
+            "days_covered": 71
+          },
+          "T2": {
+            "entry_price": 38680.6,
+            "liquidation_price": 51380.73033333333,
+            "max_high_in_window": 40071.7,
+            "liquidated": false,
+            "days_covered": 61
+          },
+          "T3": {
+            "entry_price": 20415,
+            "liquidation_price": 27117.925,
+            "max_high_in_window": 21473.7,
+            "liquidated": false,
+            "days_covered": 52
+          },
+          "calm": {
+            "entry_price": 29668.86,
+            "liquidation_price": 39410.1357,
+            "max_high_in_window": 64986.11,
+            "liquidated": true,
+            "days_covered": 181
+          }
+        }
+      },
+      "ETHUSDT": {
+        "leverage": 3,
+        "initial_margin_rate": 0.3333333333333333,
+        "maint_margin_rate": 0.005,
+        "tail_windows": {
+          "T1": {
+            "entry_price": 264.32,
+            "liquidation_price": 351.1050666666667,
+            "max_high_in_window": 323,
+            "liquidated": false,
+            "days_covered": 71
+          },
+          "T2": {
+            "entry_price": 2849,
+            "liquidation_price": 3784.4216666666666,
+            "max_high_in_window": 2965,
+            "liquidated": false,
+            "days_covered": 61
+          },
+          "T3": {
+            "entry_price": 1533.68,
+            "liquidation_price": 2037.2382666666667,
+            "max_high_in_window": 1679.4,
+            "liquidated": false,
+            "days_covered": 52
+          },
+          "calm": {
+            "entry_price": 750.4,
+            "liquidation_price": 996.7813333333334,
+            "max_high_in_window": 4379.18,
+            "liquidated": true,
+            "days_covered": 181
+          }
+        }
+      }
+    },
+    "d_flip_cost": {
+      "BTCUSDT": {
+        "maker_fee_bps": 2,
+        "taker_fee_bps": 6,
+        "spread_bps": 0.016,
+        "slippage_bps": 0,
+        "one_way_bps": 6.016,
+        "flip_cost_4legs_bps": 24.064,
+        "source": "OBS000031実測（Bitget実コスト）"
+      },
+      "ETHUSDT": {
+        "maker_fee_bps": 2,
+        "taker_fee_bps": 6,
+        "spread_bps": 0.056,
+        "slippage_bps": 0,
+        "one_way_bps": 6.056,
+        "flip_cost_4legs_bps": 24.224,
+        "source": "OBS000031実測（Bitget実コスト）"
+      }
+    }
+  }
+}

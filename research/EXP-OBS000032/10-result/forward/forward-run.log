@@ -1,0 +1,166 @@
+======================================================================
+=== EXP-OBS000032 フォワード較正 実行 2026-07-05T22:19:04.202Z ===
+⚠ このスクリプトは日次冪等追記型。1回の実行で90日分が完成するものではない。
+毎日（または定期的に）実行することでライブデータが1日ずつ蓄積される。
+Git commit: 3b28204031acf5ef24fe55d05ee280b163db6a39
+Node version: v22.22.2
+anchorDateKey: 2026-07-04
+
+REPRODUCTION COMMAND:
+  node --experimental-strip-types scripts/bitget-carry-forward-paper.ts
+
+EXECUTION LOG:
+[2026-07-05T22:19:04.222Z] === EXP-OBS000032 フォワード較正フェーズ Bitgetペーパートレード 日次実行 ===
+[2026-07-05T22:19:04.222Z] 実行UTC時刻: 2026-07-05T22:19:04.202Z
+[2026-07-05T22:19:04.222Z] Node version: v22.22.2
+[2026-07-05T22:19:04.290Z] Git commit: 3b28204031acf5ef24fe55d05ee280b163db6a39
+[2026-07-05T22:19:04.290Z] anchorDateKey (最終完全経過UTC日・go-live/追記日として使用): 2026-07-04
+[2026-07-05T22:19:04.290Z] ⚠ 本実行は「日次冪等追記」の1回分。90日分を一括生成するものではない。
+[2026-07-05T22:19:04.290Z] 
+======== BTC (BTCUSDT) ========
+[2026-07-05T22:19:04.291Z] 初回セットアップ: warmup=2026-06-04..2026-07-03（30日）, go-live=2026-07-04
+[2026-07-05T22:19:04.292Z]   GET https://api.bitget.com/api/v2/spot/market/candles?symbol=BTCUSDT&granularity=1Dutc&limit=200
+[2026-07-05T22:19:04.693Z]   spot candles received: 200件
+[2026-07-05T22:19:05.000Z]   GET https://api.bitget.com/api/v2/mix/market/history-candles?symbol=BTCUSDT&productType=USDT-FUTURES&granularity=1Dutc&limit=200
+[2026-07-05T22:19:05.072Z]   perp last candles received: 90件
+[2026-07-05T22:19:05.373Z]   GET https://api.bitget.com/api/v2/mix/market/history-mark-candles?symbol=BTCUSDT&productType=USDT-FUTURES&granularity=1Dutc&limit=200
+[2026-07-05T22:19:05.464Z]   perp mark candles received: 90件
+[2026-07-05T22:19:05.850Z]   Bitget funding BTCUSDT: page1 返却100件
+[2026-07-05T22:19:05.851Z]   Bitget funding BTCUSDT: page1 oldest=2026-06-02T16:00:00.000Z cursorAdvanced=true
+[2026-07-05T22:19:06.201Z]   Bitget funding BTCUSDT: page2 返却100件
+[2026-07-05T22:19:06.202Z]   Bitget funding BTCUSDT: page2 oldest=2026-04-30T08:00:00.000Z cursorAdvanced=true
+[2026-07-05T22:19:06.202Z]   Bitget funding BTCUSDT: 目標窓(2026-05-27)をカバー。取得終了
+[2026-07-05T22:19:06.515Z]   GET https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&startTime=1779840000000&endTime=1783209600000&limit=1000
+[2026-07-05T22:19:06.648Z]   Binance funding BTCUSDT: 117件
+[2026-07-05T22:19:07.016Z]   2026-06-04 [warmup] signal=1 pnl=0.352bps cum=0.352bps margin=0.3375 liq=0 gap=0
+[2026-07-05T22:19:07.016Z]   2026-06-05 [warmup] signal=1 pnl=0.050bps cum=0.402bps margin=0.3818 liq=0 gap=0
+[2026-07-05T22:19:07.016Z]   2026-06-06 [warmup] signal=1 pnl=-0.007bps cum=0.395bps margin=0.3846 liq=0 gap=0
+[2026-07-05T22:19:07.016Z]   2026-06-07 [warmup] signal=1 pnl=-1.178bps cum=-0.783bps margin=0.3444 liq=0 gap=0
+[2026-07-05T22:19:07.016Z]   2026-06-08 [warmup] signal=1 pnl=-0.551bps cum=-1.334bps margin=0.3483 liq=0 gap=0
+[2026-07-05T22:19:07.016Z]   2026-06-09 [warmup] signal=1 pnl=0.781bps cum=-0.552bps margin=0.3700 liq=0 gap=0
+[2026-07-05T22:19:07.017Z]   2026-06-10 [warmup] signal=1 pnl=-0.844bps cum=-1.396bps margin=0.3733 liq=0 gap=0
+[2026-07-05T22:19:07.017Z]   2026-06-11 [warmup] signal=1 pnl=-0.934bps cum=-2.330bps margin=0.3389 liq=0 gap=0
+[2026-07-05T22:19:07.017Z]   2026-06-12 [warmup] signal=-1 pnl=-23.032bps cum=-25.362bps margin=0.3382 liq=0 gap=0
+[2026-07-05T22:19:07.017Z]   2026-06-13 [warmup] signal=-1 pnl=-3.189bps cum=-28.551bps margin=0.3518 liq=0 gap=0
+[2026-07-05T22:19:07.017Z]   2026-06-14 [warmup] signal=-1 pnl=0.477bps cum=-28.074bps margin=0.3718 liq=0 gap=0
+[2026-07-05T22:19:07.017Z]   2026-06-15 [warmup] signal=-1 pnl=1.919bps cum=-26.155bps margin=0.3808 liq=0 gap=0
+[2026-07-05T22:19:07.017Z]   2026-06-16 [warmup] signal=-1 pnl=-0.619bps cum=-26.774bps margin=0.3711 liq=0 gap=0
+[2026-07-05T22:19:07.017Z]   2026-06-17 [warmup] signal=-1 pnl=0.706bps cum=-26.068bps margin=0.3534 liq=0 gap=0
+[2026-07-05T22:19:07.017Z]   2026-06-18 [warmup] signal=-1 pnl=-4.038bps cum=-30.106bps margin=0.3290 liq=0 gap=0
+[2026-07-05T22:19:07.017Z]   2026-06-19 [warmup] signal=-1 pnl=1.077bps cum=-29.029bps margin=0.3384 liq=0 gap=0
+[2026-07-05T22:19:07.017Z]   2026-06-20 [warmup] signal=1 pnl=-23.772bps cum=-52.800bps margin=0.3266 liq=0 gap=0
+[2026-07-05T22:19:07.017Z]   2026-06-21 [warmup] signal=-1 pnl=-23.577bps cum=-76.377bps margin=0.3114 liq=0 gap=0
+[2026-07-05T22:19:07.017Z]   2026-06-22 [warmup] signal=-1 pnl=0.151bps cum=-76.226bps margin=0.3226 liq=0 gap=0
+[2026-07-05T22:19:07.017Z]   2026-06-23 [warmup] signal=1 pnl=-21.729bps cum=-97.954bps margin=0.3431 liq=0 gap=0
+[2026-07-05T22:19:07.017Z]   2026-06-24 [warmup] signal=1 pnl=0.627bps cum=-97.328bps margin=0.3695 liq=0 gap=0
+[2026-07-05T22:19:07.017Z]   2026-06-25 [warmup] signal=1 pnl=-0.738bps cum=-98.066bps margin=0.3904 liq=0 gap=0
+[2026-07-05T22:19:07.017Z]   2026-06-26 [warmup] signal=1 pnl=1.676bps cum=-96.390bps margin=0.3855 liq=0 gap=0
+[2026-07-05T22:19:07.018Z]   2026-06-27 [warmup] signal=1 pnl=1.909bps cum=-94.481bps margin=0.3869 liq=0 gap=0
+[2026-07-05T22:19:07.018Z]   2026-06-28 [warmup] signal=1 pnl=1.799bps cum=-92.682bps margin=0.3947 liq=0 gap=0
+[2026-07-05T22:19:07.018Z]   2026-06-29 [warmup] signal=1 pnl=1.745bps cum=-90.938bps margin=0.3835 liq=0 gap=0
+[2026-07-05T22:19:07.018Z]   2026-06-30 [warmup] signal=1 pnl=2.245bps cum=-88.693bps margin=0.4107 liq=0 gap=0
+[2026-07-05T22:19:07.018Z]   2026-07-01 [warmup] signal=1 pnl=0.175bps cum=-88.518bps margin=0.3871 liq=0 gap=0
+[2026-07-05T22:19:07.018Z]   2026-07-02 [warmup] signal=1 pnl=0.388bps cum=-88.130bps margin=0.3616 liq=0 gap=0
+[2026-07-05T22:19:07.018Z]   2026-07-03 [warmup] signal=1 pnl=2.720bps cum=-85.410bps margin=0.3453 liq=0 gap=0
+[2026-07-05T22:19:07.018Z]   2026-07-04 [live] signal=1 pnl=0.253bps cum=-85.157bps margin=0.3363 liq=0 gap=0
+[2026-07-05T22:19:07.022Z] 
+======== ETH (ETHUSDT) ========
+[2026-07-05T22:19:07.022Z] 初回セットアップ: warmup=2026-06-04..2026-07-03（30日）, go-live=2026-07-04
+[2026-07-05T22:19:07.022Z]   GET https://api.bitget.com/api/v2/spot/market/candles?symbol=ETHUSDT&granularity=1Dutc&limit=200
+[2026-07-05T22:19:07.063Z]   spot candles received: 200件
+[2026-07-05T22:19:07.369Z]   GET https://api.bitget.com/api/v2/mix/market/history-candles?symbol=ETHUSDT&productType=USDT-FUTURES&granularity=1Dutc&limit=200
+[2026-07-05T22:19:07.494Z]   perp last candles received: 90件
+[2026-07-05T22:19:07.807Z]   GET https://api.bitget.com/api/v2/mix/market/history-mark-candles?symbol=ETHUSDT&productType=USDT-FUTURES&granularity=1Dutc&limit=200
+[2026-07-05T22:19:07.901Z]   perp mark candles received: 90件
+[2026-07-05T22:19:08.299Z]   Bitget funding ETHUSDT: page1 返却100件
+[2026-07-05T22:19:08.300Z]   Bitget funding ETHUSDT: page1 oldest=2026-06-02T16:00:00.000Z cursorAdvanced=true
+[2026-07-05T22:19:08.585Z]   Bitget funding ETHUSDT: page2 返却100件
+[2026-07-05T22:19:08.585Z]   Bitget funding ETHUSDT: page2 oldest=2026-04-30T08:00:00.000Z cursorAdvanced=true
+[2026-07-05T22:19:08.585Z]   Bitget funding ETHUSDT: 目標窓(2026-05-27)をカバー。取得終了
+[2026-07-05T22:19:08.898Z]   GET https://fapi.binance.com/fapi/v1/fundingRate?symbol=ETHUSDT&startTime=1779840000000&endTime=1783209600000&limit=1000
+[2026-07-05T22:19:08.924Z]   Binance funding ETHUSDT: 117件
+[2026-07-05T22:19:09.254Z]   2026-06-04 [warmup] signal=1 pnl=-0.585bps cum=-0.585bps margin=0.3567 liq=0 gap=0
+[2026-07-05T22:19:09.254Z]   2026-06-05 [warmup] signal=1 pnl=-1.063bps cum=-1.648bps margin=0.4626 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-06 [warmup] signal=1 pnl=-2.590bps cum=-4.237bps margin=0.4710 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-07 [warmup] signal=1 pnl=-1.517bps cum=-5.754bps margin=0.3938 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-08 [warmup] signal=1 pnl=0.244bps cum=-5.510bps margin=0.3940 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-09 [warmup] signal=-1 pnl=-21.465bps cum=-26.975bps margin=0.3642 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-10 [warmup] signal=-1 pnl=0.089bps cum=-26.886bps margin=0.3533 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-11 [warmup] signal=-1 pnl=1.278bps cum=-25.608bps margin=0.3855 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-12 [warmup] signal=-1 pnl=-1.736bps cum=-27.344bps margin=0.3811 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-13 [warmup] signal=-1 pnl=-2.503bps cum=-29.848bps margin=0.3898 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-14 [warmup] signal=-1 pnl=-4.528bps cum=-34.376bps margin=0.4159 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-15 [warmup] signal=1 pnl=-23.664bps cum=-58.040bps margin=0.3753 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-16 [warmup] signal=1 pnl=-1.108bps cum=-59.148bps margin=0.3770 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-17 [warmup] signal=1 pnl=0.012bps cum=-59.136bps margin=0.4008 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-18 [warmup] signal=1 pnl=1.811bps cum=-57.325bps margin=0.4234 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-19 [warmup] signal=1 pnl=0.053bps cum=-57.272bps margin=0.4235 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-20 [warmup] signal=1 pnl=-0.417bps cum=-57.689bps margin=0.4060 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-21 [warmup] signal=1 pnl=-1.306bps cum=-58.995bps margin=0.4255 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-22 [warmup] signal=1 pnl=-0.038bps cum=-59.033bps margin=0.4131 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-23 [warmup] signal=1 pnl=-0.770bps cum=-59.803bps margin=0.4484 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-24 [warmup] signal=1 pnl=1.286bps cum=-58.517bps margin=0.4754 liq=0 gap=0
+[2026-07-05T22:19:09.255Z]   2026-06-25 [warmup] signal=1 pnl=1.373bps cum=-57.144bps margin=0.5092 liq=0 gap=0
+[2026-07-05T22:19:09.256Z]   2026-06-26 [warmup] signal=1 pnl=-1.876bps cum=-59.020bps margin=0.5021 liq=0 gap=0
+[2026-07-05T22:19:09.256Z]   2026-06-27 [warmup] signal=1 pnl=-0.074bps cum=-59.094bps margin=0.5051 liq=0 gap=0
+[2026-07-05T22:19:09.256Z]   2026-06-28 [warmup] signal=1 pnl=-1.014bps cum=-60.107bps margin=0.5063 liq=0 gap=0
+[2026-07-05T22:19:09.256Z]   2026-06-29 [warmup] signal=1 pnl=-0.740bps cum=-60.847bps margin=0.4802 liq=0 gap=0
+[2026-07-05T22:19:09.256Z]   2026-06-30 [warmup] signal=1 pnl=1.803bps cum=-59.044bps margin=0.5057 liq=0 gap=0
+[2026-07-05T22:19:09.256Z]   2026-07-01 [warmup] signal=1 pnl=0.805bps cum=-58.239bps margin=0.4820 liq=0 gap=0
+[2026-07-05T22:19:09.256Z]   2026-07-02 [warmup] signal=1 pnl=-0.378bps cum=-58.618bps margin=0.4255 liq=0 gap=0
+[2026-07-05T22:19:09.256Z]   2026-07-03 [warmup] signal=1 pnl=2.369bps cum=-56.248bps margin=0.3919 liq=0 gap=0
+[2026-07-05T22:19:09.256Z]   2026-07-04 [live] signal=1 pnl=0.903bps cum=-55.346bps margin=0.3792 liq=0 gap=0
+[2026-07-05T22:19:09.261Z] 
+>>> forward-meta.json 保存
+[2026-07-05T22:19:09.292Z] >>> forward-interim-metrics.json 保存（alertActive=true）
+[2026-07-05T22:19:09.294Z] >>> forward-alerts.log 追記（1行）
+======================================================================
+=== EXP-OBS000032 フォワード較正 実行 2026-07-05T22:19:45.440Z ===
+⚠ このスクリプトは日次冪等追記型。1回の実行で90日分が完成するものではない。
+毎日（または定期的に）実行することでライブデータが1日ずつ蓄積される。
+Git commit: 3b28204031acf5ef24fe55d05ee280b163db6a39
+Node version: v22.22.2
+anchorDateKey: 2026-07-04
+
+REPRODUCTION COMMAND:
+  node --experimental-strip-types scripts/bitget-carry-forward-paper.ts
+
+EXECUTION LOG:
+[2026-07-05T22:19:45.463Z] === EXP-OBS000032 フォワード較正フェーズ Bitgetペーパートレード 日次実行 ===
+[2026-07-05T22:19:45.463Z] 実行UTC時刻: 2026-07-05T22:19:45.440Z
+[2026-07-05T22:19:45.463Z] Node version: v22.22.2
+[2026-07-05T22:19:45.564Z] Git commit: 3b28204031acf5ef24fe55d05ee280b163db6a39
+[2026-07-05T22:19:45.565Z] anchorDateKey (最終完全経過UTC日・go-live/追記日として使用): 2026-07-04
+[2026-07-05T22:19:45.565Z] ⚠ 本実行は「日次冪等追記」の1回分。90日分を一括生成するものではない。
+[2026-07-05T22:19:45.565Z] 
+======== BTC (BTCUSDT) ========
+[2026-07-05T22:19:45.567Z] 既存ledger最終日=2026-07-04 は anchor=2026-07-04 以上。追記対象日なし（冪等・重複追記なし）
+[2026-07-05T22:19:45.568Z]   GET https://api.bitget.com/api/v2/spot/market/candles?symbol=BTCUSDT&granularity=1Dutc&limit=200
+[2026-07-05T22:19:45.960Z]   spot candles received: 200件
+[2026-07-05T22:19:46.272Z]   GET https://api.bitget.com/api/v2/mix/market/history-candles?symbol=BTCUSDT&productType=USDT-FUTURES&granularity=1Dutc&limit=200
+[2026-07-05T22:19:46.339Z]   perp last candles received: 90件
+[2026-07-05T22:19:46.646Z]   GET https://api.bitget.com/api/v2/mix/market/history-mark-candles?symbol=BTCUSDT&productType=USDT-FUTURES&granularity=1Dutc&limit=200
+[2026-07-05T22:19:46.687Z]   perp mark candles received: 90件
+[2026-07-05T22:19:47.019Z]   Bitget funding BTCUSDT: page1 返却100件
+[2026-07-05T22:19:47.020Z]   Bitget funding BTCUSDT: page1 oldest=2026-06-02T16:00:00.000Z cursorAdvanced=true
+[2026-07-05T22:19:47.020Z]   Bitget funding BTCUSDT: 目標窓(2026-07-04)をカバー。取得終了
+[2026-07-05T22:19:47.337Z]   GET https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&startTime=1783123200000&endTime=1783209600000&limit=1000
+[2026-07-05T22:19:47.419Z]   Binance funding BTCUSDT: 3件
+[2026-07-05T22:19:47.751Z] 
+======== ETH (ETHUSDT) ========
+[2026-07-05T22:19:47.752Z] 既存ledger最終日=2026-07-04 は anchor=2026-07-04 以上。追記対象日なし（冪等・重複追記なし）
+[2026-07-05T22:19:47.752Z]   GET https://api.bitget.com/api/v2/spot/market/candles?symbol=ETHUSDT&granularity=1Dutc&limit=200
+[2026-07-05T22:19:47.785Z]   spot candles received: 200件
+[2026-07-05T22:19:48.086Z]   GET https://api.bitget.com/api/v2/mix/market/history-candles?symbol=ETHUSDT&productType=USDT-FUTURES&granularity=1Dutc&limit=200
+[2026-07-05T22:19:48.122Z]   perp last candles received: 90件
+[2026-07-05T22:19:48.428Z]   GET https://api.bitget.com/api/v2/mix/market/history-mark-candles?symbol=ETHUSDT&productType=USDT-FUTURES&granularity=1Dutc&limit=200
+[2026-07-05T22:19:48.464Z]   perp mark candles received: 90件
+[2026-07-05T22:19:48.802Z]   Bitget funding ETHUSDT: page1 返却100件
+[2026-07-05T22:19:48.803Z]   Bitget funding ETHUSDT: page1 oldest=2026-06-02T16:00:00.000Z cursorAdvanced=true
+[2026-07-05T22:19:48.803Z]   Bitget funding ETHUSDT: 目標窓(2026-07-04)をカバー。取得終了
+[2026-07-05T22:19:49.112Z]   GET https://fapi.binance.com/fapi/v1/fundingRate?symbol=ETHUSDT&startTime=1783123200000&endTime=1783209600000&limit=1000
+[2026-07-05T22:19:49.136Z]   Binance funding ETHUSDT: 3件
+[2026-07-05T22:19:49.464Z] 
+>>> forward-meta.json 保存
+[2026-07-05T22:19:49.493Z] >>> forward-interim-metrics.json 保存（alertActive=true）
+[2026-07-05T22:19:49.494Z] >>> forward-alerts.log 追記（1行）

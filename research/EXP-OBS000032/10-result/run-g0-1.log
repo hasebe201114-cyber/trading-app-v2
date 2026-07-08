@@ -1,0 +1,144 @@
+=== EXP-OBS000032 G0-1: テール到達性 ===
+Execution: 2026-07-05T10:26:35.212Z
+Node: v22.22.2
+ENDPOINTS:
+  Spot klines: https://api.binance.com/api/v3/klines?symbol={SYMBOL}&interval=1d&startTime={CURSOR}&limit=1000
+  Perp last price: https://fapi.binance.com/fapi/v1/klines?symbol={SYMBOL}&interval=1d&startTime={CURSOR}&limit=1000
+  Perp mark price: https://fapi.binance.com/fapi/v1/markPriceKlines?symbol={SYMBOL}&interval=1d&startTime={CURSOR}&limit=1000
+  Funding Rate: https://fapi.binance.com/fapi/v1/fundingRate?symbol={SYMBOL}&startTime={CURSOR}&limit=1000
+
+PAGING IMPLEMENTATION:
+  Termination: Empty response (length === 0)
+  Cursor advancement: lastOpenTime + 24h (spot/perp) or lastTime + 1ms (funding)
+  No "length < limit" early termination
+
+TAIL WINDOWS (Fixed by Spec):
+  T1: 2020-02-20 〜 2020-04-30 (Corona)
+  T2: 2022-05-01 〜 2022-06-30 (LUNA)
+  T3: 2022-10-25 〜 2022-12-15 (FTX)
+  calm: 2021-01-01 〜 2021-06-30 (Placid)
+
+BASIS CALCULATION:
+  basis_bps = (perp_close - spot_close) / spot_close * 10000
+  Date alignment: Only same UTC date pairs counted
+  Missing rate: (expected_dates - aligned_dates) / expected_dates
+
+ARTIFACTS:
+  - g0-1-tail-reachability.json (metadata + window coverage + basis stats)
+  - {BTC,ETH}USDT-{spot,perp}-daily.csv (full timeseries)
+  - {BTC,ETH}USDT-funding.csv (8h events)
+
+EXECUTION LOG:
+[2026-07-05T10:26:35.217Z] === EXP-OBS000032 G0-1: テール到達性 & ベーシス実測 ===
+[2026-07-05T10:26:35.217Z] 開始時刻: 2026-07-05T10:26:35.212Z
+[2026-07-05T10:26:35.217Z] Node: v22.22.2
+[2026-07-05T10:26:35.217Z] 
+[2026-07-05T10:26:35.217Z] 
+======== BTCUSDT ========
+[2026-07-05T10:26:35.217Z] >>> 現物日足取得
+[2026-07-05T10:26:35.218Z]   BTCUSDT spot: ページング開始（カーソル=2019-08-17）
+[2026-07-05T10:26:35.474Z]   BTCUSDT spot: 1000件（ページ1、最新=2022-05-12）
+[2026-07-05T10:26:35.874Z]   BTCUSDT spot: 2000件（ページ2、最新=2025-02-05）
+[2026-07-05T10:26:36.242Z]   BTCUSDT spot: 2515件（ページ3、最新=2026-07-05）
+[2026-07-05T10:26:36.551Z]   BTCUSDT spot: 計2515件取得
+[2026-07-05T10:26:36.551Z] >>> Perp last price日足取得
+[2026-07-05T10:26:36.551Z]   BTCUSDT perp_last: ページング開始（カーソル=2019-08-17）
+[2026-07-05T10:26:36.958Z]   BTCUSDT perp_last: 1000件（ページ1、最新=2022-06-03）
+[2026-07-05T10:26:37.316Z]   BTCUSDT perp_last: 2000件（ページ2、最新=2025-02-27）
+[2026-07-05T10:26:37.663Z]   BTCUSDT perp_last: 2493件（ページ3、最新=2026-07-05）
+[2026-07-05T10:26:37.976Z]   BTCUSDT perp_last: 計2493件取得
+[2026-07-05T10:26:37.976Z] >>> Perp mark price日足取得
+[2026-07-05T10:26:37.976Z]   BTCUSDT perp_mark: ページング開始（カーソル=2019-08-17）
+[2026-07-05T10:26:38.027Z]   BTCUSDT perp_mark: 1000件（ページ1、最新=2022-09-17）
+[2026-07-05T10:26:38.384Z]   BTCUSDT perp_mark: 2000件（ページ2、最新=2025-06-13）
+[2026-07-05T10:26:38.731Z]   BTCUSDT perp_mark: 2387件（ページ3、最新=2026-07-05）
+[2026-07-05T10:26:39.044Z]   BTCUSDT perp_mark: 計2387件取得
+[2026-07-05T10:26:39.044Z]   採用perp系列: last (last=2493件, mark=2387件)
+[2026-07-05T10:26:39.044Z] >>> Funding Rate履歴取得
+[2026-07-05T10:26:39.045Z]   BTCUSDT funding: ページング開始（カーソル=2019-08-17）
+[2026-07-05T10:26:39.085Z]   BTCUSDT funding: 1000件（ページ1、最新=2020-08-08）
+[2026-07-05T10:26:39.454Z]   BTCUSDT funding: 2000件（ページ2、最新=2021-07-07）
+[2026-07-05T10:26:39.800Z]   BTCUSDT funding: 3000件（ページ3、最新=2022-06-06）
+[2026-07-05T10:26:40.147Z]   BTCUSDT funding: 4000件（ページ4、最新=2023-05-05）
+[2026-07-05T10:26:40.492Z]   BTCUSDT funding: 5000件（ページ5、最新=2024-04-02）
+[2026-07-05T10:26:40.841Z]   BTCUSDT funding: 6000件（ページ6、最新=2025-03-02）
+[2026-07-05T10:26:41.186Z]   BTCUSDT funding: 7000件（ページ7、最新=2026-01-29）
+[2026-07-05T10:26:41.525Z]   BTCUSDT funding: 7471件（ページ8、最新=2026-07-05）
+[2026-07-05T10:26:41.862Z]   BTCUSDT funding: 空応答で終了（ページ8、カーソル=2026-07-05）
+[2026-07-05T10:26:41.862Z]   BTCUSDT funding: 計7471件取得
+[2026-07-05T10:26:41.863Z] 
+  現物: 2019-08-17 ～ 2026-07-05 (2515件)
+[2026-07-05T10:26:41.863Z]   Perp (last): 2019-09-08 ～ 2026-07-05 (2493件)
+[2026-07-05T10:26:41.863Z]   Funding: 2019-09-10T08:00:00.000Z ～ 2026-07-05T08:00:00.001Z (7471件)
+[2026-07-05T10:26:41.863Z] 
+>>> テール窓カバー判定
+[2026-07-05T10:26:41.879Z]   T1 (2020-03 コロナ): spot71件, perp71件, funding213件, align71日 (欠損率=0.0%)
+[2026-07-05T10:26:41.882Z]     ベーシス: 平均=-2.6bps, 標準偏差=10.7bps, 最大|basis|=73.6bps, 日次変化std=12.1bps
+[2026-07-05T10:26:41.889Z]   T2 (2022-05 LUNA): spot61件, perp61件, funding183件, align61日 (欠損率=0.0%)
+[2026-07-05T10:26:41.890Z]     ベーシス: 平均=-4.3bps, 標準偏差=2.1bps, 最大|basis|=10.0bps, 日次変化std=2.5bps
+[2026-07-05T10:26:41.894Z]   T3 (2022-11 FTX): spot52件, perp52件, funding156件, align52日 (欠損率=0.0%)
+[2026-07-05T10:26:41.895Z]     ベーシス: 平均=-5.0bps, 標準偏差=1.9bps, 最大|basis|=11.2bps, 日次変化std=1.9bps
+[2026-07-05T10:26:41.898Z]   calm (2021-01〜06): spot181件, perp181件, funding543件, align181日 (欠損率=0.0%)
+[2026-07-05T10:26:41.899Z]     ベーシス: 平均=5.7bps, 標準偏差=6.9bps, 最大|basis|=19.2bps, 日次変化std=5.1bps
+[2026-07-05T10:26:41.900Z] 
+>>> CSV保存
+[2026-07-05T10:26:41.904Z]   btcusdt-spot-daily.csv (2515行)
+[2026-07-05T10:26:41.915Z]   btcusdt-perp-last-daily.csv (2493行)
+[2026-07-05T10:26:41.918Z]   btcusdt-funding.csv (7471行)
+[2026-07-05T10:26:41.919Z] 
+======== ETHUSDT ========
+[2026-07-05T10:26:41.919Z] >>> 現物日足取得
+[2026-07-05T10:26:41.919Z]   ETHUSDT spot: ページング開始（カーソル=2019-08-17）
+[2026-07-05T10:26:42.004Z]   ETHUSDT spot: 1000件（ページ1、最新=2022-05-12）
+[2026-07-05T10:26:42.375Z]   ETHUSDT spot: 2000件（ページ2、最新=2025-02-05）
+[2026-07-05T10:26:42.728Z]   ETHUSDT spot: 2515件（ページ3、最新=2026-07-05）
+[2026-07-05T10:26:43.029Z]   ETHUSDT spot: 計2515件取得
+[2026-07-05T10:26:43.029Z] >>> Perp last price日足取得
+[2026-07-05T10:26:43.029Z]   ETHUSDT perp_last: ページング開始（カーソル=2019-08-17）
+[2026-07-05T10:26:43.089Z]   ETHUSDT perp_last: 1000件（ページ1、最新=2022-08-22）
+[2026-07-05T10:26:43.441Z]   ETHUSDT perp_last: 2000件（ページ2、最新=2025-05-18）
+[2026-07-05T10:26:43.784Z]   ETHUSDT perp_last: 2413件（ページ3、最新=2026-07-05）
+[2026-07-05T10:26:44.093Z]   ETHUSDT perp_last: 計2413件取得
+[2026-07-05T10:26:44.093Z] >>> Perp mark price日足取得
+[2026-07-05T10:26:44.093Z]   ETHUSDT perp_mark: ページング開始（カーソル=2019-08-17）
+[2026-07-05T10:26:44.130Z]   ETHUSDT perp_mark: 1000件（ページ1、最新=2022-09-17）
+[2026-07-05T10:26:44.469Z]   ETHUSDT perp_mark: 2000件（ページ2、最新=2025-06-13）
+[2026-07-05T10:26:44.811Z]   ETHUSDT perp_mark: 2387件（ページ3、最新=2026-07-05）
+[2026-07-05T10:26:45.111Z]   ETHUSDT perp_mark: 計2387件取得
+[2026-07-05T10:26:45.112Z]   採用perp系列: last (last=2413件, mark=2387件)
+[2026-07-05T10:26:45.112Z] >>> Funding Rate履歴取得
+[2026-07-05T10:26:45.112Z]   ETHUSDT funding: ページング開始（カーソル=2019-08-17）
+[2026-07-05T10:26:45.149Z]   ETHUSDT funding: 1000件（ページ1、最新=2020-10-25）
+[2026-07-05T10:26:45.495Z]   ETHUSDT funding: 2000件（ページ2、最新=2021-09-23）
+[2026-07-05T10:26:45.849Z]   ETHUSDT funding: 3000件（ページ3、最新=2022-08-23）
+[2026-07-05T10:26:46.204Z]   ETHUSDT funding: 4000件（ページ4、最新=2023-07-22）
+[2026-07-05T10:26:46.548Z]   ETHUSDT funding: 5000件（ページ5、最新=2024-06-19）
+[2026-07-05T10:26:46.895Z]   ETHUSDT funding: 6000件（ページ6、最新=2025-05-19）
+[2026-07-05T10:26:47.248Z]   ETHUSDT funding: 7000件（ページ7、最新=2026-04-17）
+[2026-07-05T10:26:47.585Z]   ETHUSDT funding: 7237件（ページ8、最新=2026-07-05）
+[2026-07-05T10:26:47.910Z]   ETHUSDT funding: 空応答で終了（ページ8、カーソル=2026-07-05）
+[2026-07-05T10:26:47.910Z]   ETHUSDT funding: 計7237件取得
+[2026-07-05T10:26:47.910Z] 
+  現物: 2019-08-17 ～ 2026-07-05 (2515件)
+[2026-07-05T10:26:47.910Z]   Perp (last): 2019-11-27 ～ 2026-07-05 (2413件)
+[2026-07-05T10:26:47.910Z]   Funding: 2019-11-27T08:00:00.000Z ～ 2026-07-05T08:00:00.001Z (7237件)
+[2026-07-05T10:26:47.910Z] 
+>>> テール窓カバー判定
+[2026-07-05T10:26:47.920Z]   T1 (2020-03 コロナ): spot71件, perp71件, funding213件, align71日 (欠損率=0.0%)
+[2026-07-05T10:26:47.922Z]     ベーシス: 平均=0.7bps, 標準偏差=13.8bps, 最大|basis|=102.9bps, 日次変化std=19.5bps
+[2026-07-05T10:26:47.925Z]   T2 (2022-05 LUNA): spot61件, perp61件, funding183件, align61日 (欠損率=0.0%)
+[2026-07-05T10:26:47.928Z]     ベーシス: 平均=-4.8bps, 標準偏差=1.9bps, 最大|basis|=10.5bps, 日次変化std=2.3bps
+[2026-07-05T10:26:47.930Z]   T3 (2022-11 FTX): spot52件, perp52件, funding156件, align52日 (欠損率=0.0%)
+[2026-07-05T10:26:47.930Z]     ベーシス: 平均=-4.7bps, 標準偏差=2.2bps, 最大|basis|=11.2bps, 日次変化std=2.2bps
+[2026-07-05T10:26:47.934Z]   calm (2021-01〜06): spot181件, perp181件, funding543件, align181日 (欠損率=0.0%)
+[2026-07-05T10:26:47.936Z]     ベーシス: 平均=7.9bps, 標準偏差=8.5bps, 最大|basis|=36.1bps, 日次変化std=8.7bps
+[2026-07-05T10:26:47.936Z] 
+>>> CSV保存
+[2026-07-05T10:26:47.941Z]   ethusdt-spot-daily.csv (2515行)
+[2026-07-05T10:26:47.952Z]   ethusdt-perp-last-daily.csv (2413行)
+[2026-07-05T10:26:47.959Z]   ethusdt-funding.csv (7237行)
+[2026-07-05T10:26:47.961Z] 
+>>> 結果JSON保存: g0-1-tail-reachability.json
+
+REPRODUCTION:
+node --experimental-strip-types scripts/fetch-binance-carry-data.ts

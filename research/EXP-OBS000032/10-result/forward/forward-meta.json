@@ -1,0 +1,136 @@
+{
+  "experiment": "EXP-OBS000032",
+  "phase": "フォワード較正フェーズ（Bitgetペーパートレード）",
+  "specReference": "research/EXP-OBS000032/00-spec-forward-calibration.md",
+  "executedBy": "B検証実装官 (Quant Researcher)",
+  "goLiveDateUTC": {
+    "BTC": "2026-07-04",
+    "ETH": "2026-07-04"
+  },
+  "warmupBackfillDays": 30,
+  "liveDaysRequiredForGate": 90,
+  "currentLiveDaysCount": {
+    "BTC": 1,
+    "ETH": 1
+  },
+  "wStar": {
+    "BTC": 3.629,
+    "ETH": 3.789
+  },
+  "fixedParams": {
+    "leverage": 3,
+    "imr": 0.3333333333333333,
+    "mmr": 0.005,
+    "mmrNote": "業界標準の仮置き（Bitget API非配信・「Bitget API取得」ではない）",
+    "annualCapitalCostRate": 0.04,
+    "smaWindowDays": 7,
+    "perLegCostBps": {
+      "BTC": 6.016,
+      "ETH": 6.056
+    },
+    "reversalFourLegCostBps": {
+      "BTC": 24.064,
+      "ETH": 24.224
+    },
+    "accountingModel": "Stage 1 carry-liquidation-sim.ts 方式I（分離証拠金・清算損二重計上なし・現物益毎日連続計上・perp floor(0)頭打ち）をそのまま踏襲。新会計を発明していない。"
+  },
+  "backtestReferenceValues": {
+    "BTC": {
+      "calmMeanDailyNetCarryBps": 11.624505211935004,
+      "fullMeanDailyNetCarryBps": 1.5856405525996293,
+      "t1BasisDailyDeltaStdBps": 12.137769741412779,
+      "calmBasisDailyDeltaStdBps": 5.0751820750473895,
+      "g02SignAgreementPct": 64.68
+    },
+    "ETH": {
+      "calmMeanDailyNetCarryBps": 14.397660815926988,
+      "fullMeanDailyNetCarryBps": 2.367896700535934,
+      "t1BasisDailyDeltaStdBps": 19.466313052751875,
+      "calmBasisDailyDeltaStdBps": 8.696701924612116,
+      "g02SignAgreementPct": 71.75
+    }
+  },
+  "bootstrapConfig": {
+    "blockLengthDays": 7,
+    "resamplingCount": 5000,
+    "seed": 20260705,
+    "percentile": 10
+  },
+  "endpoints": {
+    "bitgetSpotDaily": "https://api.bitget.com/api/v2/spot/market/candles?symbol={symbol}&granularity=1Dutc&limit={n}",
+    "bitgetPerpLastDaily": "https://api.bitget.com/api/v2/mix/market/history-candles?symbol={symbol}&productType=USDT-FUTURES&granularity=1Dutc&limit={n}",
+    "bitgetPerpMarkDaily": "https://api.bitget.com/api/v2/mix/market/history-mark-candles?symbol={symbol}&productType=USDT-FUTURES&granularity=1Dutc&limit={n}",
+    "bitgetFundingHistory": "https://api.bitget.com/api/v2/mix/market/history-fund-rate?symbol={symbol}&productType=USDT-FUTURES&pageSize=100&pageNo={n}（空応答で終了。length<pageSizeを終了条件に使わない）",
+    "bitgetCurrentFundRate": "https://api.bitget.com/api/v2/mix/market/current-fund-rate?symbol={symbol}&productType=USDT-FUTURES（診断用スナップショットのみ。ledger会計には使わない。理由: 本スクリプトはanchor=最終完全経過UTC日のみを処理するため、その日のfunding 3イベントは常にhistory-fund-rateで確定済み。よってcurrent-fund-rate（当日未確定分）はledger会計上不要。§2-2の「funding（当日/次回）」要件は診断ログでカバーする設計判断）",
+    "binanceFunding": "https://fapi.binance.com/fapi/v1/fundingRate?symbol={symbol}&startTime={ms}&endTime={ms}&limit=1000"
+  },
+  "dateAnchorDesignNote": "日次実行は「今日」でなく「最終完全経過UTC日（anchor=today-1）」を対象とする。理由：Bitget日足candle(1Dutc)は当日分が実行時刻までの部分足になり得るため、完結済みの前日分のみを確定値として記録し先読み/部分値混入を避ける設計判断。",
+  "markAvailability": {
+    "BTC": {
+      "available": true,
+      "error": null
+    },
+    "ETH": {
+      "available": true,
+      "error": null
+    }
+  },
+  "runHistory": [
+    {
+      "runTimestampUTC": "2026-07-05T22:19:04.202Z",
+      "anchorDateKey": "2026-07-04",
+      "gitCommit": "3b28204031acf5ef24fe55d05ee280b163db6a39",
+      "nodeVersion": "v22.22.2",
+      "perAsset": {
+        "BTC": {
+          "mode": "initial",
+          "newRowsCount": 31,
+          "markAvailable": true,
+          "markError": null,
+          "fetchWindow": {
+            "start": "2026-05-27",
+            "end": "2026-07-04"
+          }
+        },
+        "ETH": {
+          "mode": "initial",
+          "newRowsCount": 31,
+          "markAvailable": true,
+          "markError": null,
+          "fetchWindow": {
+            "start": "2026-05-27",
+            "end": "2026-07-04"
+          }
+        }
+      }
+    },
+    {
+      "runTimestampUTC": "2026-07-05T22:19:45.440Z",
+      "anchorDateKey": "2026-07-04",
+      "gitCommit": "3b28204031acf5ef24fe55d05ee280b163db6a39",
+      "nodeVersion": "v22.22.2",
+      "perAsset": {
+        "BTC": {
+          "mode": "noop",
+          "newRowsCount": 0,
+          "markAvailable": true,
+          "markError": null,
+          "fetchWindow": {
+            "start": "2026-07-04",
+            "end": "2026-07-04"
+          }
+        },
+        "ETH": {
+          "mode": "noop",
+          "newRowsCount": 0,
+          "markAvailable": true,
+          "markError": null,
+          "fetchWindow": {
+            "start": "2026-07-04",
+            "end": "2026-07-04"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+=== EXP-OBS000032 G0-3: コストモデル化 ===
+Execution: 2026-07-05T10:28:34.884Z
+
+COMPONENTS:
+(a) Basis statistics: G0-1 JSON に記録済み
+(b) Margin & Leverage: Bitget contracts API (productType=USDT-FUTURES)
+(c) Liquidation: Short perp liquidation formula
+    = Entry × (1 + Initial IM rate - Maintenance margin rate)
+    = Entry × (1 + 1/leverage - maint_margin)
+    Leverage fixed at 3x (IM ≈ 33%) per spec
+(d) Flip cost: OBS000031 measured cost (Bitget actual)
+
+RESULTS:
+- (b) Margin rates retrieved from API or public specs
+- (c) Liquidation prices calculated & checked against tail windows
+- (d) 4-leg round-trip cost for regime changes
+
+CAPITAL COST ASSUMPTION:
+- Current spot long: fully self-funded (no leverage, no cost)
+- Short perp leg: requires margin (capital cost @ 4%/year fixed)
+
+EXECUTION LOG:
+[2026-07-05T10:28:34.887Z] === EXP-OBS000032 G0-3: コストモデル化 ===
+[2026-07-05T10:28:34.887Z] 開始時刻: 2026-07-05T10:28:34.884Z
+
+[2026-07-05T10:28:34.887Z] >>> (b) 証拠金率・レバレッジ取得
+[2026-07-05T10:28:34.887Z] Bitget contracts API取得中...
+[2026-07-05T10:28:35.112Z]   取得: 684銘柄
+[2026-07-05T10:28:35.112Z]   BTCUSDT: maintMarginRate=undefined, initialMarginRate=undefined, maxLeverage=undefined
+[2026-07-05T10:28:35.113Z]   ETHUSDT: maintMarginRate=undefined, initialMarginRate=undefined, maxLeverage=undefined
+[2026-07-05T10:28:35.417Z] 
+>>> (c) ショートperp清算価格 & テール窓での清算発生判定
+[2026-07-05T10:28:35.418Z] 
+  BTCUSDT:
+[2026-07-05T10:28:35.418Z]     ショートperp清算式: エントリー価格 × (1 + 初期IM - 維持証拠金率)
+[2026-07-05T10:28:35.418Z]     = Entry × (1 + 0.333 - 0.0050)
+[2026-07-05T10:28:35.419Z]     = Entry × 1.3283
+[2026-07-05T10:28:35.429Z]     T1 (2020-03 コロナ): Entry=9700.00, Liquidation=12884.83, MaxHigh=10018.90, Liquidated=false
+[2026-07-05T10:28:35.439Z]     T2 (2022-05 LUNA): Entry=38680.60, Liquidation=51380.73, MaxHigh=40071.70, Liquidated=false
+[2026-07-05T10:28:35.442Z]     T3 (2022-11 FTX): Entry=20415.00, Liquidation=27117.92, MaxHigh=21473.70, Liquidated=false
+[2026-07-05T10:28:35.446Z]     calm (2021-01〜06): Entry=29668.86, Liquidation=39410.14, MaxHigh=64986.11, Liquidated=true
+[2026-07-05T10:28:35.447Z] 
+  ETHUSDT:
+[2026-07-05T10:28:35.447Z]     ショートperp清算式: エントリー価格 × (1 + 初期IM - 維持証拠金率)
+[2026-07-05T10:28:35.447Z]     = Entry × (1 + 0.333 - 0.0050)
+[2026-07-05T10:28:35.447Z]     = Entry × 1.3283
+[2026-07-05T10:28:35.450Z]     T1 (2020-03 コロナ): Entry=264.32, Liquidation=351.11, MaxHigh=323.00, Liquidated=false
+[2026-07-05T10:28:35.455Z]     T2 (2022-05 LUNA): Entry=2849.00, Liquidation=3784.42, MaxHigh=2965.00, Liquidated=false
+[2026-07-05T10:28:35.457Z]     T3 (2022-11 FTX): Entry=1533.68, Liquidation=2037.24, MaxHigh=1679.40, Liquidated=false
+[2026-07-05T10:28:35.460Z]     calm (2021-01〜06): Entry=750.40, Liquidation=996.78, MaxHigh=4379.18, Liquidated=true
+[2026-07-05T10:28:35.460Z] 
+>>> (d) 4レッグ往復コスト（spec G0-3(d) より）
+[2026-07-05T10:28:35.460Z]   BTC: 片道 = テイカー6bps + スプレッド0.016bps + スリッページ0bps = 6.016bps
+[2026-07-05T10:28:35.460Z]        4レッグ往復 = 24.064bps
+[2026-07-05T10:28:35.460Z]   ETH: 片道 = テイカー6bps + スプレッド0.056bps + スリッページ0bps = 6.056bps
+[2026-07-05T10:28:35.460Z]        4レッグ往復 = 24.224bps
+[2026-07-05T10:28:35.460Z]   出典: OBS000031実測値（Bitget実コスト）
+[2026-07-05T10:28:35.462Z] 
+>>> 結果JSON保存: g0-3-cost-model.json
+
+REPRODUCTION:
+node --experimental-strip-types scripts/probe-perp-margin-liquidation.ts

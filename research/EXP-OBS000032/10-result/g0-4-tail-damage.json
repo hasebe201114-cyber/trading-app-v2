@@ -1,0 +1,202 @@
+{
+  "timestamp": "2026-07-05T10:29:14.819Z",
+  "delta_neutral_structure": {
+    "spot_leg": "Long 等ノーション（1.0正規化）",
+    "perp_leg": "Short 等ノーション（1.0正規化）",
+    "pnl_components": [
+      "funding P&L: 日次合算funding × ノーション (ショート側が受取)",
+      "basis P&L: (spot_return - perp_return) × 10000 bps",
+      "total: funding + basis"
+    ]
+  },
+  "windows": {
+    "BTCUSDT": {
+      "T1": {
+        "window_dates": {
+          "start": "2020-02-20",
+          "end": "2020-04-30"
+        },
+        "days": 71,
+        "cumulative_pnl_bps": -12.162322247997631,
+        "max_dd_bps": 235.3370978489396,
+        "worst_day_loss_bps": 106.86801686342902,
+        "liquidated": false,
+        "pnl_stats": {
+          "mean_daily_bps": -0.17130031335207932,
+          "std_daily_bps": 15.9219693892182,
+          "min_daily_bps": -106.86801686342902,
+          "max_daily_bps": 48.02190532848816
+        },
+        "obs026_comparison": {
+          "cumulative_pnl_bps": 31.536500000000025,
+          "max_dd_bps": 149.3393,
+          "worst_day_loss_bps": 38.1451,
+          "note": "basis P&L = 0 の場合（OBS026相当。現物価格でperpを代用）"
+        }
+      },
+      "T2": {
+        "window_dates": {
+          "start": "2022-05-01",
+          "end": "2022-06-30"
+        },
+        "days": 61,
+        "cumulative_pnl_bps": 72.70035102899786,
+        "max_dd_bps": 14.463145389666145,
+        "worst_day_loss_bps": 14.463145389666145,
+        "liquidated": false,
+        "pnl_stats": {
+          "mean_daily_bps": 1.19180903326226,
+          "std_daily_bps": 3.364208941032854,
+          "min_daily_bps": -14.463145389666145,
+          "max_daily_bps": 7.277910376440687
+        },
+        "obs026_comparison": {
+          "cumulative_pnl_bps": 73.59630000000001,
+          "max_dd_bps": 7.7132999999999985,
+          "worst_day_loss_bps": 7.5446,
+          "note": "basis P&L = 0 の場合（OBS026相当。現物価格でperpを代用）"
+        }
+      },
+      "T3": {
+        "window_dates": {
+          "start": "2022-10-25",
+          "end": "2022-12-15"
+        },
+        "days": 52,
+        "cumulative_pnl_bps": -1.7623798103316393,
+        "max_dd_bps": 41.305078994890174,
+        "worst_day_loss_bps": 29.605991017279997,
+        "liquidated": false,
+        "pnl_stats": {
+          "mean_daily_bps": -0.0338919194294546,
+          "std_daily_bps": 4.669917198090188,
+          "min_daily_bps": -29.605991017279997,
+          "max_daily_bps": 6.146817333938413
+        },
+        "obs026_comparison": {
+          "cumulative_pnl_bps": 2.6841999999999957,
+          "max_dd_bps": 39.183,
+          "worst_day_loss_bps": 25.4958,
+          "note": "basis P&L = 0 の場合（OBS026相当。現物価格でperpを代用）"
+        }
+      },
+      "calm": {
+        "window_dates": {
+          "start": "2021-01-01",
+          "end": "2021-06-30"
+        },
+        "days": 181,
+        "cumulative_pnl_bps": 2338.713265791561,
+        "max_dd_bps": 22.801619571226638,
+        "worst_day_loss_bps": 15.703378861094599,
+        "liquidated": false,
+        "pnl_stats": {
+          "mean_daily_bps": 12.921067766804203,
+          "std_daily_bps": 13.856559527316916,
+          "min_daily_bps": -15.703378861094599,
+          "max_daily_bps": 50.99463886163702
+        },
+        "obs026_comparison": {
+          "cumulative_pnl_bps": 2338.976400000001,
+          "max_dd_bps": 19.684099999999944,
+          "worst_day_loss_bps": 10.2585,
+          "note": "basis P&L = 0 の場合（OBS026相当。現物価格でperpを代用）"
+        }
+      }
+    },
+    "ETHUSDT": {
+      "T1": {
+        "window_dates": {
+          "start": "2020-02-20",
+          "end": "2020-04-30"
+        },
+        "days": 71,
+        "cumulative_pnl_bps": 222.3707577704421,
+        "max_dd_bps": 165.87223509107022,
+        "worst_day_loss_bps": 165.87223509107022,
+        "liquidated": false,
+        "pnl_stats": {
+          "mean_daily_bps": 3.1319825038090436,
+          "std_daily_bps": 22.885155062965165,
+          "min_daily_bps": -165.87223509107022,
+          "max_daily_bps": 72.758207255289
+        },
+        "obs026_comparison": {
+          "cumulative_pnl_bps": 308.4519000000001,
+          "max_dd_bps": 29.9769,
+          "worst_day_loss_bps": 29.976900000000004,
+          "note": "basis P&L = 0 の場合（OBS026相当。現物価格でperpを代用）"
+        }
+      },
+      "T2": {
+        "window_dates": {
+          "start": "2022-05-01",
+          "end": "2022-06-30"
+        },
+        "days": 61,
+        "cumulative_pnl_bps": 15.682325746289154,
+        "max_dd_bps": 27.609930236733774,
+        "worst_day_loss_bps": 15.1380269505113,
+        "liquidated": false,
+        "pnl_stats": {
+          "mean_daily_bps": 0.25708730731621565,
+          "std_daily_bps": 3.605193868501623,
+          "min_daily_bps": -15.1380269505113,
+          "max_daily_bps": 6.316933957547841
+        },
+        "obs026_comparison": {
+          "cumulative_pnl_bps": 21.500599999999988,
+          "max_dd_bps": 22.248900000000003,
+          "worst_day_loss_bps": 12.6929,
+          "note": "basis P&L = 0 の場合（OBS026相当。現物価格でperpを代用）"
+        }
+      },
+      "T3": {
+        "window_dates": {
+          "start": "2022-10-25",
+          "end": "2022-12-15"
+        },
+        "days": 52,
+        "cumulative_pnl_bps": 0.08931352361538636,
+        "max_dd_bps": 39.96211532740024,
+        "worst_day_loss_bps": 16.541190881518745,
+        "liquidated": false,
+        "pnl_stats": {
+          "mean_daily_bps": 0.0017175677618343531,
+          "std_daily_bps": 3.7158287622534965,
+          "min_daily_bps": -16.541190881518745,
+          "max_daily_bps": 7.511451627155841
+        },
+        "obs026_comparison": {
+          "cumulative_pnl_bps": 3.854999999999997,
+          "max_dd_bps": 34.846900000000005,
+          "worst_day_loss_bps": 12.991299999999999,
+          "note": "basis P&L = 0 の場合（OBS026相当。現物価格でperpを代用）"
+        }
+      },
+      "calm": {
+        "window_dates": {
+          "start": "2021-01-01",
+          "end": "2021-06-30"
+        },
+        "days": 181,
+        "cumulative_pnl_bps": 2925.3995977767227,
+        "max_dd_bps": 38.587382011171485,
+        "worst_day_loss_bps": 38.58738201117163,
+        "liquidated": false,
+        "pnl_stats": {
+          "mean_daily_bps": 16.162428716998466,
+          "std_daily_bps": 18.469717220977522,
+          "min_daily_bps": -38.58738201117163,
+          "max_daily_bps": 79.74526864364215
+        },
+        "obs026_comparison": {
+          "cumulative_pnl_bps": 2936.1022,
+          "max_dd_bps": 29.302099999999882,
+          "worst_day_loss_bps": 29.3021,
+          "note": "basis P&L = 0 の場合（OBS026相当。現物価格でperpを代用）"
+        }
+      }
+    }
+  }
+}

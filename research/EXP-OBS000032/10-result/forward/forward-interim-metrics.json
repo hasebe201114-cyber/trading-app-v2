@@ -1,0 +1,147 @@
+{
+  "generatedAtUTC": "2026-07-05T22:19:45.440Z",
+  "liveDaysCount": {
+    "BTC": 1,
+    "ETH": 1
+  },
+  "warmupDaysCount": {
+    "BTC": 30,
+    "ETH": 30
+  },
+  "note": "F1〜F4は判定語を使わず実測値と閾値の真偽値のみ。ライブ日数<90の間はすべて試験値（計算式の動作確認）であり、正式なゲート判定入力ではない。採否判定はC懐疑検証官が行う。",
+  "f1234": {
+    "BTC": {
+      "f1": {
+        "liveDaysCount": 1,
+        "sufficientSampleFor90dGate": false,
+        "cumulativeLivePnlBps": 0.2530583244292463,
+        "f1a_cumulativePositive": true,
+        "liveDailyMeanBps": 0.2530583244292463,
+        "f1bLowerBoundBps": -2.5310214304046075,
+        "f1bBootstrapNote": "block-bootstrap: calm系列n=181日, blockLen=7, N=5000, seed=20260705, targetLength(=ライブ日数)=1, 第10パーセンタイル",
+        "f1b_liveMeanGteLowerBound": true,
+        "backtestReference": {
+          "calmMeanDailyNetCarryBps": 11.624505211935004,
+          "fullMeanDailyNetCarryBps": 1.5856405525996293
+        },
+        "note": "F1a/F1bともにliveDaysCount<90の間は試験値（формула動作確認用）。90日到達後にforward-f1f4-verdict-inputs.jsonへ正式出力。"
+      },
+      "f2": {
+        "liveDaysCount": 1,
+        "dailyAggregatedPairs": 1,
+        "dailyAggregatedSignAgreementPct": 0,
+        "f2_gte80pct": false,
+        "g02BaselineReferencePct": 64.68,
+        "note": "日次合算(Bitget vs Binance funding_daily_bps)の符号一致率。イベント単位(8h)ローリング一致率は中間チェックポイント側(§6)に別掲。ライブ日数<90は試験値。"
+      },
+      "f3": {
+        "liveDaysCount": 1,
+        "liquidationCount": 0,
+        "marginCallCount": 0,
+        "f3_zeroLiquidationAndMarginCall": true,
+        "note": "ライブ日数<90は試験値。清算・追証は発生時点で即警告（§6）も別途発火。"
+      },
+      "f4": {
+        "liveDaysCount": 1,
+        "liveBasisDailyDeltaStdBps": null,
+        "t1ThresholdBps": 12.137769741412779,
+        "f4_lteT1Threshold": null,
+        "calmReferenceBps": 5.0751820750473895,
+        "note": "RMS(|Δbasis_bps|)方式（g0-1-tail-reachability.jsonと同一算式）。ライブ日数<90は試験値。basis_bpsはperp_last基準（バックテスト参照値との算式整合のため。mark基準ではない）。"
+      }
+    },
+    "ETH": {
+      "f1": {
+        "liveDaysCount": 1,
+        "sufficientSampleFor90dGate": false,
+        "cumulativeLivePnlBps": 0.9026056760748693,
+        "f1a_cumulativePositive": true,
+        "liveDailyMeanBps": 0.9026056760748693,
+        "f1bLowerBoundBps": -2.7712079106256544,
+        "f1bBootstrapNote": "block-bootstrap: calm系列n=181日, blockLen=7, N=5000, seed=20260705, targetLength(=ライブ日数)=1, 第10パーセンタイル",
+        "f1b_liveMeanGteLowerBound": true,
+        "backtestReference": {
+          "calmMeanDailyNetCarryBps": 14.397660815926988,
+          "fullMeanDailyNetCarryBps": 2.367896700535934
+        },
+        "note": "F1a/F1bともにliveDaysCount<90の間は試験値（формула動作確認用）。90日到達後にforward-f1f4-verdict-inputs.jsonへ正式出力。"
+      },
+      "f2": {
+        "liveDaysCount": 1,
+        "dailyAggregatedPairs": 1,
+        "dailyAggregatedSignAgreementPct": 100,
+        "f2_gte80pct": true,
+        "g02BaselineReferencePct": 71.75,
+        "note": "日次合算(Bitget vs Binance funding_daily_bps)の符号一致率。イベント単位(8h)ローリング一致率は中間チェックポイント側(§6)に別掲。ライブ日数<90は試験値。"
+      },
+      "f3": {
+        "liveDaysCount": 1,
+        "liquidationCount": 0,
+        "marginCallCount": 0,
+        "f3_zeroLiquidationAndMarginCall": true,
+        "note": "ライブ日数<90は試験値。清算・追証は発生時点で即警告（§6）も別途発火。"
+      },
+      "f4": {
+        "liveDaysCount": 1,
+        "liveBasisDailyDeltaStdBps": null,
+        "t1ThresholdBps": 19.466313052751875,
+        "f4_lteT1Threshold": null,
+        "calmReferenceBps": 8.696701924612116,
+        "note": "RMS(|Δbasis_bps|)方式（g0-1-tail-reachability.jsonと同一算式）。ライブ日数<90は試験値。basis_bpsはperp_last基準（バックテスト参照値との算式整合のため。mark基準ではない）。"
+      }
+    }
+  },
+  "overall_allFourBothAssets": null,
+  "checkpoints": {
+    "BTC": {
+      "immediateLiquidationOrMarginCall": {
+        "triggered": false,
+        "dates": []
+      },
+      "signAgreementRolling30": {
+        "pairsAvailable": 3,
+        "agreementPct": 66.66666666666666,
+        "below70": true
+      },
+      "carryPersistentNegative": {
+        "cumulativeNegative": true,
+        "last10AllNegative": false,
+        "triggered": false
+      },
+      "basisSpikeExceedsT1": {
+        "rolling30DeltaStdBps": 1.0111355402651507,
+        "exceeds": false
+      },
+      "dataGapConsecutive": {
+        "maxConsecutiveGapDays": 0,
+        "triggered": false
+      }
+    },
+    "ETH": {
+      "immediateLiquidationOrMarginCall": {
+        "triggered": false,
+        "dates": []
+      },
+      "signAgreementRolling30": {
+        "pairsAvailable": 3,
+        "agreementPct": 100,
+        "below70": false
+      },
+      "carryPersistentNegative": {
+        "cumulativeNegative": true,
+        "last10AllNegative": false,
+        "triggered": false
+      },
+      "basisSpikeExceedsT1": {
+        "rolling30DeltaStdBps": 1.2667923713550222,
+        "exceeds": false
+      },
+      "dataGapConsecutive": {
+        "maxConsecutiveGapDays": 0,
+        "triggered": false
+      }
+    }
+  },
+  "alertActive": true,
+  "milestoneSnapshots": {}
+}

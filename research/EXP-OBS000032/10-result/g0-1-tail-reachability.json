@@ -1,0 +1,186 @@
+{
+  "timestamp": "2026-07-05T10:26:35.212Z",
+  "metadata": {
+    "BTC": {},
+    "ETH": {},
+    "BTCUSDT": {
+      "spot": {
+        "oldest": "2019-08-17",
+        "newest": "2026-07-05",
+        "count": 2515
+      },
+      "perp": {
+        "type": "last",
+        "oldest": "2019-09-08",
+        "newest": "2026-07-05",
+        "count": 2493
+      },
+      "funding": {
+        "oldest": "2019-09-10T08:00:00.000Z",
+        "newest": "2026-07-05T08:00:00.001Z",
+        "count": 7471
+      }
+    },
+    "ETHUSDT": {
+      "spot": {
+        "oldest": "2019-08-17",
+        "newest": "2026-07-05",
+        "count": 2515
+      },
+      "perp": {
+        "type": "last",
+        "oldest": "2019-11-27",
+        "newest": "2026-07-05",
+        "count": 2413
+      },
+      "funding": {
+        "oldest": "2019-11-27T08:00:00.000Z",
+        "newest": "2026-07-05T08:00:00.001Z",
+        "count": 7237
+      }
+    }
+  },
+  "tail_window_coverage": {
+    "BTCUSDT": {
+      "T1": {
+        "spotCount": 71,
+        "perpCount": 71,
+        "fundingCount": 213,
+        "aligns": 71,
+        "missingDates": [],
+        "basisMissingRate": 0
+      },
+      "T1_basis": {
+        "count": 71,
+        "mean_bps": -2.5821681412885638,
+        "std_bps": 10.665920184443019,
+        "max_bps": 11.837968370569412,
+        "min_bps": -73.6458333333341,
+        "max_abs_bps": 73.6458333333341,
+        "daily_delta_std_bps": 12.137769741412779
+      },
+      "T2": {
+        "spotCount": 61,
+        "perpCount": 61,
+        "fundingCount": 183,
+        "aligns": 61,
+        "missingDates": [],
+        "basisMissingRate": 0
+      },
+      "T2_basis": {
+        "count": 61,
+        "mean_bps": -4.283377203208911,
+        "std_bps": 2.0616466958226285,
+        "max_bps": 0.22098186530525077,
+        "min_bps": -10.046749684062696,
+        "max_abs_bps": 10.046749684062696,
+        "daily_delta_std_bps": 2.5314374578630794
+      },
+      "T3": {
+        "spotCount": 52,
+        "perpCount": 52,
+        "fundingCount": 156,
+        "aligns": 52,
+        "missingDates": [],
+        "basisMissingRate": 0
+      },
+      "T3_basis": {
+        "count": 52,
+        "mean_bps": -5.039442779513016,
+        "std_bps": 1.92047048436125,
+        "max_bps": 1.3502337592183369,
+        "min_bps": -11.185211655480089,
+        "max_abs_bps": 11.185211655480089,
+        "daily_delta_std_bps": 1.9360813125173022
+      },
+      "calm": {
+        "spotCount": 181,
+        "perpCount": 181,
+        "fundingCount": 543,
+        "aligns": 181,
+        "missingDates": [],
+        "basisMissingRate": 0
+      },
+      "calm_basis": {
+        "count": 181,
+        "mean_bps": 5.679662237251169,
+        "std_bps": 6.946783913870066,
+        "max_bps": 19.178085435157602,
+        "min_bps": -11.003433103342676,
+        "max_abs_bps": 19.178085435157602,
+        "daily_delta_std_bps": 5.0751820750473895
+      }
+    },
+    "ETHUSDT": {
+      "T1": {
+        "spotCount": 71,
+        "perpCount": 71,
+        "fundingCount": 213,
+        "aligns": 71,
+        "missingDates": [],
+        "basisMissingRate": 0
+      },
+      "T1_basis": {
+        "count": 71,
+        "mean_bps": 0.6552202078493183,
+        "std_bps": 13.818150787954945,
+        "max_bps": 14.594397373009027,
+        "min_bps": -102.9493600445186,
+        "max_abs_bps": 102.9493600445186,
+        "daily_delta_std_bps": 19.466313052751875
+      },
+      "T2": {
+        "spotCount": 61,
+        "perpCount": 61,
+        "fundingCount": 183,
+        "aligns": 61,
+        "missingDates": [],
+        "basisMissingRate": 0
+      },
+      "T2_basis": {
+        "count": 61,
+        "mean_bps": -4.79169250822121,
+        "std_bps": 1.9003979085864027,
+        "max_bps": -0.44564383154622633,
+        "min_bps": -10.450895862851725,
+        "max_abs_bps": 10.450895862851725,
+        "daily_delta_std_bps": 2.3390283571587056
+      },
+      "T3": {
+        "spotCount": 52,
+        "perpCount": 52,
+        "fundingCount": 156,
+        "aligns": 52,
+        "missingDates": [],
+        "basisMissingRate": 0
+      },
+      "T3_basis": {
+        "count": 52,
+        "mean_bps": -4.670775475759352,
+        "std_bps": 2.242483550665365,
+        "max_bps": 2.8015658481543046,
+        "min_bps": -11.244819674807152,
+        "max_abs_bps": 11.244819674807152,
+        "daily_delta_std_bps": 2.189501684485691
+      },
+      "calm": {
+        "spotCount": 181,
+        "perpCount": 181,
+        "fundingCount": 543,
+        "aligns": 181,
+        "missingDates": [],
+        "basisMissingRate": 0
+      },
+      "calm_basis": {
+        "count": 181,
+        "mean_bps": 7.86601886167861,
+        "std_bps": 8.480872534795676,
+        "max_bps": 36.076125392347436,
+        "min_bps": -10.78738994400543,
+        "max_abs_bps": 36.076125392347436,
+        "daily_delta_std_bps": 8.696701924612116
+      }
+    }
+  },
+  "basis_statistics": {}
+}

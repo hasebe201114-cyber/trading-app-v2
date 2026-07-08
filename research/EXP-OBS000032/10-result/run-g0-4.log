@@ -1,0 +1,94 @@
+=== EXP-OBS000032 G0-4: テール被害幅実測 ===
+Execution: 2026-07-05T10:29:14.819Z
+
+DELTA-NEUTRAL STRUCTURE (Fixed):
+  Spot leg: Long 等ノーション (normalized to 1.0)
+  Perp leg: Short 等ノーション (normalized to 1.0)
+  No regime flipping (fixed long/short orientation)
+
+DAILY PnL COMPONENTS:
+  funding P&L = Daily summed funding rate × 10000 (in bps)
+                Short leg receives positive funding
+  basis P&L = (spot_return - perp_return) × 10000 bps
+              ≈ -Δbasis (price deviation risk)
+  total P&L = funding P&L + basis P&L
+
+METRICS:
+  Cumulative P&L: sum of all daily P&L over window
+  Max DD: maximum drawdown (peak to trough)
+  Worst day loss: single worst day
+  Liquidated: true if short perp cleared in window (simplified, see G0-3)
+
+OBS026 COMPARISON:
+  basis P&L set to 0 (spot price substituted for perp)
+  Shows impact of actual perp price deviation risk
+
+TAIL WINDOWS (Fixed by Spec):
+  T1: 2020-02-20 ~ 2020-04-30 (Corona)
+  T2: 2022-05-01 ~ 2022-06-30 (LUNA)
+  T3: 2022-10-25 ~ 2022-12-15 (FTX)
+  calm: 2021-01-01 ~ 2021-06-30 (Placid)
+
+EXECUTION LOG:
+[2026-07-05T10:29:14.827Z] === EXP-OBS000032 G0-4: テール被害幅実測 ===
+[2026-07-05T10:29:14.827Z] 開始時刻: 2026-07-05T10:29:14.819Z
+
+[2026-07-05T10:29:14.827Z] 
+======== BTCUSDT ========
+[2026-07-05T10:29:14.863Z]   現物: 2515本, Perp: 2493本, Funding: 2491件
+[2026-07-05T10:29:14.863Z]   T1 (2020-03 コロナ):
+[2026-07-05T10:29:14.866Z]     PnL数: 71日
+[2026-07-05T10:29:14.866Z]     累積P&L: -12.2 bps
+[2026-07-05T10:29:14.867Z]     最大DD: 235.3 bps
+[2026-07-05T10:29:14.867Z]     最悪日次損失: 106.9 bps
+[2026-07-05T10:29:14.867Z]     [026比較(basis=0)] 累積: 31.5 bps, DD: 149.3 bps
+[2026-07-05T10:29:14.869Z]   T2 (2022-05 LUNA):
+[2026-07-05T10:29:14.870Z]     PnL数: 61日
+[2026-07-05T10:29:14.871Z]     累積P&L: 72.7 bps
+[2026-07-05T10:29:14.871Z]     最大DD: 14.5 bps
+[2026-07-05T10:29:14.871Z]     最悪日次損失: 14.5 bps
+[2026-07-05T10:29:14.871Z]     [026比較(basis=0)] 累積: 73.6 bps, DD: 7.7 bps
+[2026-07-05T10:29:14.872Z]   T3 (2022-11 FTX):
+[2026-07-05T10:29:14.874Z]     PnL数: 52日
+[2026-07-05T10:29:14.874Z]     累積P&L: -1.8 bps
+[2026-07-05T10:29:14.875Z]     最大DD: 41.3 bps
+[2026-07-05T10:29:14.875Z]     最悪日次損失: 29.6 bps
+[2026-07-05T10:29:14.875Z]     [026比較(basis=0)] 累積: 2.7 bps, DD: 39.2 bps
+[2026-07-05T10:29:14.876Z]   calm (2021-01〜06):
+[2026-07-05T10:29:14.877Z]     PnL数: 181日
+[2026-07-05T10:29:14.877Z]     累積P&L: 2338.7 bps
+[2026-07-05T10:29:14.877Z]     最大DD: 22.8 bps
+[2026-07-05T10:29:14.877Z]     最悪日次損失: 15.7 bps
+[2026-07-05T10:29:14.877Z]     [026比較(basis=0)] 累積: 2339.0 bps, DD: 19.7 bps
+[2026-07-05T10:29:14.880Z] 
+======== ETHUSDT ========
+[2026-07-05T10:29:14.900Z]   現物: 2515本, Perp: 2413本, Funding: 2413件
+[2026-07-05T10:29:14.900Z]   T1 (2020-03 コロナ):
+[2026-07-05T10:29:14.901Z]     PnL数: 71日
+[2026-07-05T10:29:14.901Z]     累積P&L: 222.4 bps
+[2026-07-05T10:29:14.901Z]     最大DD: 165.9 bps
+[2026-07-05T10:29:14.901Z]     最悪日次損失: 165.9 bps
+[2026-07-05T10:29:14.901Z]     [026比較(basis=0)] 累積: 308.5 bps, DD: 30.0 bps
+[2026-07-05T10:29:14.903Z]   T2 (2022-05 LUNA):
+[2026-07-05T10:29:14.904Z]     PnL数: 61日
+[2026-07-05T10:29:14.904Z]     累積P&L: 15.7 bps
+[2026-07-05T10:29:14.904Z]     最大DD: 27.6 bps
+[2026-07-05T10:29:14.904Z]     最悪日次損失: 15.1 bps
+[2026-07-05T10:29:14.904Z]     [026比較(basis=0)] 累積: 21.5 bps, DD: 22.2 bps
+[2026-07-05T10:29:14.906Z]   T3 (2022-11 FTX):
+[2026-07-05T10:29:14.908Z]     PnL数: 52日
+[2026-07-05T10:29:14.908Z]     累積P&L: 0.1 bps
+[2026-07-05T10:29:14.908Z]     最大DD: 40.0 bps
+[2026-07-05T10:29:14.908Z]     最悪日次損失: 16.5 bps
+[2026-07-05T10:29:14.908Z]     [026比較(basis=0)] 累積: 3.9 bps, DD: 34.8 bps
+[2026-07-05T10:29:14.909Z]   calm (2021-01〜06):
+[2026-07-05T10:29:14.910Z]     PnL数: 181日
+[2026-07-05T10:29:14.910Z]     累積P&L: 2925.4 bps
+[2026-07-05T10:29:14.910Z]     最大DD: 38.6 bps
+[2026-07-05T10:29:14.910Z]     最悪日次損失: 38.6 bps
+[2026-07-05T10:29:14.910Z]     [026比較(basis=0)] 累積: 2936.1 bps, DD: 29.3 bps
+[2026-07-05T10:29:14.912Z] 
+>>> 結果JSON保存: g0-4-tail-damage.json
+
+REPRODUCTION:
+node --experimental-strip-types scripts/tail-damage-delta-neutral.ts

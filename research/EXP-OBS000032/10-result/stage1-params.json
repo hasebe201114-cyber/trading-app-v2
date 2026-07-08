@@ -1,0 +1,121 @@
+{
+  "experiment": "EXP-OBS000032",
+  "stage": "Stage 1",
+  "specReference": "research/EXP-OBS000032/00-spec-stage1.md",
+  "verdictReference": "research/EXP-OBS000032/21-verdict-stage1-v2.md（差し戻し反映版）",
+  "executedBy": "B検証実装官 (Quant Researcher)",
+  "gitCommit": "3b28204031acf5ef24fe55d05ee280b163db6a39",
+  "nodeVersion": "v22.22.2",
+  "dataSource": {
+    "btcUsdt": {
+      "spotDaily": "btcusdt-spot-daily.csv (Stage 0 carry dataset)",
+      "perpDaily": "btcusdt-perp-last-daily.csv (Stage 0 carry dataset)",
+      "fundingDaily": "btcusdt-funding.csv (Stage 0 carry dataset, aggregated 8h to daily)",
+      "records": 2493,
+      "startDate": "2019-09-08",
+      "endDate": "2026-07-05"
+    },
+    "ethUsdt": {
+      "spotDaily": "ethusdt-spot-daily.csv",
+      "perpDaily": "ethusdt-perp-last-daily.csv",
+      "fundingDaily": "ethusdt-funding.csv",
+      "records": 2413,
+      "startDate": "2019-11-27",
+      "endDate": "2026-07-05"
+    },
+    "momentumUnit": {
+      "btcDaily": "scripts/data/btc-daily-binance-2017-2026.csv",
+      "ethDaily": "scripts/data/eth-daily-binance-2017-2026.csv",
+      "note": "Stage 1-C ②単体（simulatePortfolio本番構成）の入力"
+    },
+    "markPriceKlines": {
+      "available": false,
+      "note": "Binance perp markPriceKlines は本Stage1でも取得に至らず。last価格で代用（spec §4-1・保守側/偽陽性側に振れる代用）。"
+    }
+  },
+  "signalConfiguration": {
+    "description": "W=7 SMA funding sign for delta-neutral carry (spec §2)。Stage1-A・Stage1-Bで同一ロジックを使用（21-verdict-v2 バグG修正で1-Bにも適用）",
+    "smaWindow_days": 7,
+    "lookbackExclusion": "signal based on t-7..t-1 only (no forward-looking t)",
+    "reversalRule": "sign(SMA_7) flips from prev (both non-zero) -> 4-leg round-trip cost",
+    "costBasis_perLeg_bps": { "BTC": 6.016, "ETH": 6.056 },
+    "reversalCost_fourLeg_bps": { "BTC": 24.064, "ETH": 24.224 },
+    "capitalCost_annual_pct": 4.0
+  },
+  "leverageBands": {
+    "leverages": [3, 5, 10],
+    "imrByLeverage": { "3": 0.3333, "5": 0.2, "10": 0.1 },
+    "adoptionGateLeverage": 3,
+    "note": "L=5,10は情報開示の並記のみ（利回りを理由に採用へ選ばない・spec §3）"
+  },
+  "liquidationModel": {
+    "description": "spec §4 方式I（分離証拠金・主判定）。21-verdict-v2 バグF/G修正後の会計",
+    "initialMarginRatio_imr": "1 / leverage",
+    "maintenanceMarginRatio_mmr": 0.005,
+    "mmr_source": "業界標準の仮置き（Bitget contracts API がMMR相当フィールドをundefined返却。Bitget API取得ではない）",
+    "marginUpdateFormula": "margin_t = floor(0, margin_{t-1} + pos*perp_short_mtm + pos*funding_flow)。pos = signal===-1 ? -1 : 1",
+    "dailyPnlFormula": "spotLegPnl_bps(pos適用) + perpレッグ実現P&L(floor後増分) - 反転コスト - 資本コスト - (清算日のみ)再構築コスト",
+    "liquidationTrigger": "margin_t < MMR×名目",
+    "postLiquidation": "reconstructionCost(4-leg)のみ実控除。marginをIMRにリセット。spotレッグは前日比リターン評価のため再基準化不要（含み益は消えず、清算時に実現もされない）",
+    "doubleCountingAvoidance": "連続MTM(basisPnl相当)と離散清算損(1/L全損)を同時に計上しない一本の会計（21-verdict-v2 バグF修正の核心）",
+    "markPriceSubstitute": "last price (mark klines非可用・保守側の代用)",
+    "methodII_crossMargin": "参考併記のみ（spec §4-3 方式II）。採否判定には使わない"
+  },
+  "cvarSizing": {
+    "description": "spec §5 CVaR基準サイジング（Sharpe基準Kelly禁止）",
+    "cvarPercentile": 97.5,
+    "riskBudgets": { "dailyCvar97_5_pct": 2.0, "worstTailWindowCumulativeLoss_pct": 20.0, "fractionF": 0.5 },
+    "sizeFormula": "w* = min(0.02×10000/|CVaR97.5_bps(全期間)|, 0.20×10000/worstTailWindowMaxDD_bps) × 0.5",
+    "note": "制約1・2ともに『配分資本に対する率』ベース。imrの二重乗算をしない（21-verdict-v2 差し戻し反映で修正）"
+  },
+  "bootstrap": {
+    "description": "spec §6 Stage 1-A block-bootstrap for H0: mean_daily_carry <= 0",
+    "method": "block-bootstrap (mean-centered)",
+    "blockLength_days": 7,
+    "resamplingCount": 5000,
+    "seed": 20260705,
+    "centeringMethod": "mean=0 (shift centered on null hypothesis)",
+    "pvalueDefinition": "proportion of resamples with mean >= observed_mean"
+  },
+  "periods": {
+    "selection_insample": { "start": "2019-09-10", "end": "2021-12-31", "purpose": "②合成の逆ボラ凍結ウェイト算出のみ" },
+    "confirmation_oos": { "start": "2022-01-01", "end": "2026-07-05", "purpose": "G3C/G4C判定（OOS）" },
+    "tailWindows_stress": {
+      "T1_coronavirus": { "start": "2020-02-20", "end": "2020-04-30" },
+      "T2_luna": { "start": "2022-05-01", "end": "2022-06-30" },
+      "T3_ftx": { "start": "2022-10-25", "end": "2022-12-15" },
+      "calm": { "start": "2021-01-01", "end": "2021-06-30" }
+    }
+  },
+  "killGatesDefinition": {
+    "kill_1_G1A": "連続全期間でBTC・ETH両方: 平均日次ネットキャリー>0 かつ bootstrap p<0.05 かつ どのテール窓も全期間累積を負転させない",
+    "kill_2_G2B": "L=3でBTC・ETH両方: CVaRサイジングのw*>0 かつ w*年率ネットキャリー>0",
+    "primary_G3C": "確認期間で|corr(スリーブ, ②単体)|<0.3",
+    "primary_G4C": "(a) 合成Sharpe-②単体Sharpe>=+0.15 かつ 合成maxDD-②単体maxDD<=+2pt。または (b) 合成maxDD-②単体maxDD<=-5pt かつ 合成Sharpe-②単体Sharpe>=-0.05"
+  },
+  "outputFiles": {
+    "stage1_A_btc": "stage1-net-expectation-btc.json",
+    "stage1_A_eth": "stage1-net-expectation-eth.json",
+    "stage1_A_dailyReturns_btc": "stage1-carry-daily-returns-btc.json",
+    "stage1_A_dailyReturns_eth": "stage1-carry-daily-returns-eth.json",
+    "stage1_B_btc": "stage1-liquidation-sim-btc.json",
+    "stage1_B_eth": "stage1-liquidation-sim-eth.json",
+    "stage1_B_dailyReturns": "stage1-liquidation-daily-returns-{btc,eth}-L{3,5,10}.json",
+    "stage1_C": "stage1-composite.json",
+    "runLog": "stage1-run.log",
+    "params": "stage1-params.json"
+  },
+  "prohibitions": {
+    "1_no_judgement_language": "生数値・式の真偽値のみ出力。判定語（達成/採用/不採用/有意/改善/合格等）は使用しない。判定はC懐疑検証官が行う。",
+    "2_no_param_sweep": "W=7固定。レバ・MMR・資本コスト・CVaR%・リスク予算・f・seed等のグリッド探索禁止",
+    "3_no_post_hoc_tuning": "結果を見てのパラメータ調整をしない。killが未達でも棄却して停止する",
+    "4_no_high_leverage_adoption": "L=5,10は情報開示のみ。採否ゲートはL=3のみ",
+    "5_no_liquidation_assumption": "清算=false前提でサイジングしない（21-verdict-v2 バグF/Gで既発の違反を修正）",
+    "6_mmr_disclosure": "MMRは『業界標準の仮置き（API非配信）』と明記。『Bitget API取得』と表記しない",
+    "7_no_mark_kline_bias": "mark非可用時はlast代用と明記（保守側/過大計上side）",
+    "8_no_self_graded_c_verdict": "B自身がC懐疑検証官を名乗る採否判定文書を作成しない（前回違反の再発防止）"
+  },
+  "changeLog": [
+    "2026-07-05: 21-verdict-stage1-v2.md（独立監査・差し戻し）を反映。バグG（signal未適用の永続ショート）・バグF（清算損二重計上）・バグE残（レジーム別分解未実装）をcarry-liquidation-sim.tsで修正。バグJ（simulatePortfolio未呼出の裸±1モメンタム）・バグI（G4C誤オペランド・不等号反転・捏造表示）・バグH（算術和DD・二重100倍スケール）・入力是正（無レバ系列→Stage1-Bレバ済み系列、frozenWeights意味論修正、実測凍結ウェイト）をcarry-momentum-composite.tsで修正。B自身による自己採点文書（修正完了報告.txt）は削除。"
+  ]
+}

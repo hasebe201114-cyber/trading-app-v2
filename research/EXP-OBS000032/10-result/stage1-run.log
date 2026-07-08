@@ -1,0 +1,157 @@
+=== EXP-OBS000032 Stage 1 実行ログ（21-verdict-stage1-v2.md 差し戻し反映版） ===
+git commit: 3b28204031acf5ef24fe55d05ee280b163db6a39
+node version: v22.22.2
+実行日時(UTC): 2026-07-05T13:58:05Z
+
+--- 再現コマンド（この順序で実行） ---
+1. node --experimental-strip-types scripts/carry-net-expectation.ts BTC
+2. node --experimental-strip-types scripts/carry-net-expectation.ts ETH
+3. node --experimental-strip-types scripts/carry-liquidation-sim.ts BTC
+4. node --experimental-strip-types scripts/carry-liquidation-sim.ts ETH
+5. (G2B再判定: 3倍でBTC・ETH両方のw*>0かつw*年率ネットキャリー>0か確認)
+6. node --experimental-strip-types scripts/carry-momentum-composite.ts
+
+--- [1] carry-net-expectation.ts BTC ---
+[BTC] Loading data...
+Merged 2493 daily records (2019-09-08 ~ 2026-07-05)
+
+Results written to: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000032\10-result\stage1-net-expectation-btc.json
+Daily returns written to: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000032\10-result\stage1-carry-daily-returns-btc.json
+
+=== BTC ===
+FULL            | n=2493 | cum=3953 bps | mean=1.586 bps/day | annual=5.79% | p=0.0000
+T1              | n=71 | cum=-50 bps | mean=-0.710 bps/day | annual=-2.59% | p=0.6328
+T2              | n=61 | cum=-58 bps | mean=-0.950 bps/day | annual=-3.47% | p=0.9270
+T3              | n=52 | cum=-86 bps | mean=-1.646 bps/day | annual=-6.01% | p=0.9294
+calm            | n=181 | cum=2104 bps | mean=11.625 bps/day | annual=42.43% | p=0.0000
+H1-2019         | n=1246 | cum=3387 bps | mean=2.718 bps/day | annual=9.92% | p=0.0000
+H2-2021         | n=1247 | cum=566 bps | mean=0.454 bps/day | annual=1.66% | p=0.0226
+
+--- [2] carry-net-expectation.ts ETH ---
+[ETH] Loading data...
+Merged 2413 daily records (2019-11-27 ~ 2026-07-05)
+
+Results written to: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000032\10-result\stage1-net-expectation-eth.json
+Daily returns written to: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000032\10-result\stage1-carry-daily-returns-eth.json
+
+=== ETH ===
+FULL            | n=2413 | cum=5714 bps | mean=2.368 bps/day | annual=8.64% | p=0.0000
+T1              | n=71 | cum=85 bps | mean=1.193 bps/day | annual=4.35% | p=0.2606
+T2              | n=61 | cum=-203 bps | mean=-3.330 bps/day | annual=-12.15% | p=0.9992
+T3              | n=52 | cum=-54 bps | mean=-1.043 bps/day | annual=-3.81% | p=0.9532
+calm            | n=181 | cum=2606 bps | mean=14.398 bps/day | annual=52.55% | p=0.0000
+H1-2019         | n=1206 | cum=5113 bps | mean=4.240 bps/day | annual=15.48% | p=0.0000
+H2-2021         | n=1207 | cum=600 bps | mean=0.497 bps/day | annual=1.82% | p=0.0424
+
+--- [3] carry-liquidation-sim.ts BTC ---
+[BTC] Simulating liquidation with 2493 daily records (2019-09-08~2026-07-05)...
+L=3: Liq=1 | Cum=5787bps | MaxDD(FULL,self-contained)=270bps | worstTail=T1(166.2bps) | CVaR=-28bps | w*=3.629 | w*Annual=30.75% | Sharpe=4.635
+  [FULL  ] n=2493 liq=1 cum=   5787.0bps maxDD=   269.9bps worst=  -154.8bps liqDates=2021-03-13
+  [T1    ] n=  71 liq=0 cum=     31.6bps maxDD=   166.2bps worst=  -107.2bps liqDates=-
+  [T2    ] n=  61 liq=0 cum=    -85.7bps maxDD=    95.0bps worst=   -28.9bps liqDates=-
+  [T3    ] n=  52 liq=0 cum=    -52.4bps maxDD=    75.1bps worst=   -30.0bps liqDates=-
+  [calm  ] n= 181 liq=1 cum=   2348.5bps maxDD=    28.4bps worst=   -19.4bps liqDates=2021-03-13
+  [H1    ] n=1246 liq=1 cum=   4337.6bps maxDD=   269.9bps worst=  -154.8bps liqDates=2021-03-13
+  [H2    ] n=1247 liq=0 cum=   1449.4bps maxDD=   267.9bps worst=   -27.4bps liqDates=-
+L=5: Liq=2 | Cum=6623bps | MaxDD(FULL,self-contained)=248bps | worstTail=T1(159.1bps) | CVaR=-27bps | w*=3.648 | w*Annual=35.37% | Sharpe=3.371
+  [FULL  ] n=2493 liq=2 cum=   6622.8bps maxDD=   248.1bps worst=  -154.6bps liqDates=2021-02-19,2025-01-21
+  [T1    ] n=  71 liq=0 cum=     42.0bps maxDD=   159.1bps worst=  -107.1bps liqDates=-
+  [T2    ] n=  61 liq=0 cum=    -76.8bps maxDD=    86.9bps worst=   -28.8bps liqDates=-
+  [T3    ] n=  52 liq=0 cum=    -44.8bps maxDD=    72.6bps worst=   -29.8bps liqDates=-
+  [calm  ] n= 181 liq=1 cum=   2870.5bps maxDD=    27.1bps worst=   -19.2bps liqDates=2021-02-19
+  [H1    ] n=1246 liq=1 cum=   5015.2bps maxDD=   248.0bps worst=  -154.6bps liqDates=2021-02-19
+  [H2    ] n=1247 liq=1 cum=   1607.6bps maxDD=   248.1bps worst=   -27.2bps liqDates=2025-01-21
+L=10: Liq=3 | Cum=7117bps | MaxDD(FULL,self-contained)=233bps | worstTail=T1(153.9bps) | CVaR=-27bps | w*=3.663 | w*Annual=38.17% | Sharpe=3.556
+  [FULL  ] n=2493 liq=3 cum=   7116.6bps maxDD=   233.2bps worst=  -154.5bps liqDates=2021-02-08,2021-02-19,2024-11-21
+  [T1    ] n=  71 liq=0 cum=     49.8bps maxDD=   153.9bps worst=  -107.0bps liqDates=-
+  [T2    ] n=  61 liq=0 cum=    -70.1bps maxDD=    80.9bps worst=   -28.6bps liqDates=-
+  [T3    ] n=  52 liq=0 cum=    -39.1bps maxDD=    70.8bps worst=   -29.7bps liqDates=-
+  [calm  ] n= 181 liq=2 cum=   2866.3bps maxDD=    26.1bps worst=   -19.1bps liqDates=2021-02-08,2021-02-19
+  [H1    ] n=1246 liq=2 cum=   5127.7bps maxDD=   232.0bps worst=  -154.5bps liqDates=2021-02-08,2021-02-19
+  [H2    ] n=1247 liq=1 cum=   1988.9bps maxDD=   233.2bps worst=   -27.1bps liqDates=2024-11-21
+
+JSON written: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000032\10-result\stage1-liquidation-sim-btc.json
+Daily P&L series (L=3,5,10) written for Stage 1-C consumption.
+
+--- [4] carry-liquidation-sim.ts ETH ---
+[ETH] Simulating liquidation with 2413 daily records (2019-11-27~2026-07-05)...
+L=3: Liq=8 | Cum=10149bps | MaxDD(FULL,self-contained)=251bps | worstTail=T1(217.9bps) | CVaR=-26bps | w*=3.789 | w*Annual=58.17% | Sharpe=2.546
+  [FULL  ] n=2413 liq=8 cum=  10148.9bps maxDD=   251.5bps worst=  -166.2bps liqDates=2020-02-06,2020-07-31,2020-11-13,2020-12-27,2021-01-03,2021-01-24,2021-04-02,2021-05-03
+  [T1    ] n=  71 liq=0 cum=    117.8bps maxDD=   217.9bps worst=  -166.2bps liqDates=-
+  [T2    ] n=  61 liq=0 cum=   -119.5bps maxDD=   131.4bps worst=   -26.1bps liqDates=-
+  [T3    ] n=  52 liq=0 cum=    -67.9bps maxDD=    91.1bps worst=   -26.2bps liqDates=-
+  [calm  ] n= 181 liq=4 cum=   4907.3bps maxDD=   102.2bps worst=   -39.0bps liqDates=2021-01-03,2021-01-24,2021-04-02,2021-05-03
+  [H1    ] n=1206 liq=8 cum=   8646.1bps maxDD=   251.5bps worst=  -166.2bps liqDates=2020-02-06,2020-07-31,2020-11-13,2020-12-27,2021-01-03,2021-01-24,2021-04-02,2021-05-03
+  [H2    ] n=1207 liq=0 cum=   1502.9bps maxDD=   239.1bps worst=   -28.2bps liqDates=-
+L=5: Liq=14 | Cum=11023bps | MaxDD(FULL,self-contained)=237bps | worstTail=T1(216.6bps) | CVaR=-26bps | w*=3.811 | w*Annual=63.54% | Sharpe=2.566
+  [FULL  ] n=2413 liq=14 cum=  11023.1bps maxDD=   236.7bps worst=  -166.1bps liqDates=2020-01-30,2020-02-09,2020-02-14,2020-08-05,2020-11-17,2020-11-23,2020-12-30,2021-01-03,2021-01-06,2021-02-02,2021-02-18,2021-04-15,2021-05-03,2021-05-11
+  [T1    ] n=  71 liq=0 cum=    128.1bps maxDD=   216.6bps worst=  -166.1bps liqDates=-
+  [T2    ] n=  61 liq=0 cum=   -110.6bps maxDD=   122.9bps worst=   -26.0bps liqDates=-
+  [T3    ] n=  52 liq=0 cum=    -60.3bps maxDD=    86.0bps worst=   -26.1bps liqDates=-
+  [calm  ] n= 181 liq=7 cum=   5304.2bps maxDD=    96.1bps worst=   -38.8bps liqDates=2021-01-03,2021-01-06,2021-02-02,2021-02-18,2021-04-15,2021-05-03,2021-05-11
+  [H1    ] n=1206 liq=14 cum=   9343.8bps maxDD=   236.7bps worst=  -166.1bps liqDates=2020-01-30,2020-02-09,2020-02-14,2020-08-05,2020-11-17,2020-11-23,2020-12-30,2021-01-03,2021-01-06,2021-02-02,2021-02-18,2021-04-15,2021-05-03,2021-05-11
+  [H2    ] n=1207 liq=0 cum=   1679.2bps maxDD=   216.9bps worst=   -28.1bps liqDates=-
+L=10: Liq=24 | Cum=14444bps | MaxDD(FULL,self-contained)=226bps | worstTail=T1(215.6bps) | CVaR=-26bps | w*=3.845 | w*Annual=84.00% | Sharpe=2.330
+  [FULL  ] n=2413 liq=24 cum=  14443.8bps maxDD=   225.6bps worst=  -166.0bps liqDates=2020-01-14,2020-01-30,2020-02-06,2020-02-11,2020-02-12,2020-07-30,2020-08-01,2020-08-14,2020-11-13,2020-11-21,2020-11-30,2020-12-27,2021-01-02,2021-01-03,2021-01-05,2021-01-07,2021-01-19,2021-02-02,2021-02-05,2021-04-02,2021-04-14,2021-04-28,2021-05-03,2021-05-08
+  [T1    ] n=  71 liq=0 cum=    135.9bps maxDD=   215.6bps worst=  -166.0bps liqDates=-
+  [T2    ] n=  61 liq=0 cum=   -104.0bps maxDD=   116.5bps worst=   -25.9bps liqDates=-
+  [T3    ] n=  52 liq=0 cum=    -54.6bps maxDD=    82.6bps worst=   -26.0bps liqDates=-
+  [calm  ] n= 181 liq=12 cum=   7442.8bps maxDD=    93.8bps worst=   -38.7bps liqDates=2021-01-02,2021-01-03,2021-01-05,2021-01-07,2021-01-19,2021-02-02,2021-02-05,2021-04-02,2021-04-14,2021-04-28,2021-05-03,2021-05-08
+  [H1    ] n=1206 liq=24 cum=  12632.3bps maxDD=   225.6bps worst=  -166.0bps liqDates=2020-01-14,2020-01-30,2020-02-06,2020-02-11,2020-02-12,2020-07-30,2020-08-01,2020-08-14,2020-11-13,2020-11-21,2020-11-30,2020-12-27,2021-01-02,2021-01-03,2021-01-05,2021-01-07,2021-01-19,2021-02-02,2021-02-05,2021-04-02,2021-04-14,2021-04-28,2021-05-03,2021-05-08
+  [H2    ] n=1207 liq=0 cum=   1811.5bps maxDD=   201.8bps worst=   -28.0bps liqDates=-
+
+JSON written: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000032\10-result\stage1-liquidation-sim-eth.json
+Daily P&L series (L=3,5,10) written for Stage 1-C consumption.
+
+--- [5] G2B raw check (L=3, both assets: w*>0 and w*-annualCarry>0) ---
+BTC L=3: w_star=3.629202614909055 w_star_annualizedNetCarry_pct=30.74953712473864
+ETH L=3: w_star=3.78943978159165 w_star_annualizedNetCarry_pct=58.17418242045233
+BTC w_star>0: true | BTC w_star_annualizedNetCarry_pct>0: true
+ETH w_star>0: true | ETH w_star_annualizedNetCarry_pct>0: true
+
+--- [6] carry-momentum-composite.ts ---
+[Stage 1-C] キャリー×②合成の限界寄与検定（再実装）
+
+w* (L=3): BTC=3.629 ETH=3.789
+Sleeve (BTC/ETH common) days: 2413 (2019-11-27~2026-07-05)
+② BTC本番構成: trades=248 daily-rows=2481
+② ETH本番構成(参考): trades=248 daily-rows=2481
+Aligned (sleeve × momentum-BTC) dates: 2403
+選定期間(2019-09-10~2021-12-31) std: sleeve=1.1159% momentum=0.6924%
+凍結逆ボラウェイト: sleeve=0.3829 momentum=0.6171
+
+=== STAGE 1-C RAW RESULTS ===
+Sleeve(confirm)   : n=1637 mean=0.0339% sharpe=4.129 maxDD=8.17% cum=73.77%
+Momentum②(confirm): n=1637 mean=0.0126% sharpe=0.555 maxDD=8.25% cum=21.13%
+CompositeFrozen   : sharpe=1.419 maxDD=6.47%
+Composite50/50    : sharpe=1.876 maxDD=5.95%
+corr full=0.0740 h1=0.0689 h2=0.0795
+G3C |corr|<0.3: abs=0.0740 condition_met=true
+G4C sharpeDiff(frozen)=0.8641 ddDiff_pt(frozen)=-1.78 condition_a=true condition_b=false any=true
+
+JSON written: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000032\10-result\stage1-composite.json
+
+=== B自己確認（判定語なし・生数値のみ） ===
+[清算がテール窓内で発生しているか]
+BTC L3清算日: 2021-03-13（T1/T2/T3/calmのうちcalm=2021-01~06に該当。T1/T2/T3には非該当）
+ETH L3清算日: 2020-02-06,2020-07-31,2020-11-13,2020-12-27,2021-01-03,2021-01-24,2021-04-02,2021-05-03（いずれもT1[2020-02-20~04-30]/T2/T3の定義域外。calm該当分あり）
+
+[累積損益・年率が現実的範囲か]
+BTC L3: 全期間累積5787bps(57.9%)/約6.8年、年率換算8.47%。ETH L3: 全期間累積10149bps(101.5%)/約6.6年。単年ブローアップなし。
+
+[最大DDが0-100%範囲か]
+Stage1-B（自己完結累積和・bps単位・G0-4と同一方式）: BTC L3 FULL maxDD=269.9bps(2.70%)、ETH L3 FULL maxDD=251.5bps(2.52%)。いずれも100%を大きく下回る。
+Stage1-C（複利エクイティカーブ・%単位）: sleeve maxDD=8.17%、momentum②単体maxDD=8.25%、composite(frozen)maxDD=6.47%。いずれも0-100%に有界。
+
+[②単体maxDDが本番実績(約9%程度)に近いか]
+momentumMetrics_confirmationPeriod.maxDrawdown_pct = 8.245%（本番実績9%程度の水準に近い値）
+
+[G3C/G4C判定式のオペランド・不等号]
+G3C: |corr(sleeve, momentum)| < 0.3 のみ使用（旧実装から変更なし・正しいまま）
+G4C(a): (合成Sharpe − ②単体Sharpe) >= +0.15 かつ (合成maxDD − ②単体maxDD) <= +2pt
+G4C(b): (合成maxDD − ②単体maxDD) <= -5pt かつ (合成Sharpe − ②単体Sharpe) >= -0.05
+実測(frozen weight): sharpeDiff=0.8641, ddDiff_pt=-1.777 -> condition_a_met=true, condition_b_met=false
+
+[G2B生数値（3倍・両銘柄）]
+BTC: w_star=3.629 (>0), w_star_annualizedNetCarry_pct=30.75% (>0)
+ETH: w_star=3.789 (>0), w_star_annualizedNetCarry_pct=58.17% (>0)

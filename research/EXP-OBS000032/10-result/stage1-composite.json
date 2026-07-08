@@ -1,0 +1,116 @@
+{
+  "inputCorrection": "スリーブはStage1-B（3倍・w*サイズ・清算込み・バグF/G修正後）の日次純リターン。無レバのStage1-A系列は使用しない（spec §6-C）。",
+  "wStar_L3": {
+    "btc": 3.629202614909055,
+    "eth": 3.78943978159165
+  },
+  "sleeveDateRange": {
+    "start": "2019-11-27",
+    "end": "2026-07-05",
+    "commonDays": 2413
+  },
+  "momentumProductionConfig": {
+    "horizon": 10,
+    "k": 30,
+    "initialEquity": 1000000,
+    "momentumLookback": 30,
+    "momentumConfidenceScale": 30
+  },
+  "momentumBtc": {
+    "tradeCount": 248,
+    "dailyRows": 2481
+  },
+  "momentumEthReference": {
+    "tradeCount": 248,
+    "dailyRows": 2481,
+    "metrics_fullSeries": {
+      "n": 2481,
+      "mean_pct": 0.024223520032489104,
+      "std_pct": 0.668277657799873,
+      "sharpe_annualized_sqrt365": 0.6925111067416452,
+      "maxDrawdown_pct": 11.795258491616378,
+      "cumReturn_pct": 72.64284625570258
+    }
+  },
+  "alignedDates": {
+    "count": 2403,
+    "start": "2019-11-27",
+    "end": "2026-06-25"
+  },
+  "selectionPeriod": {
+    "start": "2019-09-10",
+    "end": "2021-12-31",
+    "std_sleeve_pct": 1.1159435919199332,
+    "std_momentum_pct": 0.6923874832675041
+  },
+  "frozenWeights_inverseVol": {
+    "sleeve": 0.38288756564985577,
+    "momentum": 0.6171124343501443
+  },
+  "frozenWeights_naive5050": {
+    "sleeve": 0.5,
+    "momentum": 0.5
+  },
+  "confirmationPeriod": {
+    "start": "2022-01-01",
+    "end": "2026-06-25",
+    "n": 1637
+  },
+  "correlation": {
+    "full": 0.074038958237875,
+    "h1": 0.0689340576737522,
+    "h2": 0.07953055055739248
+  },
+  "sleeveMetrics_confirmationPeriod": {
+    "n": 1637,
+    "mean_pct": 0.033882785446693375,
+    "std_pct": 0.1567738756699145,
+    "sharpe_annualized_sqrt365": 4.129066174270074,
+    "maxDrawdown_pct": 8.17302146202779,
+    "cumReturn_pct": 73.76883721054894
+  },
+  "momentumMetrics_confirmationPeriod": {
+    "n": 1637,
+    "mean_pct": 0.012649869754189108,
+    "std_pct": 0.435769525723028,
+    "sharpe_annualized_sqrt365": 0.5545945919789957,
+    "maxDrawdown_pct": 8.245449538533354,
+    "cumReturn_pct": 21.13464404643628
+  },
+  "compositeFrozenWeight_confirmationPeriod": {
+    "n": 1637,
+    "mean_pct": 0.020779689155340696,
+    "std_pct": 0.2798407617800315,
+    "sharpe_annualized_sqrt365": 1.418647524266603,
+    "maxDrawdown_pct": 6.468264739155045,
+    "cumReturn_pct": 39.62280958471154
+  },
+  "composite5050_confirmationPeriod": {
+    "n": 1637,
+    "mean_pct": 0.02326632760044119,
+    "std_pct": 0.23695432457807672,
+    "sharpe_annualized_sqrt365": 1.8758997771745227,
+    "maxDrawdown_pct": 5.953735588921689,
+    "cumReturn_pct": 45.68284276743191
+  },
+  "g3c": {
+    "formula": "|corr(sleeve, momentum)| < 0.3",
+    "abs_correlation_full": 0.074038958237875,
+    "condition_met": true
+  },
+  "g4c": {
+    "formula_a": "(合成Sharpe − ②単体Sharpe) ≥ +0.15 かつ (合成maxDD − ②単体maxDD) ≤ +2pt",
+    "formula_b": "(合成maxDD − ②単体maxDD) ≤ −5pt かつ (合成Sharpe − ②単体Sharpe) ≥ −0.05",
+    "frozenWeight": {
+      "sharpeDiff": 0.8640529322876073,
+      "ddDiff_pt": -1.7771847993783085,
+      "condition_a_met": true,
+      "condition_b_met": false,
+      "any_condition_met": true
+    },
+    "naive5050_reference": {
+      "sharpeDiff": 1.321305185195527,
+      "ddDiff_pt": -2.2917139496116645
+    }
+  }
+}

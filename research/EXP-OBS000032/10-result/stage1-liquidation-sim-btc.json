@@ -1,0 +1,406 @@
+{
+  "asset": "BTC",
+  "startDate": "2019-09-08",
+  "endDate": "2026-07-05",
+  "totalDays": 2493,
+  "mmr": 0.005,
+  "mmr_note": "業界標準の仮置き（Bitget contracts API がMMR相当フィールドを undefined 返却・Bitget API取得ではない）",
+  "markPriceNote": "Binance perp markPriceKlines は本Stage1でも未取得（連続期間・テール窓の深度確保に至らず）。last価格で代用。last代用は薄商い時の瞬間乖離を過大計上し得るため、清算回数・被害幅は保守側（過大計上・偽陽性側）に振れる可能性がある。",
+  "implementationNotes": {
+    "signal": "carry-net-expectation.tsと同一W=7 SMA（先読み排除t-7〜t-1）。pos=signal===-1?-1:1をmargin更新・dailyPnl計算の両方に適用（21-verdict-v2 バグG修正）。",
+    "accounting": "dailyPnl_bps = spotLegPnl_bps(前日比×pos) + perpレッグ実現P&L(floor(0)で頭打ち・1/L超の損失は負わない) - 反転コスト - 資本コスト - (清算日のみ)再構築コスト。連続MTMと離散清算損の二重計上を排除（21-verdict-v2 バグF修正）。discreteLossAmount_bpsは参考情報でありdailyPnlには含まれない。",
+    "liquidation": "清算判定 = margin(perpレッグ単独) < MMR×名目。清算時は再構築コストのみ実控除、marginをIMRにリセット。スポットレッグは前日比リターンで評価するため再基準化不要（含み益は消えない・清算時に実現もされない）。",
+    "maxDD_methodology": "期間ごとに自己完結（自己リセット）した累積和のpeak-trough・bps単位。G0-4（Stage0）と同一方式で直接比較可能。",
+    "sizing": "w* = min(制約1: 0.02×10000/|CVaR97.5_bps(全期間)|, 制約2: 0.20×10000/worstTailWindowMaxDD_bps) × f(0.5)。制約1・2ともに「配分資本に対する率」ベースでimrの二重乗算をしない。",
+    "methodII": "参考併記のみ（spec §4-3）。現物益で追証可能と仮定した合成証拠金（floorしない）。採否判定には使わない。"
+  },
+  "results": [
+    {
+      "leverage": 3,
+      "imr": 0.3333333333333333,
+      "periods": [
+        {
+          "period": "FULL",
+          "n": 2493,
+          "liquidationCount": 1,
+          "liquidationDates": [
+            "2021-03-13"
+          ],
+          "discreteLossAmount_bps": 3333.333333333333,
+          "reconstructionCost_bps": 24.064,
+          "cumulativePnl_bps": 5787.04396289507,
+          "meanDailyNetCarry_bps": 2.3213172735238947,
+          "annualizedNetCarryRate_pct": 8.472808048362216,
+          "maxDrawdown_bps": 269.8800710069272,
+          "worstDailyLoss_bps": -154.78076721743363,
+          "cvar97_5_bps": -27.55426208203201
+        },
+        {
+          "period": "T1",
+          "n": 71,
+          "liquidationCount": 0,
+          "liquidationDates": [],
+          "discreteLossAmount_bps": 0,
+          "reconstructionCost_bps": 0,
+          "cumulativePnl_bps": 31.59931852236327,
+          "meanDailyNetCarry_bps": 0.4450608242586376,
+          "annualizedNetCarryRate_pct": 1.6244720085440274,
+          "maxDrawdown_bps": 166.15203339285782,
+          "worstDailyLoss_bps": -107.23331366708098,
+          "cvar97_5_bps": null
+        },
+        {
+          "period": "T2",
+          "n": 61,
+          "liquidationCount": 0,
+          "liquidationDates": [],
+          "discreteLossAmount_bps": 0,
+          "reconstructionCost_bps": 0,
+          "cumulativePnl_bps": -85.66945380252045,
+          "meanDailyNetCarry_bps": -1.404417275451155,
+          "annualizedNetCarryRate_pct": -5.126123055396716,
+          "maxDrawdown_bps": 94.97698652636157,
+          "worstDailyLoss_bps": -28.899421759645676,
+          "cvar97_5_bps": null
+        },
+        {
+          "period": "T3",
+          "n": 52,
+          "liquidationCount": 0,
+          "liquidationDates": [],
+          "discreteLossAmount_bps": 0,
+          "reconstructionCost_bps": 0,
+          "cumulativePnl_bps": -52.4352137292486,
+          "meanDailyNetCarry_bps": -1.0083694947932424,
+          "annualizedNetCarryRate_pct": -3.6805486559953353,
+          "maxDrawdown_bps": 75.10586939314072,
+          "worstDailyLoss_bps": -29.97128782093236,
+          "cvar97_5_bps": null
+        },
+        {
+          "period": "calm",
+          "n": 181,
+          "liquidationCount": 1,
+          "liquidationDates": [
+            "2021-03-13"
+          ],
+          "discreteLossAmount_bps": 3333.333333333333,
+          "reconstructionCost_bps": 24.064,
+          "cumulativePnl_bps": 2348.502069922176,
+          "meanDailyNetCarry_bps": 12.975149557581082,
+          "annualizedNetCarryRate_pct": 47.35929588517095,
+          "maxDrawdown_bps": 28.444530597042103,
+          "worstDailyLoss_bps": -19.3557052652667,
+          "cvar97_5_bps": null
+        },
+        {
+          "period": "H1",
+          "n": 1246,
+          "liquidationCount": 1,
+          "liquidationDates": [
+            "2021-03-13"
+          ],
+          "discreteLossAmount_bps": 3333.333333333333,
+          "reconstructionCost_bps": 24.064,
+          "cumulativePnl_bps": 4337.59406831785,
+          "meanDailyNetCarry_bps": 3.4812151431122387,
+          "annualizedNetCarryRate_pct": 12.706435272359673,
+          "maxDrawdown_bps": 269.8800710069272,
+          "worstDailyLoss_bps": -154.78076721743363,
+          "cvar97_5_bps": null
+        },
+        {
+          "period": "H2",
+          "n": 1247,
+          "liquidationCount": 0,
+          "liquidationDates": [],
+          "discreteLossAmount_bps": 0,
+          "reconstructionCost_bps": 0,
+          "cumulativePnl_bps": 1449.449894577221,
+          "meanDailyNetCarry_bps": 1.1623495545927995,
+          "annualizedNetCarryRate_pct": 4.242575874263718,
+          "maxDrawdown_bps": 267.9374027449271,
+          "worstDailyLoss_bps": -27.386652088352612,
+          "cvar97_5_bps": null
+        }
+      ],
+      "sizing": {
+        "fullPeriodCvar97_5_bps": -27.55426208203201,
+        "worstTailWindow": "T1",
+        "worstTailWindowMaxDD_bps": 166.15203339285782,
+        "constraint1_wStar_dailyCvarBudget": 3.629202614909055,
+        "constraint2_wStar_worstTailWindowBudget": 6.018584182087932,
+        "w_star": 3.629202614909055,
+        "w_star_annualizedNetCarry_pct": 30.74953712473864
+      },
+      "netAnnualSharpeRatio_fullPeriod": 4.6351301989090805,
+      "grossAnnualSharpeRatio_fullPeriod": 5.364542875706364,
+      "methodII_crossMargin_reference": {
+        "description": "参考併記のみ・採否判定には使わない（spec §4-3 方式II）。現物益で追証可能と仮定した合成証拠金（floorしない）。実運用の資金移動遅延・取引所リスクは織り込んでいない。",
+        "liquidationCount": 0,
+        "liquidationDates": []
+      }
+    },
+    {
+      "leverage": 5,
+      "imr": 0.2,
+      "periods": [
+        {
+          "period": "FULL",
+          "n": 2493,
+          "liquidationCount": 2,
+          "liquidationDates": [
+            "2021-02-19",
+            "2025-01-21"
+          ],
+          "discreteLossAmount_bps": 3960.626140289724,
+          "reconstructionCost_bps": 48.128,
+          "cumulativePnl_bps": 6622.822633984493,
+          "meanDailyNetCarry_bps": 2.6565674424326087,
+          "annualizedNetCarryRate_pct": 9.696471164879021,
+          "maxDrawdown_bps": 248.06525662620606,
+          "worstDailyLoss_bps": -154.63464849597244,
+          "cvar97_5_bps": -27.415537960436765
+        },
+        {
+          "period": "T1",
+          "n": 71,
+          "liquidationCount": 0,
+          "liquidationDates": [],
+          "discreteLossAmount_bps": 0,
+          "reconstructionCost_bps": 0,
+          "cumulativePnl_bps": 41.97374774611317,
+          "meanDailyNetCarry_bps": 0.5911795457199038,
+          "annualizedNetCarryRate_pct": 2.157805341877649,
+          "maxDrawdown_bps": 159.13833476271526,
+          "worstDailyLoss_bps": -107.08719494561979,
+          "cvar97_5_bps": null
+        },
+        {
+          "period": "T2",
+          "n": 61,
+          "liquidationCount": 0,
+          "liquidationDates": [],
+          "discreteLossAmount_bps": 0,
+          "reconstructionCost_bps": 0,
+          "cumulativePnl_bps": -76.75621179338441,
+          "meanDailyNetCarry_bps": -1.2582985539899083,
+          "annualizedNetCarryRate_pct": -4.5927897220631655,
+          "maxDrawdown_bps": 86.94045684599268,
+          "worstDailyLoss_bps": -28.75330303818449,
+          "cvar97_5_bps": null
+        },
+        {
+          "period": "T3",
+          "n": 52,
+          "liquidationCount": 0,
+          "liquidationDates": [],
+          "discreteLossAmount_bps": 0,
+          "reconstructionCost_bps": 0,
+          "cumulativePnl_bps": -44.837040213266924,
+          "meanDailyNetCarry_bps": -0.8622507733320562,
+          "annualizedNetCarryRate_pct": -3.147215322662005,
+          "maxDrawdown_bps": 72.62185112830056,
+          "worstDailyLoss_bps": -29.825169099471175,
+          "cvar97_5_bps": null
+        },
+        {
+          "period": "calm",
+          "n": 181,
+          "liquidationCount": 1,
+          "liquidationDates": [
+            "2021-02-19"
+          ],
+          "discreteLossAmount_bps": 2000,
+          "reconstructionCost_bps": 24.064,
+          "cumulativePnl_bps": 2870.518256993327,
+          "meanDailyNetCarry_bps": 15.859216889465896,
+          "annualizedNetCarryRate_pct": 57.88614164655051,
+          "maxDrawdown_bps": 27.129462103890546,
+          "worstDailyLoss_bps": -19.209586543805514,
+          "cvar97_5_bps": null
+        },
+        {
+          "period": "H1",
+          "n": 1246,
+          "liquidationCount": 1,
+          "liquidationDates": [
+            "2021-02-19"
+          ],
+          "discreteLossAmount_bps": 2000,
+          "reconstructionCost_bps": 24.064,
+          "cumulativePnl_bps": 5015.226693745167,
+          "meanDailyNetCarry_bps": 4.0250615519624136,
+          "annualizedNetCarryRate_pct": 14.69147466466281,
+          "maxDrawdown_bps": 247.9622627877452,
+          "worstDailyLoss_bps": -154.63464849597244,
+          "cvar97_5_bps": null
+        },
+        {
+          "period": "H2",
+          "n": 1247,
+          "liquidationCount": 1,
+          "liquidationDates": [
+            "2025-01-21"
+          ],
+          "discreteLossAmount_bps": 1960.626140289724,
+          "reconstructionCost_bps": 24.064,
+          "cumulativePnl_bps": 1607.5959402393248,
+          "meanDailyNetCarry_bps": 1.2891707620203086,
+          "annualizedNetCarryRate_pct": 4.705473281374126,
+          "maxDrawdown_bps": 248.06525662620584,
+          "worstDailyLoss_bps": -27.240533366891427,
+          "cvar97_5_bps": null
+        }
+      ],
+      "sizing": {
+        "fullPeriodCvar97_5_bps": -27.415537960436765,
+        "worstTailWindow": "T1",
+        "worstTailWindowMaxDD_bps": 159.13833476271526,
+        "constraint1_wStar_dailyCvarBudget": 3.647566578642722,
+        "constraint2_wStar_worstTailWindowBudget": 6.283841046163136,
+        "w_star": 3.647566578642722,
+        "w_star_annualizedNetCarry_pct": 35.36852415178558
+      },
+      "netAnnualSharpeRatio_fullPeriod": 3.3705466296808004,
+      "grossAnnualSharpeRatio_fullPeriod": 3.64863102326011,
+      "methodII_crossMargin_reference": {
+        "description": "参考併記のみ・採否判定には使わない（spec §4-3 方式II）。現物益で追証可能と仮定した合成証拠金（floorしない）。実運用の資金移動遅延・取引所リスクは織り込んでいない。",
+        "liquidationCount": 0,
+        "liquidationDates": []
+      }
+    },
+    {
+      "leverage": 10,
+      "imr": 0.1,
+      "periods": [
+        {
+          "period": "FULL",
+          "n": 2493,
+          "liquidationCount": 3,
+          "liquidationDates": [
+            "2021-02-08",
+            "2021-02-19",
+            "2024-11-21"
+          ],
+          "discreteLossAmount_bps": 3000,
+          "reconstructionCost_bps": 72.19200000000001,
+          "cumulativePnl_bps": 7116.639243314735,
+          "meanDailyNetCarry_bps": 2.854648713724322,
+          "annualizedNetCarryRate_pct": 10.419467805093776,
+          "maxDrawdown_bps": 233.16114703716903,
+          "worstDailyLoss_bps": -154.52505945487655,
+          "cvar97_5_bps": -27.298554319474995
+        },
+        {
+          "period": "T1",
+          "n": 71,
+          "liquidationCount": 0,
+          "liquidationDates": [],
+          "discreteLossAmount_bps": 0,
+          "reconstructionCost_bps": 0,
+          "cumulativePnl_bps": 49.75456966391765,
+          "meanDailyNetCarry_bps": 0.7007685868157415,
+          "annualizedNetCarryRate_pct": 2.5578053418774567,
+          "maxDrawdown_bps": 153.8780607901162,
+          "worstDailyLoss_bps": -106.9776059045239,
+          "cvar97_5_bps": null
+        },
+        {
+          "period": "T2",
+          "n": 61,
+          "liquidationCount": 0,
+          "liquidationDates": [],
+          "discreteLossAmount_bps": 0,
+          "reconstructionCost_bps": 0,
+          "cumulativePnl_bps": -70.07128028653506,
+          "meanDailyNetCarry_bps": -1.1487095128940172,
+          "annualizedNetCarryRate_pct": -4.192789722063163,
+          "maxDrawdown_bps": 80.91305958571866,
+          "worstDailyLoss_bps": -28.6437139970886,
+          "cvar97_5_bps": null
+        },
+        {
+          "period": "T3",
+          "n": 52,
+          "liquidationCount": 0,
+          "liquidationDates": [],
+          "discreteLossAmount_bps": 0,
+          "reconstructionCost_bps": 0,
+          "cumulativePnl_bps": -39.138410076284174,
+          "meanDailyNetCarry_bps": -0.7526617322362341,
+          "annualizedNetCarryRate_pct": -2.7472153226622544,
+          "maxDrawdown_bps": 70.75883742967041,
+          "worstDailyLoss_bps": -29.715580058375284,
+          "cvar97_5_bps": null
+        },
+        {
+          "period": "calm",
+          "n": 181,
+          "liquidationCount": 2,
+          "liquidationDates": [
+            "2021-02-08",
+            "2021-02-19"
+          ],
+          "discreteLossAmount_bps": 2000,
+          "reconstructionCost_bps": 48.128,
+          "cumulativePnl_bps": 2866.2898734316864,
+          "meanDailyNetCarry_bps": 15.83585565431871,
+          "annualizedNetCarryRate_pct": 57.800873138263285,
+          "maxDrawdown_bps": 26.143160734028243,
+          "worstDailyLoss_bps": -19.099997502709623,
+          "cvar97_5_bps": null
+        },
+        {
+          "period": "H1",
+          "n": 1246,
+          "liquidationCount": 2,
+          "liquidationDates": [
+            "2021-02-08",
+            "2021-02-19"
+          ],
+          "discreteLossAmount_bps": 2000,
+          "reconstructionCost_bps": 48.128,
+          "cumulativePnl_bps": 5127.710638950614,
+          "meanDailyNetCarry_bps": 4.115337591453142,
+          "annualizedNetCarryRate_pct": 15.020982208803968,
+          "maxDrawdown_bps": 232.02228997308703,
+          "worstDailyLoss_bps": -154.52505945487655,
+          "cvar97_5_bps": null
+        },
+        {
+          "period": "H2",
+          "n": 1247,
+          "liquidationCount": 1,
+          "liquidationDates": [
+            "2024-11-21"
+          ],
+          "discreteLossAmount_bps": 1000,
+          "reconstructionCost_bps": 24.064,
+          "cumulativePnl_bps": 1988.9286043641316,
+          "meanDailyNetCarry_bps": 1.5949708134435698,
+          "annualizedNetCarryRate_pct": 5.82164346906903,
+          "maxDrawdown_bps": 233.1611470371672,
+          "worstDailyLoss_bps": -27.130944325795536,
+          "cvar97_5_bps": null
+        }
+      ],
+      "sizing": {
+        "fullPeriodCvar97_5_bps": -27.298554319474995,
+        "worstTailWindow": "T1",
+        "worstTailWindowMaxDD_bps": 153.8780607901162,
+        "constraint1_wStar_dailyCvarBudget": 3.6631976488461606,
+        "constraint2_wStar_worstTailWindowBudget": 6.498652211142444,
+        "w_star": 3.6631976488461606,
+        "w_star_annualizedNetCarry_pct": 38.16856996584779
+      },
+      "netAnnualSharpeRatio_fullPeriod": 3.5562522247405766,
+      "grossAnnualSharpeRatio_fullPeriod": 3.692775597767442,
+      "methodII_crossMargin_reference": {
+        "description": "参考併記のみ・採否判定には使わない（spec §4-3 方式II）。現物益で追証可能と仮定した合成証拠金（floorしない）。実運用の資金移動遅延・取引所リスクは織り込んでいない。",
+        "liquidationCount": 0,
+        "liquidationDates": []
+      }
+    }
+  ]
+}
