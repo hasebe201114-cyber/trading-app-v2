@@ -1,0 +1,119 @@
+{
+  "timestamp": "2026-07-08T23:49:20.997Z",
+  "phase": "Phase 0 - フォワード較正フェーズ",
+  "adopted": [
+    {
+      "obsId": "OBS000023",
+      "name": "②をk-NN→モメンタム(L=30)へ切替",
+      "status": "adopted",
+      "conclusion": "採用（9通り中8勝）",
+      "details": "②の主軸として採用。パターン認識層の基盤戦略"
+    },
+    {
+      "obsId": "OBS000024",
+      "name": "モメンタム確信度の動的化(z値, scale=30)",
+      "status": "adopted",
+      "conclusion": "採用",
+      "details": "BTC/ETHで一貫改善。パフォーマンス向上"
+    },
+    {
+      "obsId": "OBS000021",
+      "name": "Binance直接API接続へデータ基盤刷新",
+      "status": "adopted",
+      "conclusion": "採用",
+      "details": "データ調達基盤の刷新完了"
+    }
+  ],
+  "rejected": [
+    {
+      "obsId": "OBS000018",
+      "name": "ERレジームゲート",
+      "status": "rejected",
+      "conclusion": "固定閾値0.2は蜃気楼（非単調・パイプラインで無ゲート以下）",
+      "details": "OBS000018型の罠：パラメータの非単調性で破綻"
+    },
+    {
+      "obsId": "OBS000022",
+      "name": "Funding Rateキャリー(方向性版)",
+      "status": "rejected",
+      "conclusion": "理論的に薄い。デルタヘッジ版は別課題として保留",
+      "details": "方向性予測族として不採用。デルタニュートラル版で再設計"
+    },
+    {
+      "obsId": "OBS000025",
+      "name": "レジームスイッチ(低ER→RSI逆張り)",
+      "status": "rejected",
+      "conclusion": "予測単位◎だがパイプライン統合で大幅悪化",
+      "details": "OBS000025型の罠：単位と統合の乖離"
+    },
+    {
+      "obsId": "OBS000027",
+      "name": "③LLMセンチメント層の再測定",
+      "status": "rejected",
+      "conclusion": "P1/P2/P3全未達。予測単位からして無エッジ",
+      "details": "③シグナル自体が無価値。層の打ち切り確定"
+    },
+    {
+      "obsId": "OBS000028",
+      "name": "②マルチ時間軸モメンタム合成",
+      "status": "rejected",
+      "conclusion": "未見ETH・BTC直近で消失＝OBS000019型過学習",
+      "details": "単一L=30が現状最善。時間軸増設では天井破れず"
+    },
+    {
+      "obsId": "OBS000029",
+      "name": "BTC-ETH相対クロスセクション・マーケットニュートラル",
+      "status": "rejected",
+      "conclusion": "予測単位から無エッジ(OBS000027型)",
+      "details": "土俵転換(B)相対は初手で不発"
+    },
+    {
+      "obsId": "OBS000031",
+      "name": "短時間足高頻度化・1h mean-reversion",
+      "status": "rejected",
+      "conclusion": "グロス段階で両銘柄とも平均負。エッジ不在",
+      "details": "コストハードル以前に利益がない"
+    }
+  ],
+  "inProgress": [
+    {
+      "obsId": "OBS000032",
+      "name": "②をデルタニュートラル・キャリー収穫層へ再定義",
+      "status": "in-progress",
+      "conclusion": "Stage 1採用可＋F2ゲート修正完了（2026-07-08）",
+      "details": "F2ゲート（8hイベント単位全ペア永続化）の増分マージ実装→品質チーム採用可。day90母集団消失リスク根本解消。F1-F4両銘柄合格＋C較正監査＋司令塔最終GO待ち",
+      "date": "2026-07-08",
+      "day90Progress": 7.78
+    }
+  ],
+  "exploring": [
+    {
+      "obsId": "OBS000030",
+      "name": "ユニバース拡張クロスセクション(Stage 1探索)",
+      "status": "exploring",
+      "conclusion": "芽は見えなかった。採否宣告なし",
+      "details": "生存バイアス上振れ前提でもコスト後マイナス。有料データ投資参考情報に限る"
+    }
+  ],
+  "pending": [
+    {
+      "obsId": "OBS000030",
+      "name": "ユニバース拡張クロスセクション(Stage 0)",
+      "status": "pending",
+      "conclusion": "分岐(a)保留・司令塔上申",
+      "details": "データ土俵の実現可能性が制約。有料データ投資判断が必要"
+    },
+    {
+      "obsId": "OBS000033-036",
+      "name": "②再設計5案（外部テクニカルアドバイザー評価）",
+      "status": "pending",
+      "conclusion": "新規アイデア5件を起票",
+      "details": "司令塔が選択したものをS戦略チームがprescreenに回す。背景：8連敗の「価格→方向予測」族からの脱出模索"
+    }
+  ],
+  "summary": {
+    "totalAdopted": 3,
+    "totalRejected": 8,
+    "totalInProgress": 1
+  }
+}
