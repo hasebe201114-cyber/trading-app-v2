@@ -1,7 +1,7 @@
 # EXP-OBS000030 Stage 0: Data Feasibility Investigation Summary
 
 **Execution Date**: 2026-07-04 / 15:40 UTC  
-**Investigators**: B検証実装官 (Quant Researcher)  
+**Investigators**: B実装チーム (Quant Researcher)  
 **Scope**: Bitget USDT-FUTURES データ実現可能性調査（データ品質・死銘柄対応）
 
 ---
@@ -219,7 +219,7 @@ node --experimental-strip-types scripts/pit-universe-prototype.ts
 
 ---
 
-## Notes for C懐疑検証官
+## Notes for C品質チーム
 
 - **G0-1判定材料**: 履歴深度は spec 基準（3年/2022通年）を 0本 でクリアできず
 - **G0-2判定材料**: 公開API から廃止銘柄データ完全削除。外部無料ソースも 404。サバイバーシップバイアス定量化不可。

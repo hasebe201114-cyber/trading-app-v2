@@ -1,6 +1,6 @@
 # 判定書（Review） - EXP-OBS000029
 
-> 担当: 懐疑検証官（adversarial-reviewer / Red Team）
+> 担当: 品質チーム（adversarial-reviewer / Red Team）
 > 役割: 好結果を積極的に棄却しにいく。偽陽性の最終防波堤。
 > テーマ: BTC-ETH相対クロスセクション・マーケットニュートラル戦略
 > 判定日: 2026-07-04

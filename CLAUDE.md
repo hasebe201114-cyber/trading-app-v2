@@ -16,13 +16,13 @@ btc-strategy（既存の本番運用アプリ）の基本ルール・技術構�
 
 ## 運営体制（マルチエージェント）
 - 本プロジェクトの開発・分析は**6体のマルチエージェント体制**で進める。正式な定義・フロー・役割境界は `obs/trading_app/00プロジェクト方針/PJ000002-マルチエージェント運営計画書.md` を正とする（本項は索引＋要点）。
-- **構成**: 司令塔（ユーザー）＋ 実験ライン5体（A設計→B実装→C懐疑検証→D統合反映→E記録）＋ その上位に立つ戦略参謀官S。各エージェント定義は `.claude/agents/*.md`。
-  - S 戦略参謀官(chief-strategist): クリプト市場の目利き・全体監視・司令塔への具申
-  - A 戦略設計官(strategy-architect): 実験仕様(spec)確定。成功基準を**回す前に数値で**固定
-  - B 検証実装官(quant-researcher): specに忠実に実装。予測単位＋パイプライン両方の**生データのみ**出力（解釈しない）
-  - C 懐疑検証官(adversarial-reviewer): 好結果を壊しにいく偽陽性の最終防波堤。採用/不採用を宣告
-  - D 統合反映官(integration-deploy): 採用＋司令塔GOのものだけ本番反映
-  - E 記録進行官(archivist-pm): OBS移動・リンク修正・引き継ぎ・ACTIVE更新
+- **構成**: 司令塔（ユーザー）＋ 実験ライン5体（設計チーム→実装チーム→品質チーム→デプロイチーム→進行チーム）＋ その上位に立つ戦略チーム。各エージェント定義は `.claude/agents/*.md`。
+  - S 戦略チーム(chief-strategist): クリプト市場の目利き・全体監視・司令塔への具申
+  - A 設計チーム(strategy-architect): 実験仕様(spec)確定。成功基準を**回す前に数値で**固定
+  - B 実装チーム(quant-researcher): specに忠実に実装。予測単位＋パイプライン両方の**生データのみ**出力（解釈しない）
+  - C 品質チーム(adversarial-reviewer): 好結果を壊しにいく偽陽性の最終防波堤。採用/不採用を宣告
+  - D デプロイチーム(integration-deploy): 採用＋司令塔GOのものだけ本番反映
+  - E 進行チーム(archivist-pm): OBS移動・リンク修正・引き継ぎ・ACTIVE更新
 - **作業場**: `research/`（EXP-OBSxxxxx/＝実験1件=OBS1件のバケツリレー。ACTIVE.md=進行信号機、STRATEGY-BRIEF.md=作戦ブリーフ、portfolio-ledger.md=採用/不採用台帳、_templates/=雛形）。`research/`は揮発、`obs/`が記録の正。
 - **鉄則**:
   - B(実装)とC(判定)は必ず別エージェントとし、自分の実装を甘く採点させない

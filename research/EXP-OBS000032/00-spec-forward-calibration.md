@@ -1,12 +1,12 @@
 # 実験仕様書（Spec） - EXP-OBS000032 / フォワード較正フェーズ（Bitgetペーパートレード ≥90日・F1〜F4）
 
-> 担当: 戦略設計官（strategy-architect）
+> 担当: 設計チーム（strategy-architect）
 > 鉄則: **合否基準は「回す前」に数値で確定する**（HARKing防止）。90日回した後に F1〜F4 の閾値・参照値・リスク予算・w*・シグナルを後付けで緩めない。
-> 位置づけ: Stage 1（`00-spec-stage1.md`）のバックテスト4ゲート（G1A/G2B/G3C/G4C）を **C懐疑検証官が採用可＝スリーブ候補として前進推薦**で宣告済み（`22-verdict-stage1-final.md`）。**ただしこれはバックテスト（Binance代理）条件付きの推薦であって本番反映（D起動）のGOではない。** spec §8・C条件C のとおり、**本番反映の必須前提＝本specの Bitgetフォワード較正（≥90日・F1〜F4合格）＋司令塔の最終GO**。本specはその「フォワード較正フェーズ」の実験仕様を確定する（Stage 1 spec §8「フォワード較正の設計」を実装可能な粒度まで具体化した確定版）。
-> **本specはA設計官が実験仕様を確定するもの。スクリプト実装・実行はB検証実装官が行う（A設計官は実装しない）。**
+> 位置づけ: Stage 1（`00-spec-stage1.md`）のバックテスト4ゲート（G1A/G2B/G3C/G4C）を **C品質チームが採用可＝スリーブ候補として前進推薦**で宣告済み（`22-verdict-stage1-final.md`）。**ただしこれはバックテスト（Binance代理）条件付きの推薦であって本番反映（D起動）のGOではない。** spec §8・C条件C のとおり、**本番反映の必須前提＝本specの Bitgetフォワード較正（≥90日・F1〜F4合格）＋司令塔の最終GO**。本specはその「フォワード較正フェーズ」の実験仕様を確定する（Stage 1 spec §8「フォワード較正の設計」を実装可能な粒度まで具体化した確定版）。
+> **本specはA設計官が実験仕様を確定するもの。スクリプト実装・実行はB実装チームが行う（A設計官は実装しない）。**
 
 ## 対応OBS番号
-**OBS000032**（進行中・ACTIVE登録済み。採番はE記録進行官管理）。本フォワード較正は Stage 0（`20-verdict-stage0.md` 総合GO・4条件付き）→ Stage 1（`22-verdict-stage1-final.md` 採用可・バックテスト全ゲート達成）を通過した **第3ゲート（本番反映の最終前提）**。
+**OBS000032**（進行中・ACTIVE登録済み。採番はE進行チーム管理）。本フォワード較正は Stage 0（`20-verdict-stage0.md` 総合GO・4条件付き）→ Stage 1（`22-verdict-stage1-final.md` 採用可・バックテスト全ゲート達成）を通過した **第3ゲート（本番反映の最終前提）**。
 
 ---
 
@@ -116,7 +116,7 @@ binance_funding_daily_bps, f2_pair_sign_match, data_gap_flag
 
 ## 4. F1〜F4 の合否基準（回す前に数値で確定・後から緩めない）
 
-**評価対象＝`phase=live` の連続 ≥90暦日**（warmup back-fill 分は除外）。両銘柄それぞれで算出し、**BTC・ETH 両方で成立して初めて F を満たす**（片銘柄のみ成立は「単一資産の偶然」として不成立・Stage 1 §7 と同一の両成立要件）。**判定はC懐疑検証官が本specの基準に当てはめて行う。B実装官は実測値と閾値の真偽値のみ出力。**
+**評価対象＝`phase=live` の連続 ≥90暦日**（warmup back-fill 分は除外）。両銘柄それぞれで算出し、**BTC・ETH 両方で成立して初めて F を満たす**（片銘柄のみ成立は「単一資産の偶然」として不成立・Stage 1 §7 と同一の両成立要件）。**判定はC品質チームが本specの基準に当てはめて行う。B実装官は実測値と閾値の真偽値のみ出力。**
 
 ### F1 — 実現キャリー整合（バックテスト想定と実収穫額が整合するか）
 以下 **F1a・F1b の両方**を満たすとき F1 成立:
@@ -143,7 +143,7 @@ binance_funding_daily_bps, f2_pair_sign_match, data_gap_flag
 
 ### 総合（回す前に確定）
 - **本番採用の前提が整う＝F1 かつ F2 かつ F3 かつ F4 を、BTC・ETH 両方で満たす**（ライブ ≥90日）。
-- **上記が揃っても本番反映は自動化しない**。C懐疑検証官の較正監査 ＋ **司令塔の最終GO** で初めて D統合反映（PJ000002鉄則）。
+- **上記が揃っても本番反映は自動化しない**。C品質チームの較正監査 ＋ **司令塔の最終GO** で初めて D統合反映（PJ000002鉄則）。
 - **F1〜F4 のいずれか未達＝本番採用の前提未成立**＝基準を自分で緩めず、S/司令塔へ上申（**フォワード延長 or 不採用**の判断。F1b はレジーム差での未達を特に上申対象とする）。
 
 ---
@@ -170,7 +170,7 @@ binance_funding_daily_bps, f2_pair_sign_match, data_gap_flag
 6. run.log に当日の実行メタ（UTC時刻・取得件数・カーソル・エラー有無）を追記。
 
 ### 5-3. ≥90ライブ日到達後
-- ライブ日数が 90 を超えたら、`forward-f1f4-verdict-inputs.json`（F1〜F4 の最終実測値＋各閾値＋真偽値・両銘柄）を出力し、**C懐疑検証官の較正監査に引き渡す**。B実装官は判定語を使わず実測値と真偽値のみ。
+- ライブ日数が 90 を超えたら、`forward-f1f4-verdict-inputs.json`（F1〜F4 の最終実測値＋各閾値＋真偽値・両銘柄）を出力し、**C品質チームの較正監査に引き渡す**。B実装官は判定語を使わず実測値と真偽値のみ。
 
 ### 5-4. スクリプト
 - **新規 `scripts/bitget-carry-forward-paper.ts`**（Stage 1 spec §10-4 で設計固定済みのハーネスを本specの記録形式・F1〜F4基準で実装）。
@@ -216,7 +216,7 @@ binance_funding_daily_bps, f2_pair_sign_match, data_gap_flag
 
 ---
 
-## 9. B検証実装官への指示（実装・実行・生データ出力のみ。解釈・チューニング禁止）
+## 9. B実装チームへの指示（実装・実行・生データ出力のみ。解釈・チューニング禁止）
 
 1. **実装**: `scripts/bitget-carry-forward-paper.ts` を新規作成。§0-3 の固定パラメータ（W=7・3倍・w* BTC3.629/ETH3.789・MMR0.5%仮置き・資本コスト4%・片道/反転コスト・方式I会計）を**本specの値でハードコード**（可変にしない・グリッド探索禁止・w*をフォワードCVaRで再算出しない）。会計はStage 1バグF/G根治版の `carry-liquidation-sim.ts` を流用（新会計を発明しない）。公開API・認証不要のみ・APIキー/`.env.local`を読まない。
 2. **実行方式**: **日次冪等追記**（§5）。初回はwarmup back-fill≤30日でシグナル立ち上げ＋go-live確定、F1〜F4評価はライブ≥90日。**90日をback-fillで一括生成しない**（C条件Cのライブ性を守る）。
@@ -232,4 +232,4 @@ binance_funding_daily_bps, f2_pair_sign_match, data_gap_flag
 ---
 
 ## 変更履歴
-- 2026-07-05: 初版作成（A戦略設計官）。EXP-OBS000032 フォワード較正フェーズ（Bitgetペーパートレード ≥90日・F1〜F4）specを確定。Stage 1（`22-verdict-stage1-final.md` 採用可・バックテスト全ゲート達成＝スリーブ候補推薦）を受け、C条件C・Stage 1 spec §8 を実装可能粒度まで具体化。**ペーパートレード機構**＝Bitget公開API日次取得（現物/perp last/perp mark/funding）＋Binance funding同時取得で、W=7・3倍・w*(BTC3.629/ETH3.789)のデルタニュートラル仮想ポジションをStage 1バグF/G根治版方式I会計（`margin_t=floor(0,margin_{t-1}+pos·perp_mtm+pos·funding_flow)`・清算損二重計上なし）で日次評価。**記録項目**＝29カラムの追記型ledger（basis/funding/signal/pnl/margin/清算/追証/F2ペア符号/phase warmup|live 等）＋meta＋interim-metrics＋alerts＋run.log。**F1〜F4合否基準を数値固定**：F1=累積>0 かつ ライブ日次平均≥calm窓(BTC11.62/ETH14.40bps)block-bootstrap片側90%下側境界（未達はレジーム差ゆえ司令塔上申・FULL 1.586/2.368bps併記）／F2=Bitget⇔Binance符号一致≥80%（G0-2基準64.68/71.75%・ライブ重複で再測）／F3=清算・追証0件（発生即警告）／F4=Bitget basis日次変化std≤T1水準(BTC12.14/ETH19.47bps)。**両銘柄成立で初めてF成立**。**実行方式＝日次冪等追記**（初回warmup back-fill≤30日でシグナル立ち上げ＋go-live確定、F1〜F4はライブ≥90暦日・90日をback-fillで一括生成しない＝C条件Cのライブ性厳守）。**中間チェックポイント**＝清算/追証即時・符号一致<70%・キャリー10日連続マイナス・basis T1超過・データ欠損2日連続で早期警告＋30/60日スナップショット。使用スクリプト＝新規`bitget-carry-forward-paper.ts`（fetch-bitget-data.ts/compare-bitget-binance-funding.ts[length<pageSize break修正]/carry-liquidation-sim.ts流用）。本番反映はF1〜F4両銘柄合格＋C較正監査＋司令塔最終GOの3点必須。B実装官に判定語禁止・生データのみ・w*フォワード再算出禁止・warmup水増し禁止・ページングバグ非再発・成果物実在確認後の完了報告・MMR仮置き明示を指示。担当をB検証実装官（フォワード較正ハーネス実装・日次ライブ蓄積待ち）に更新（A戦略設計官）。
+- 2026-07-05: 初版作成（A設計チーム）。EXP-OBS000032 フォワード較正フェーズ（Bitgetペーパートレード ≥90日・F1〜F4）specを確定。Stage 1（`22-verdict-stage1-final.md` 採用可・バックテスト全ゲート達成＝スリーブ候補推薦）を受け、C条件C・Stage 1 spec §8 を実装可能粒度まで具体化。**ペーパートレード機構**＝Bitget公開API日次取得（現物/perp last/perp mark/funding）＋Binance funding同時取得で、W=7・3倍・w*(BTC3.629/ETH3.789)のデルタニュートラル仮想ポジションをStage 1バグF/G根治版方式I会計（`margin_t=floor(0,margin_{t-1}+pos·perp_mtm+pos·funding_flow)`・清算損二重計上なし）で日次評価。**記録項目**＝29カラムの追記型ledger（basis/funding/signal/pnl/margin/清算/追証/F2ペア符号/phase warmup|live 等）＋meta＋interim-metrics＋alerts＋run.log。**F1〜F4合否基準を数値固定**：F1=累積>0 かつ ライブ日次平均≥calm窓(BTC11.62/ETH14.40bps)block-bootstrap片側90%下側境界（未達はレジーム差ゆえ司令塔上申・FULL 1.586/2.368bps併記）／F2=Bitget⇔Binance符号一致≥80%（G0-2基準64.68/71.75%・ライブ重複で再測）／F3=清算・追証0件（発生即警告）／F4=Bitget basis日次変化std≤T1水準(BTC12.14/ETH19.47bps)。**両銘柄成立で初めてF成立**。**実行方式＝日次冪等追記**（初回warmup back-fill≤30日でシグナル立ち上げ＋go-live確定、F1〜F4はライブ≥90暦日・90日をback-fillで一括生成しない＝C条件Cのライブ性厳守）。**中間チェックポイント**＝清算/追証即時・符号一致<70%・キャリー10日連続マイナス・basis T1超過・データ欠損2日連続で早期警告＋30/60日スナップショット。使用スクリプト＝新規`bitget-carry-forward-paper.ts`（fetch-bitget-data.ts/compare-bitget-binance-funding.ts[length<pageSize break修正]/carry-liquidation-sim.ts流用）。本番反映はF1〜F4両銘柄合格＋C較正監査＋司令塔最終GOの3点必須。B実装官に判定語禁止・生データのみ・w*フォワード再算出禁止・warmup水増し禁止・ページングバグ非再発・成果物実在確認後の完了報告・MMR仮置き明示を指示。担当をB実装チーム（フォワード較正ハーネス実装・日次ライブ蓄積待ち）に更新（A設計チーム）。

@@ -1,6 +1,6 @@
 # 判定書（Review） - EXP-OBS000031 / Stage 1（短時間足 microstructure mean-reversion）
 
-> 担当: 懐疑検証官（adversarial-reviewer / Red Team）
+> 担当: 品質チーム（adversarial-reviewer / Red Team）
 > 対象: `10-result/stage1-prediction-unit.json`（生データ）＋ `stage1-sleeve-composite.json` ＋ 実装 `scripts/intraday-meanrev-robustness.ts` / `scripts/intraday-meanrev-sleeve-composite.ts`
 > 基準: `00-spec-stage1.md` §6（G1A→1B→1C・kill基準）／§7（縮退リスク5点）
 > 検証手法: 生ファイル精査＋B実装スクリプトの独立再実行（全数値一致を裏取り）＋permutation実装の独立再現（power検証）
@@ -97,7 +97,7 @@ spec §6/§7.5/§10 は「Sharpe不変シャッフルにならないよう**リ�
 
 ---
 
-## 差し戻し（B検証実装官・A設計官宛て。※本実験の再測定ではない）
+## 差し戻し（B実装チーム・A設計官宛て。※本実験の再測定ではない）
 
 **本実験（EXP-OBS000031 Stage 1）は不採用・打ち切りで確定。以下は本OBS内の他探索や将来の関連実験に欠陥を持ち越さないための修正指示であり、本specの再測定・パラメータ振り直しの許可ではない。**
 
@@ -116,4 +116,4 @@ G1A未達により評価対象外だが、無エッジの一貫性の裏付け�
 ---
 
 ## 変更履歴
-- 2026-07-05: 初版作成（C懐疑検証官）。EXP-OBS000031 Stage 1 を**不採用（G1A未達・即打ち切り）**で宣告。確認期間で BTC/ETH とも平均グロス負（−5.8/−3.3bps）・permP 0.97/0.98＝予測単位から無エッジ（OBS000027/029/030 Stage1と同型）。permutation実装は平均不変シャッフル＝power0の無効検定（spec §7.5が名指し警告したOBS000030同型バグ）とコード読解＋独立再現（max|Δmean|=1.3e-18、sign-flip比較でp0.0002 vs 本実装p≈0.14）で確定＝ただし負グロスにより結論は不変。§7縮退5点すべてで脆弱性露呈。B実装の全数値をCが独立再実行で一致確認（虚偽報告ではない）。限定棄却（1h・mean-reversion・BTC/ETH・2022-2026・Bitget）で戦略クラス全体は一般化棄却せず。permバグをB/Aへ差し戻し（本実験の再測定許可ではない）。
+- 2026-07-05: 初版作成（C品質チーム）。EXP-OBS000031 Stage 1 を**不採用（G1A未達・即打ち切り）**で宣告。確認期間で BTC/ETH とも平均グロス負（−5.8/−3.3bps）・permP 0.97/0.98＝予測単位から無エッジ（OBS000027/029/030 Stage1と同型）。permutation実装は平均不変シャッフル＝power0の無効検定（spec §7.5が名指し警告したOBS000030同型バグ）とコード読解＋独立再現（max|Δmean|=1.3e-18、sign-flip比較でp0.0002 vs 本実装p≈0.14）で確定＝ただし負グロスにより結論は不変。§7縮退5点すべてで脆弱性露呈。B実装の全数値をCが独立再実行で一致確認（虚偽報告ではない）。限定棄却（1h・mean-reversion・BTC/ETH・2022-2026・Bitget）で戦略クラス全体は一般化棄却せず。permバグをB/Aへ差し戻し（本実験の再測定許可ではない）。

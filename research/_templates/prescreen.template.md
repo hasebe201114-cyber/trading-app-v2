@@ -1,6 +1,6 @@
 # 事前目利き（Prescreen） - EXP-OBSxxxxx
 
-> 担当: 戦略参謀官（chief-strategist）
+> 担当: 戦略チーム（chief-strategist）
 > A設計官が仕様化に入る前の「入口ゲート」。筋の悪いアイデアをここで安く却下する。
 
 ## 仮説（1行）

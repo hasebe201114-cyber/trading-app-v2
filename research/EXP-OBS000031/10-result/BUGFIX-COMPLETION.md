@@ -1,8 +1,8 @@
-# バグ修正・実装完了報告（B検証実装官）
+# バグ修正・実装完了報告（B実装チーム）
 
 **対象**: EXP-OBS000031 Stage 0 G0-2（執行コスト測定）＆ G0-1（短時間足深度）
 **実行日**: 2026-07-05
-**担当**: B検証実装官（Quant Researcher）
+**担当**: B実装チーム（Quant Researcher）
 
 ---
 
@@ -128,11 +128,11 @@ node --experimental-strip-types scripts/fetch-bitget-intraday.ts
 
 ## 次ステップ
 
-1. **C懐疑検証官の独立検証待ち**: 修正内容・実行結果の裏取り確認
+1. **C品質チームの独立検証待ち**: 修正内容・実行結果の裏取り確認
 2. **G0-1実行完了後**: G0-1-depth-summary.json でcandles2022/gapRatio2022が実計算値か確認
-3. **Stage 1へ進行**: 修正が確認された後、C懐疑検証官が最終判定（GO/保留）を宣告
+3. **Stage 1へ進行**: 修正が確認された後、C品質チームが最終判定（GO/保留）を宣告
 
 ---
 
-**修正官署名**: B検証実装官（Quant Researcher）
+**修正官署名**: B実装チーム（Quant Researcher）
 **完了日時**: 2026-07-05

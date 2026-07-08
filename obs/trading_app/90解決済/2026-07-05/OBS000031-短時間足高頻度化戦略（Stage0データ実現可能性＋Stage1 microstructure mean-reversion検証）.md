@@ -1,7 +1,7 @@
 # OBS000031 - 短時間足高頻度化戦略（Stage0データ実現可能性＋Stage1 microstructure mean-reversion検証）
 
 ## 変更履歴
-- 2026-07-05: **不採用で決着（C懐疑検証官・Stage1で不採用宣告・G1A未達・即打ち切り）**。記録官Eが正式OBS化。外部アドバイザーレビュー（[20260704-外部アドバイザー評価-行き詰まり打破の視点転換](../../85レビュー/20260704-外部アドバイザー評価-行き詰まり打破の視点転換.md)）の**P3提言（短時間足高頻度化＝ブレッドの"頻度"軸）**に応答。戦略参謀官Sがprescreen（段階的・条件付きGO）→設計官Aが仕様化（Stage 0/Stage1 spec）→実装官B が実装・実行→懐疑検証官Cが最終判定。本件は外部レビューP3に対する応答としての記録
+- 2026-07-05: **不採用で決着（C品質チーム・Stage1で不採用宣告・G1A未達・即打ち切り）**。記録官Eが正式OBS化。外部アドバイザーレビュー（[20260704-外部アドバイザー評価-行き詰まり打破の視点転換](../../85レビュー/20260704-外部アドバイザー評価-行き詰まり打破の視点転換.md)）の**P3提言（短時間足高頻度化＝ブレッドの"頻度"軸）**に応答。戦略チームSがprescreen（段階的・条件付きGO）→設計官Aが仕様化（Stage 0/Stage1 spec）→実装官B が実装・実行→品質チームCが最終判定。本件は外部レビューP3に対する応答としての記録
 
 ## 関連ドキュメント
 - [PJ000001](../../00プロジェクト方針/PJ000001-AI判断×統計パターン認識ハイブリッド自動売買エンジン.md)（プロジェクト方針・5.4節「個別スリーブの採否基準」にて限界寄与による評価を新規定義）
@@ -15,11 +15,11 @@
 - `research/EXP-OBS000031/`（作業場・揮発）
   - [00-prescreen.md](../../../../research/EXP-OBS000031/00-prescreen.md)（S参謀官：段階的・条件付きGO。短時間足の履歴深度確認を単独ゲート化）
   - [00-spec-stage0.md](../../../../research/EXP-OBS000031/00-spec-stage0.md)（A設計官：Stage 0仕様）
-  - [2X-verdict-stage0.md](../../../../research/EXP-OBS000031/2X-verdict-stage0.md)（C懐疑検証官：Stage0 GO条件付き→無条件更新。短時間足の価格土俄は無料で立つ・実装バグ2件検出・修正後確認）
+  - [2X-verdict-stage0.md](../../../../research/EXP-OBS000031/2X-verdict-stage0.md)（C品質チーム：Stage0 GO条件付き→無条件更新。短時間足の価格土俄は無料で立つ・実装バグ2件検出・修正後確認）
   - [00-spec-stage1.md](../../../../research/EXP-OBS000031/00-spec-stage1.md)（A設計官：Stage1仕様。エッジ=microstructure mean-reversion・確定粒度=1h・パラメータハードコード・ネットコスト後が主ゲート）
   - [10-result/stage1-prediction-unit.json](../../../../research/EXP-OBS000031/10-result/stage1-prediction-unit.json)（B実装官の予測単位計測・生データ）
   - [10-result/stage1-sleeve-composite.json](../../../../research/EXP-OBS000031/10-result/stage1-sleeve-composite.json)（B実装官のスリーブ単体＋②合成・生データ）
-  - [20-verdict-stage1.md](../../../../research/EXP-OBS000031/20-verdict-stage1.md)（C懐疑検証官：Stage1 不採用・G1A未達・即打ち切り）
+  - [20-verdict-stage1.md](../../../../research/EXP-OBS000031/20-verdict-stage1.md)（C品質チーム：Stage1 不採用・G1A未達・即打ち切り）
 - `research/STRATEGY-BRIEF.md`・`research/portfolio-ledger.md`・`research/ACTIVE.md`・引き継ぎ書（参謀官S・記録官E管掌・更新済み）
 
 ## 背景・仮説
@@ -52,7 +52,7 @@
 | **G0-3** | 清算/OI履歴が2022通年をカバーする深度で公開APIで取得可能 | 清算履歴=HTTP404（非存在）。OI履歴=HTTP200だが2022データなし。→ **路線β（清算反発）は無料手段では2022弱気で検証不可** | **未達（情報ゲート）** |
 
 ### C最終判定の要点
-- **G0-1達成（確定）**: C懐疑検証官が独立にBitget公開API（history-candles）を4h/1h/15m×BTC/ETH計6系列について空応答まで再実行。B報告との完全一致（ページ数・最古足）を確認。**030の3重ページングバグは非再発**。短時間足の深度は確実に2022をカバー。
+- **G0-1達成（確定）**: C品質チームが独立にBitget公開API（history-candles）を4h/1h/15m×BTC/ETH計6系列について空応答まで再実行。B報告との完全一致（ページ数・最古足）を確認。**030の3重ページングバグは非再発**。短時間足の深度は確実に2022をカバー。
 - **G0-2達成（修正後）**: B実装官が差し戻し2項目（SELL逆走査バグ・BUY stale mid clamp）を修正。Cが修正後コード読解＋Bitget公開API独立再実行で裏取り。両バグ解消を確認。「全サイズ一定値」は計算バグでなく、best階層が厚いため正当な挙動（Cのライブ板でBTC best bid≈$285k>$100k再現）。スリッページ実測は仕様通り成立。**往復コスト（手数料主導）は保守的にモデル化可能**。
 - **G0-3未達（付帯情報）**: 清算・OI履歴が公開APIで2022をカバーできない。→ **Stage 1のエッジ源泉は路線β（清算反発）を採れず、microstructure mean-reversion（短期平均回帰）側に限定**するエンフォーサブル な条件が確定。
 

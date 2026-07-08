@@ -1,11 +1,11 @@
 # 実験仕様書（Spec） - EXP-OBS000028
 
-> 担当: 戦略設計官（strategy-architect）
+> 担当: 設計チーム（strategy-architect）
 > 鉄則: **成功基準は「回す前」に数値で確定する**（HARKing防止）。結果を見てから基準・重み・時間軸セットを後付けで変えない。
 > 前提: 参謀官 prescreen＝GO（テーマ②「生シグナル天井Sharpe0.40の底上げ」第一仮説＝マルチ時間軸モメンタム合成）。親（②の系譜）= OBS000020 / OBS000023 / OBS000024。
 
 ## 対応OBS番号
-**OBS000028（暫定・E記録進行官の採番で確定）**。現行最新はOBS000027。親（②系譜）: OBS000020（モメンタム単体頑健性）/ OBS000023（②k-NN→モメンタム差替採用）/ OBS000024（確信度z値動的化 scale=30）。
+**OBS000028（暫定・E進行チームの採番で確定）**。現行最新はOBS000027。親（②系譜）: OBS000020（モメンタム単体頑健性）/ OBS000023（②k-NN→モメンタム差替採用）/ OBS000024（確信度z値動的化 scale=30）。
 
 ## 仮説（1文・falsifiable）
 「②の生シグナルを **複数ホライズンのモメンタム合成**（事前登録した離散候補から選定→凍結した単一構成）に置き換えると、**単一 L=30・scale=30（現行②）** に対し、**未見データ（BTC直近＋ETH全期間）**で「予測単位の方向エッジ（permutation p<0.05 かつ 生シグナルSharpe≥ベースライン）」と「パイプライン純Sharpe改善（confirmation平均で +0.15 以上、ETHで非劣化）」の**両方**を同時に達成する」。
@@ -95,7 +95,7 @@
 - 各枠で ベースライン(momentumLookback=30, scale=30) と 合成(momentumLookbackSet, rule, scale=30) を出力（T件数・勝率・Ret・DD・Sharpe）、枠ごと差分、サマリー（平均Sharpe差分・P2枠数・P3最悪/DD・P4 ETH平均）。
 - 実行: `node --experimental-strip-types scripts/pipeline-backtest-momentum-composite.ts`
 
-## B検証実装官への指示（実装・実行・生データ出力のみ。解釈・チューニング禁止）
+## B実装チームへの指示（実装・実行・生データ出力のみ。解釈・チューニング禁止）
 1. **実装**:
    - `simulatePortfolio.ts`/`types.ts` に②合成パス（`momentumLookbackSet` / `momentumCompositeRule` / `predictFromMomentumComposite`）を追加。式は本spec「合成方式の設計」のとおり厳密に。**既存単一Lパス・④⑤⑥は無改変**。
    - `scripts/momentum-composite-robustness.ts`（予測単位）と `scripts/pipeline-backtest-momentum-composite.ts`（パイプライン）を新規作成。8候補・選定メトリクス・確認ウィンドウ・permutation設定は本specの値をハードコード（可変にしない）。
@@ -107,4 +107,4 @@
 4. **禁止**: 良し悪しの判定語（「改善/悪化」等）、閾値・時間軸セット・重み・scale・neutralの調整、確認結果を見ての選定やり直し。P1〜P4/Q1/Q2を満たさなくても勝手に振らない。判定はCが行う。生データのみを `research/EXP-OBS000028/10-result/` に出す。
 
 ## 変更履歴
-- 2026-07-04: 初版作成（A戦略設計官）。マルチ時間軸モメンタム合成。可変自由度=時間軸セット4×ルール2の8択のみ（重み等加重固定・scale=30固定）。選定=BTC 2011-2022 生シグナルSharpeで単一凍結、確認=BTC直近＋ETH未見。採用=パイプラインP1〜P4 かつ 予測単位Q1/Q2。kill/HARKing禁止を数値固定。OBS番号は暫定OBS000028（E採番待ち、親OBS000020/023/024）。
+- 2026-07-04: 初版作成（A設計チーム）。マルチ時間軸モメンタム合成。可変自由度=時間軸セット4×ルール2の8択のみ（重み等加重固定・scale=30固定）。選定=BTC 2011-2022 生シグナルSharpeで単一凍結、確認=BTC直近＋ETH未見。採用=パイプラインP1〜P4 かつ 予測単位Q1/Q2。kill/HARKing禁止を数値固定。OBS番号は暫定OBS000028（E採番待ち、親OBS000020/023/024）。

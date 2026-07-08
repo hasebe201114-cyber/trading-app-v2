@@ -29,6 +29,6 @@ research/
 ```
 
 ## 実験の作り方（新規時）
-1. E記録進行官が次のOBS連番を採番し、`EXP-OBSxxxxx/` を作成。
+1. E進行チームが次のOBS連番を採番し、`EXP-OBSxxxxx/` を作成。
 2. `_templates/` の雛形をコピーして各成果物を埋めていく。
 3. 結論確定後、Eが要約をOBS件名へ吸い上げ、`EXP-OBSxxxxx/` は破棄してよい。

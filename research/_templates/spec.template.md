@@ -1,10 +1,10 @@
 # 実験仕様書（Spec） - EXP-OBSxxxxx
 
-> 担当: 戦略設計官（strategy-architect）
+> 担当: 設計チーム（strategy-architect）
 > 鉄則: **成功基準は「回す前」に数値で確定する**（HARKing防止）。結果を見てから基準を緩めない。
 
 ## 対応OBS番号
-OBSxxxxx（E記録進行官が採番）
+OBSxxxxx（E進行チームが採番）
 
 ## 仮説（1文）
 

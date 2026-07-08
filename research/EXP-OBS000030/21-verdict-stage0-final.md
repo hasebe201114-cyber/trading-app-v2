@@ -1,6 +1,6 @@
 # 最終判定書（Verdict / Final）- EXP-OBS000030 Stage 0（データ実現可能性スパイク）
 
-> 担当: 懐疑検証官（adversarial-reviewer / Red Team）
+> 担当: 品質チーム（adversarial-reviewer / Red Team）
 > 対象: `10-result/*-v2.json/csv`（B再測定・バグ修正後の生データ）＋ **C自身の独立Bitget公開API再実行**
 > 前段: `20-verdict-stage0.md`（2026-07-05 C差し戻し宣告）／ spec: `00-spec-stage0.md`
 > 判定日: 2026-07-05

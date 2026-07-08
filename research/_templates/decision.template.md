@@ -1,6 +1,6 @@
 # 反映記録（Decision） - EXP-OBSxxxxx
 
-> 担当: 統合反映官（integration-deploy）／不採用時はE記録進行官
+> 担当: デプロイチーム（integration-deploy）／不採用時はE進行チーム
 > review が【採用可】かつ司令塔GO済みのものだけがここに至る。
 
 ## 起動前提の確認

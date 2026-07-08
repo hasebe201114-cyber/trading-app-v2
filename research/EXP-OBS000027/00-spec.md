@@ -1,11 +1,11 @@
 # 実験仕様書（Spec） - EXP-OBS000027
 
-> 担当: 戦略設計官（strategy-architect）
+> 担当: 設計チーム（strategy-architect）
 > 鉄則: **成功基準は「回す前」に数値で確定する**（HARKing防止）。結果を見てから基準を緩めない。
 > 前提: 参謀官 prescreen＝条件付きGO（`research/STRATEGY-BRIEF.md` 2026-07-04）。親課題 = OBS000014。
 
 ## 対応OBS番号
-**OBS000027（暫定・E記録進行官の採番で確定）**。親（再開元）: OBS000014「③LLM特徴量抽出層の実LLM化」。
+**OBS000027（暫定・E進行チームの採番で確定）**。親（再開元）: OBS000014「③LLM特徴量抽出層の実LLM化」。
 本件は OBS000014 の続きだが、②の土台が k-NN → モメンタム(L=30, scale=30) に替わった後の**別条件での再決着**であり、新規実験1件＝新OBSとして扱う。
 
 ## 仮説（1文・falsifiable）
@@ -72,7 +72,7 @@
   - `node --experimental-strip-types scripts/pipeline-backtest-llm.ts`
   - `node --experimental-strip-types scripts/llm-signal-standalone.ts`
 
-## B検証実装官への指示（実装・実行・出力のみ。解釈・チューニング禁止）
+## B実装チームへの指示（実装・実行・出力のみ。解釈・チューニング禁止）
 1. **実装**:
    - `pipeline-backtest-llm.ts` の `baseConfig` に `momentumLookback: 30, momentumConfidenceScale: 30` を追加（上記のとおり）。それ以外（フォールド境界・KPI閾値・④）は一切変えない。
    - `scripts/llm-signal-standalone.ts` を新規作成（予測単位テスト。permutation N=1000, seed固定して再現可能に）。
@@ -84,4 +84,4 @@
 4. **禁止**: 良し悪しの判定・「改善/悪化」等の解釈語・閾値やパラメータの調整（P1〜P3を満たさなくても、勝手にscaleやveto閾値を振らない）。判定はCが行う。生データのみを `research/EXP-OBS000027/10-result/` に出す。
 
 ## 変更履歴
-- 2026-07-04: 初版作成（A戦略設計官）。(a)自由度ゼロ再測定を採用。パイプライン主ゲート(P1-P3)＋予測単位診断(Q1/Q2)＋kill基準を数値固定。OBS番号は暫定OBS000027（E採番待ち、親OBS000014）。
+- 2026-07-04: 初版作成（A設計チーム）。(a)自由度ゼロ再測定を採用。パイプライン主ゲート(P1-P3)＋予測単位診断(Q1/Q2)＋kill基準を数値固定。OBS番号は暫定OBS000027（E採番待ち、親OBS000014）。

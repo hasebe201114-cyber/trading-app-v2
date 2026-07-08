@@ -1,6 +1,6 @@
 # 監査書（Audit・探索的） - EXP-OBS000030 Stage 1（横断モメンタム）
 
-> 担当: 懐疑検証官（adversarial-reviewer / Red Team）
+> 担当: 品質チーム（adversarial-reviewer / Red Team）
 > 役割の読み替え（本件限定・S決定メモ §3-③／spec §0）: 本件は**探索的・非採用前提**のため、Cは「採否宣告」を行わない。役割は **(a) 境界条件①〜④の遵守監査** と **(b) 観察の頑健性チェック**。**正式なG1-G4のPASS/FAIL判定は行わない。**
 > 監査日: 2026-07-05
 > 監査対象（生データのみ・Bの解釈は受け取らない）: `10-result/stage1-cross-sectional-momentum-exploratory.json`, `stage1-exploratory-summary.md`, `stage1-params.json`, `stage1-run.log`, スクリプト `scripts/cross-sectional-momentum-exploratory.ts`
@@ -102,4 +102,4 @@
 ---
 
 ## 変更履歴
-- 2026-07-05: 初版（C懐疑検証官）。EXP-OBS000030 Stage 1（横断モメンタム）探索的検証の監査。境界条件①〜④は概ね遵守（②Key Observations節の行別注記のみ軽微改善余地）。観察は「芽なし」で堅牢（メインIC-0.072 perm p0.977／ネットSharpe両config負／時系列両半負／R1壊滅）。監査中に2件の実装欠陥を検出＝①held-out銘柄IC=1.0000はフォワードリターン未ランク化の退化バグ（B報告の「符号一致」は撤回）②ポートフォリオpermutationはSharpe不変シャッフルでpower ゼロ（Config B 0.0660を有意近似と誤読禁止）。両欠陥とも負の結論を守る側にあり探索的所見は不変。採否宣告は行わず（探索的・非採用前提）。
+- 2026-07-05: 初版（C品質チーム）。EXP-OBS000030 Stage 1（横断モメンタム）探索的検証の監査。境界条件①〜④は概ね遵守（②Key Observations節の行別注記のみ軽微改善余地）。観察は「芽なし」で堅牢（メインIC-0.072 perm p0.977／ネットSharpe両config負／時系列両半負／R1壊滅）。監査中に2件の実装欠陥を検出＝①held-out銘柄IC=1.0000はフォワードリターン未ランク化の退化バグ（B報告の「符号一致」は撤回）②ポートフォリオpermutationはSharpe不変シャッフルでpower ゼロ（Config B 0.0660を有意近似と誤読禁止）。両欠陥とも負の結論を守る側にあり探索的所見は不変。採否宣告は行わず（探索的・非採用前提）。
