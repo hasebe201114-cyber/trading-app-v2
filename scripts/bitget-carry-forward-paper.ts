@@ -588,17 +588,18 @@ function computeInterimMetricsForAsset(assetCode: 'BTC' | 'ETH', assetLower: str
     note: 'F1a/F1bともにliveDaysCount<90の間は試験値（формула動作確認用）。90日到達後にforward-f1f4-verdict-inputs.jsonへ正式出力。',
   };
 
-  // --- F2（日次合算ベース：ledgerのfunding_rate_daily_bps vs binance_funding_daily_bpsの符号一致） ---
-  const f2PairsDaily = liveRows.filter(r => r.f2_pair_sign_match !== null);
-  const f2MatchCountDaily = f2PairsDaily.filter(r => r.f2_pair_sign_match === 1).length;
-  const f2AgreementPctDaily = f2PairsDaily.length > 0 ? (f2MatchCountDaily / f2PairsDaily.length) * 100 : null;
+  // --- F2（8hイベント単位ベース：Bitget⇔Binanceのfunding符号一致率。spec §4 粒度統一） ---
+  // eventPairsRecent: pairEventsForSignCheckで生成された全ライブペア（go-live以降）
+  const f2PairsEvent = eventPairsRecent; // 8h イベント単位の全ライブペア
+  const f2MatchCountEvent = f2PairsEvent.filter(p => p.match === 1).length;
+  const f2AgreementPctEvent = f2PairsEvent.length > 0 ? (f2MatchCountEvent / f2PairsEvent.length) * 100 : null;
   const f2 = {
     liveDaysCount: liveRows.length,
-    dailyAggregatedPairs: f2PairsDaily.length,
-    dailyAggregatedSignAgreementPct: f2AgreementPctDaily,
-    f2_gte80pct: f2AgreementPctDaily !== null ? f2AgreementPctDaily >= F2_SIGN_AGREEMENT_THRESHOLD_PCT : null,
+    eventPairsCount: f2PairsEvent.length,
+    eventSignAgreementPct: f2AgreementPctEvent,
+    f2_gte80pct: f2AgreementPctEvent !== null ? f2AgreementPctEvent >= F2_SIGN_AGREEMENT_THRESHOLD_PCT : null,
     g02BaselineReferencePct: ref.g02SignAgreementPct,
-    note: '日次合算(Bitget vs Binance funding_daily_bps)の符号一致率。イベント単位(8h)ローリング一致率は中間チェックポイント側(§6)に別掲。ライブ日数<90は試験値。',
+    note: '8hイベント単位(Bitget vs Binance funding符号)の一致率。spec §4-F2「粒度をG0-2と統一」。ライブ日数<90は試験値。ローリング警告(70%以下)は中間チェックポイント側(§6)に別掲。',
   };
 
   // --- F3 ---
