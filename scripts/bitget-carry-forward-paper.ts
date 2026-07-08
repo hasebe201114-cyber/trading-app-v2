@@ -320,7 +320,11 @@ interface LedgerRow {
   sleeve_daily_return_pct: number;
   sleeve_cumulative_return_pct: number;
   binance_funding_daily_bps: number;
-  f2_pair_sign_match: number | null; // 1=一致, 0=不一致, null=当日ペア無し
+  // 1=一致, 0=不一致, null=当日データ無し。
+  // ⚠ この列は spec §3-1 が定義する「日次ledger」フォーマット（1行=1UTC日）上の日次合算(Bitget/Binance funding_daily_bps)
+  // ベースの参考値であり、F2ゲート（spec §4-F2）の算出には使わない。F2ゲートの唯一の算出元は
+  // 8hイベント単位で全ペアを永続化した forward-f2-event-pairs-{asset}.{csv,json}（pairEventsForSignCheck）。
+  f2_pair_sign_match: number | null;
   data_gap_flag: 0 | 1;
 }
 
@@ -419,6 +423,8 @@ function processDay(
   const sleeveDailyReturnPct = (dailyNetPnlBps / 10000) * wStar * 100;
   const cumulativeSleevePct = state.cumulativeSleevePct + sleeveDailyReturnPct;
 
+  // ⚠ 日次合算ベースの参考値（spec §3-1 日次ledgerフォーマット用の列）。F2ゲート判定には使わない
+  // （F2ゲートは8hイベント単位で全ペアを永続化した forward-f2-event-pairs-{asset}.{csv,json} を唯一の算出元とする）。
   const f2PairSignMatch = fundingDailyBps === 0 && binanceFundingDailyBps === 0
     ? null
     : Math.sign(fundingDailyBps) === Math.sign(binanceFundingDailyBps) ? 1 : 0;
@@ -563,7 +569,7 @@ function blockBootstrapLowerBound(
 // ============================================================
 // F1〜F4 暫定計算・中間チェックポイント（真偽値のみ・判定語なし）
 // ============================================================
-function computeInterimMetricsForAsset(assetCode: 'BTC' | 'ETH', assetLower: string, rows: LedgerRow[]) {
+function computeInterimMetricsForAsset(assetCode: 'BTC' | 'ETH', assetLower: string, rows: LedgerRow[], eventPairsRecent: F2EventPair[]) {
   const liveRows = rows.filter(r => r.phase === 'live');
   const ref = BACKTEST_REFERENCE[assetCode];
 
@@ -589,7 +595,7 @@ function computeInterimMetricsForAsset(assetCode: 'BTC' | 'ETH', assetLower: str
   };
 
   // --- F2（8hイベント単位ベース：Bitget⇔Binanceのfunding符号一致率。spec §4 粒度統一） ---
-  // eventPairsRecent: pairEventsForSignCheckで生成された全ライブペア（go-live以降）
+  // eventPairsRecent: pairEventsForSignCheckで生成された全ライブペア（go-live以降・引数として受け取る）
   const f2PairsEvent = eventPairsRecent; // 8h イベント単位の全ライブペア
   const f2MatchCountEvent = f2PairsEvent.filter(p => p.match === 1).length;
   const f2AgreementPctEvent = f2PairsEvent.length > 0 ? (f2MatchCountEvent / f2PairsEvent.length) * 100 : null;
@@ -599,7 +605,7 @@ function computeInterimMetricsForAsset(assetCode: 'BTC' | 'ETH', assetLower: str
     eventSignAgreementPct: f2AgreementPctEvent,
     f2_gte80pct: f2AgreementPctEvent !== null ? f2AgreementPctEvent >= F2_SIGN_AGREEMENT_THRESHOLD_PCT : null,
     g02BaselineReferencePct: ref.g02SignAgreementPct,
-    note: '8hイベント単位(Bitget vs Binance funding符号)の一致率。spec §4-F2「粒度をG0-2と統一」。ライブ日数<90は試験値。ローリング警告(70%以下)は中間チェックポイント側(§6)に別掲。',
+    note: '8hイベント単位(Bitget vs Binance funding符号)の一致率。spec §4-F2「粒度をG0-2と統一」。算出元の全ペア生データは forward-f2-event-pairs-{asset}.{csv,json}（8hイベント単位全ペア）に永続化。日次ledgerの f2_pair_sign_match 列（日次合算）はF2ゲート算出には使わない参考値。ライブ日数<90は試験値。ローリング警告(70%以下)は中間チェックポイント側(§6)に別掲。',
   };
 
   // --- F3 ---
@@ -641,7 +647,7 @@ interface Checkpoints {
   dataGapConsecutive: { maxConsecutiveGapDays: number; triggered: boolean };
 }
 
-function computeCheckpoints(assetCode: 'BTC' | 'ETH', rows: LedgerRow[], eventPairsRecent: { date: string; match: number }[]): Checkpoints {
+function computeCheckpoints(assetCode: 'BTC' | 'ETH', rows: LedgerRow[], eventPairsRecent: F2EventPair[]): Checkpoints {
   const ref = BACKTEST_REFERENCE[assetCode];
 
   const liqDates = rows.filter(r => r.liquidation_flag === 1 || r.margin_call_flag === 1).map(r => r.date_utc);
@@ -678,23 +684,64 @@ function computeCheckpoints(assetCode: 'BTC' | 'ETH', rows: LedgerRow[], eventPa
   };
 }
 
-/** イベント単位(8h)のBitget⇔Binance符号ペア化（G0-2と同一手法・時単位丸め）。中間チェックポイントのローリング一致率専用。 */
-function pairEventsForSignCheck(bitgetEvents: FundingEvent[], binanceEvents: FundingEvent[], liveStartDate: string): { date: string; match: number }[] {
+/**
+ * F2用の8hイベント単位ペア（spec §4-F2「粒度をG0-2と統一」＝日次合算ではなく8hイベント（3イベント/日）を
+ * 1対1でペア化）。Bitget⇔Binance funding を時単位キーでペア化し、符号一致率・相関等（F2の全指標）の
+ * 唯一の算出元とする。このペアは `forward-f2-event-pairs-{btc,eth}.{csv,json}` に「8hイベント単位全ペア」の
+ * 生データとして永続化する（spec §3が定義する日次ledgerとは別ファイル＝粒度が異なるため統一しない。
+ * 日次ledgerの `f2_pair_sign_match` 列は§3-1が定義する日次合算の参考値に過ぎず、F2ゲート算出には使わない）。
+ */
+interface F2EventPair {
+  event_hour_utc: string;
+  date_utc: string;
+  bitget_funding_rate: number;
+  binance_funding_rate: number;
+  match: 0 | 1;
+}
+
+function pairEventsForSignCheck(bitgetEvents: FundingEvent[], binanceEvents: FundingEvent[], liveStartDate: string): F2EventPair[] {
   const bitgetByHour = new Map<string, number>();
   for (const e of bitgetEvents) {
     if (e.date < liveStartDate) continue;
     bitgetByHour.set(new Date(e.timestampMs).toISOString().slice(0, 13), e.rate);
   }
-  const pairs: { date: string; match: number }[] = [];
+  const pairs: F2EventPair[] = [];
   const sortedBinance = [...binanceEvents].filter(e => e.date >= liveStartDate).sort((a, b) => a.timestampMs - b.timestampMs);
   for (const b of sortedBinance) {
     const key = new Date(b.timestampMs).toISOString().slice(0, 13);
     if (bitgetByHour.has(key)) {
       const bg = bitgetByHour.get(key) as number;
-      pairs.push({ date: b.date, match: Math.sign(b.rate) === Math.sign(bg) ? 1 : 0 });
+      pairs.push({
+        event_hour_utc: key,
+        date_utc: b.date,
+        bitget_funding_rate: bg,
+        binance_funding_rate: b.rate,
+        match: Math.sign(b.rate) === Math.sign(bg) ? 1 : 0,
+      });
     }
   }
   return pairs;
+}
+
+// ============================================================
+// F2イベントペアI/O（8hイベント単位全ペアの永続化。Ledgerフォーマット定義との矛盾修正：
+// 日次ledgerとは粒度が異なる別ファイルとして「8hイベント単位全ペア」を追記ではなく都度全量再生成する
+// （Bitget history-fund-rateがliveStartDate以降を再取得可能な限り、ライブ全期間の全ペアを毎回一貫再構築）。
+// ============================================================
+const F2_EVENT_PAIR_COLUMNS = ['event_hour_utc', 'date_utc', 'bitget_funding_rate', 'binance_funding_rate', 'match'] as const;
+
+function f2EventPairsPaths(assetLower: string): { csv: string; json: string } {
+  return {
+    csv: join(RESULT_DIR, `forward-f2-event-pairs-${assetLower}.csv`),
+    json: join(RESULT_DIR, `forward-f2-event-pairs-${assetLower}.json`),
+  };
+}
+
+function writeF2EventPairs(assetLower: string, pairs: F2EventPair[]): void {
+  const { csv, json } = f2EventPairsPaths(assetLower);
+  const lines = [F2_EVENT_PAIR_COLUMNS.join(','), ...pairs.map(p => F2_EVENT_PAIR_COLUMNS.map(col => String((p as unknown as Record<string, unknown>)[col])).join(','))];
+  writeFileSync(csv, lines.join('\n') + '\n');
+  writeFileSync(json, JSON.stringify(pairs, null, 2));
 }
 
 // ============================================================
@@ -706,7 +753,7 @@ interface AssetProcessResult {
   rows: LedgerRow[];
   newRowsCount: number;
   liveStartDate: string | null;
-  eventPairsRecent: { date: string; match: number }[];
+  eventPairsRecent: F2EventPair[];
   marketData: AssetMarketData;
   windowStart: string;
   windowEnd: string;
@@ -866,6 +913,7 @@ async function main(): Promise<void> {
     },
     dateAnchorDesignNote: '日次実行は「今日」でなく「最終完全経過UTC日（anchor=today-1）」を対象とする。理由：Bitget日足candle(1Dutc)は当日分が実行時刻までの部分足になり得るため、完結済みの前日分のみを確定値として記録し先読み/部分値混入を避ける設計判断。',
     markAvailability: Object.fromEntries(results.map(r => [r.assetCode, { available: r.marketData.markAvailable, error: r.marketData.markError ?? null }])),
+    ledgerGranularityNote: '日次ledger（forward-paper-ledger-{asset}.csv/json）は spec §3-1 のとおり1行=1UTC日（会計・清算判定用）。F2ゲート（spec §4-F2、8hイベント単位でBitget/Binanceを1対1ペア化）は日次ledgerの f2_pair_sign_match 列（日次合算の参考値）ではなく、forward-f2-event-pairs-{asset}.csv/json（8hイベント単位・全ペア・go-live以降を毎回全量再構築）を唯一の算出元とする。両ファイルは粒度が異なる別スキーマであり意図的に統一しない。',
     runHistory,
   };
   writeFileSync(metaPath, JSON.stringify(meta, null, 2));
@@ -877,8 +925,10 @@ async function main(): Promise<void> {
   const perAssetCheckpoints: Record<string, Checkpoints> = {};
   for (const r of results) {
     const assetLower = r.assetCode.toLowerCase();
-    perAssetMetrics[r.assetCode] = computeInterimMetricsForAsset(r.assetCode, assetLower, r.rows);
+    perAssetMetrics[r.assetCode] = computeInterimMetricsForAsset(r.assetCode, assetLower, r.rows, r.eventPairsRecent);
     perAssetCheckpoints[r.assetCode] = computeCheckpoints(r.assetCode, r.rows, r.eventPairsRecent);
+    writeF2EventPairs(assetLower, r.eventPairsRecent);
+    log(`>>> forward-f2-event-pairs-${assetLower}.{csv,json} 保存（8hイベント単位全ペア n=${r.eventPairsRecent.length}）`);
   }
   const anyAlert = Object.values(perAssetCheckpoints).some(cp =>
     cp.immediateLiquidationOrMarginCall.triggered ||
