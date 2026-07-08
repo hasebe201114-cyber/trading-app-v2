@@ -16,15 +16,25 @@
  *
  * 引数なし・冪等（同一UTC日に複数回実行しても二重追記しない）。
  * APIキー・.env.local は読まない（公開APIのみ）。
+ *
+ * F2イベントペア（forward-f2-event-pairs-{btc,eth}.{csv,json}）は増分マージ方式（差し戻し是正
+ * 20-review-f2-recheck.md 対応）。毎回のフェッチ窓（go-live起点〜Bitget90日制限で頭打ち）で取得した
+ * ペアを、既存永続化ファイルと event_hour_utc キーでユニーク結合してから書き出す。全上書きはしない
+ * ＝day90到達時にF2ゲート算出の母集団が消えることはない。
  */
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, appendFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { execSync } from 'node:child_process';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const RESULT_DIR = join(__dirname, '..', 'research', 'EXP-OBS000032', '10-result', 'forward');
+// FORWARD_PAPER_TEST_RESULT_DIR: 自己確認・単体テスト専用の出力先上書き（絶対パス）。
+// 未設定時は常に本番の research/EXP-OBS000032/10-result/forward を使う（デフォルト挙動は不変）。
+// 本番実行でこの環境変数を設定してはならない。
+const RESULT_DIR = process.env.FORWARD_PAPER_TEST_RESULT_DIR
+  ? process.env.FORWARD_PAPER_TEST_RESULT_DIR
+  : join(__dirname, '..', 'research', 'EXP-OBS000032', '10-result', 'forward');
 mkdirSync(RESULT_DIR, { recursive: true });
 
 const RUN_TIMESTAMP = new Date().toISOString();
@@ -82,6 +92,10 @@ const CARRY_NEGATIVE_STREAK_ALERT_DAYS = 10;
 const DATA_GAP_ALERT_CONSECUTIVE_DAYS = 2;
 const WARMUP_DAYS = 30;
 const LIVE_DAYS_REQUIRED = 90;
+// Bitget無料API history-fund-rateの実務上の遡及可能日数上限（差し戻し是正 20-review-f2-recheck.md §3 (b)で明記の制約）。
+// F2イベントペア再構築窓（フェッチ窓拡張）の下限に用いる。増分マージ（writeF2EventPairs）と併用することで
+// 「毎回この日数分しか遡らない」ことによる欠落を、既存永続化ファイルとのマージで補う設計。
+const BITGET_FUNDING_HISTORY_LIMIT_DAYS = 90;
 
 const CALM_WINDOW = { start: '2021-01-01', end: '2021-06-30' };
 
@@ -569,7 +583,7 @@ function blockBootstrapLowerBound(
 // ============================================================
 // F1〜F4 暫定計算・中間チェックポイント（真偽値のみ・判定語なし）
 // ============================================================
-function computeInterimMetricsForAsset(assetCode: 'BTC' | 'ETH', assetLower: string, rows: LedgerRow[], eventPairsRecent: F2EventPair[]) {
+function computeInterimMetricsForAsset(assetCode: 'BTC' | 'ETH', assetLower: string, rows: LedgerRow[], eventPairsAllLive: F2EventPair[]) {
   const liveRows = rows.filter(r => r.phase === 'live');
   const ref = BACKTEST_REFERENCE[assetCode];
 
@@ -595,8 +609,10 @@ function computeInterimMetricsForAsset(assetCode: 'BTC' | 'ETH', assetLower: str
   };
 
   // --- F2（8hイベント単位ベース：Bitget⇔Binanceのfunding符号一致率。spec §4 粒度統一） ---
-  // eventPairsRecent: pairEventsForSignCheckで生成された全ライブペア（go-live以降・引数として受け取る）
-  const f2PairsEvent = eventPairsRecent; // 8h イベント単位の全ライブペア
+  // eventPairsAllLive: writeF2EventPairsの増分マージ後の戻り値（ライブ全期間・event_hour_utcで重複排除済み）。
+  // 差し戻し是正（20-review-f2-recheck.md）: 従来は当該実行のフェッチ窓分（eventPairsRecent）のみを渡していたため、
+  // day90到達時にF2の母集団が消える欠陥があった。現在は永続化ファイルとマージ済みの全ライブペアを渡す。
+  const f2PairsEvent = eventPairsAllLive; // 8h イベント単位の全ライブペア
   const f2MatchCountEvent = f2PairsEvent.filter(p => p.match === 1).length;
   const f2AgreementPctEvent = f2PairsEvent.length > 0 ? (f2MatchCountEvent / f2PairsEvent.length) * 100 : null;
   const f2 = {
@@ -647,12 +663,14 @@ interface Checkpoints {
   dataGapConsecutive: { maxConsecutiveGapDays: number; triggered: boolean };
 }
 
-function computeCheckpoints(assetCode: 'BTC' | 'ETH', rows: LedgerRow[], eventPairsRecent: F2EventPair[]): Checkpoints {
+function computeCheckpoints(assetCode: 'BTC' | 'ETH', rows: LedgerRow[], eventPairsAllLive: F2EventPair[]): Checkpoints {
   const ref = BACKTEST_REFERENCE[assetCode];
 
   const liqDates = rows.filter(r => r.liquidation_flag === 1 || r.margin_call_flag === 1).map(r => r.date_utc);
 
-  const recentPairs = eventPairsRecent.slice(-F2_ROLLING_WINDOW_PAIRS);
+  // eventPairsAllLive はライブ全期間・重複排除済み（差し戻し是正後）。直近30ペアのローリングは
+  // 「本当に直近のイベント」を指すようになる（従来は当該実行のフェッチ窓のみだったため実質フェッチ窓全体だった）。
+  const recentPairs = eventPairsAllLive.slice(-F2_ROLLING_WINDOW_PAIRS);
   const agreementPct = recentPairs.length > 0 ? (recentPairs.filter(p => p.match === 1).length / recentPairs.length) * 100 : null;
 
   const cumulative = rows.length > 0 ? rows[rows.length - 1].cumulative_net_pnl_bps : 0;
@@ -690,6 +708,10 @@ function computeCheckpoints(assetCode: 'BTC' | 'ETH', rows: LedgerRow[], eventPa
  * 唯一の算出元とする。このペアは `forward-f2-event-pairs-{btc,eth}.{csv,json}` に「8hイベント単位全ペア」の
  * 生データとして永続化する（spec §3が定義する日次ledgerとは別ファイル＝粒度が異なるため統一しない。
  * 日次ledgerの `f2_pair_sign_match` 列は§3-1が定義する日次合算の参考値に過ぎず、F2ゲート算出には使わない）。
+ *
+ * ⚠ この関数が返すのは「当該実行のフェッチ窓」に含まれるペアのみ（liveStartDate以降・windowStart以降の交差）。
+ * ライブ全期間の母集団ではない。ライブ全期間の母集団は writeF2EventPairs の増分マージ後の戻り値を参照すること
+ * （差し戻し是正: 20-review-f2-recheck.md）。
  */
 interface F2EventPair {
   event_hour_utc: string;
@@ -724,9 +746,15 @@ function pairEventsForSignCheck(bitgetEvents: FundingEvent[], binanceEvents: Fun
 }
 
 // ============================================================
-// F2イベントペアI/O（8hイベント単位全ペアの永続化。Ledgerフォーマット定義との矛盾修正：
-// 日次ledgerとは粒度が異なる別ファイルとして「8hイベント単位全ペア」を追記ではなく都度全量再生成する
-// （Bitget history-fund-rateがliveStartDate以降を再取得可能な限り、ライブ全期間の全ペアを毎回一貫再構築）。
+// F2イベントペアI/O（8hイベント単位全ペアの永続化）
+//
+// ⚠ 差し戻し是正（20-review-f2-recheck.md）: 従来は毎回 writeFileSync による全上書き（既存ファイルの
+// readFileSync 箇所が存在しない）だったため、日次実行のたびにフェッチ窓（append≈8日/noop=1日）分だけが
+// 残り、それ以前のライブ日のイベントペアが恒久的に消えていた（day90到達時にF2の母集団が存在しない致命的欠陥）。
+// 是正: 書き込み前に既存の forward-f2-event-pairs-{asset}.json を読み込み、新規取得ペアと
+// event_hour_utc をユニークキーにMapで結合（重複排除）してから書き出す「増分マージ」方式に変更。
+// これによりフェッチ窓が狭くても、過去に一度でも永続化されたイベントペアはファイルから消えない。
+// appendMode フラグは是正の意図を呼び出し側で明示するためのもの。本番運用では常に true（増分マージ）を渡す。
 // ============================================================
 const F2_EVENT_PAIR_COLUMNS = ['event_hour_utc', 'date_utc', 'bitget_funding_rate', 'binance_funding_rate', 'match'] as const;
 
@@ -737,11 +765,47 @@ function f2EventPairsPaths(assetLower: string): { csv: string; json: string } {
   };
 }
 
-function writeF2EventPairs(assetLower: string, pairs: F2EventPair[]): void {
+/** 既存の永続化ファイル（あれば）を読み込む。存在しない/壊れている場合は空配列（＝初回実行として扱う）。 */
+function loadExistingF2EventPairs(assetLower: string): F2EventPair[] {
+  const { json } = f2EventPairsPaths(assetLower);
+  if (!existsSync(json)) return [];
+  try {
+    const content = readFileSync(json, 'utf-8');
+    const parsed = JSON.parse(content) as F2EventPair[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    log(`  WARNING: 既存F2イベントペアファイル読込失敗（${json}）: ${err instanceof Error ? err.message : String(err)}。空配列として扱う（既存データはこの実行では失われないよう、後続のマージ処理には影響しないことに注意）`);
+    return [];
+  }
+}
+
+/**
+ * event_hour_utc をユニークキーに既存ペアと新規ペアをマージ（重複排除）。
+ * 同一キーが両方に存在する場合は新規取得側（incoming）の値を優先する
+ * （Bitget側の値が事後訂正された場合に追随するため。通常は同一値のはず）。
+ * 結果は event_hour_utc 昇順にソートして返す。
+ */
+function mergeF2EventPairs(existing: F2EventPair[], incoming: F2EventPair[]): F2EventPair[] {
+  const map = new Map<string, F2EventPair>();
+  for (const p of existing) map.set(p.event_hour_utc, p);
+  for (const p of incoming) map.set(p.event_hour_utc, p);
+  return [...map.values()].sort((a, b) => a.event_hour_utc.localeCompare(b.event_hour_utc));
+}
+
+/**
+ * F2イベントペアの永続化。appendMode=true（本番運用は常にtrue固定）で既存ファイルを読み込み、
+ * event_hour_utc でユニーク結合した増分マージ結果を書き出す。appendMode=false は単体テスト等での
+ * 上書き比較用のみに使う（本番コードパスからは呼ばない）。
+ * 戻り値はマージ後の全ペア＝F2ゲート算出に使う母集団（ライブ全期間・重複排除済み）。
+ */
+function writeF2EventPairs(assetLower: string, newPairs: F2EventPair[], appendMode: boolean): F2EventPair[] {
   const { csv, json } = f2EventPairsPaths(assetLower);
-  const lines = [F2_EVENT_PAIR_COLUMNS.join(','), ...pairs.map(p => F2_EVENT_PAIR_COLUMNS.map(col => String((p as unknown as Record<string, unknown>)[col])).join(','))];
+  const existing = appendMode ? loadExistingF2EventPairs(assetLower) : [];
+  const merged = appendMode ? mergeF2EventPairs(existing, newPairs) : newPairs;
+  const lines = [F2_EVENT_PAIR_COLUMNS.join(','), ...merged.map(p => F2_EVENT_PAIR_COLUMNS.map(col => String((p as unknown as Record<string, unknown>)[col])).join(','))];
   writeFileSync(csv, lines.join('\n') + '\n');
-  writeFileSync(json, JSON.stringify(pairs, null, 2));
+  writeFileSync(json, JSON.stringify(merged, null, 2));
+  return merged;
 }
 
 // ============================================================
@@ -781,15 +845,27 @@ async function processAsset(assetCode: 'BTC' | 'ETH'): Promise<AssetProcessResul
     log(`初回セットアップ: warmup=${warmupStart}..${addDays(liveStart, -1)}（${WARMUP_DAYS}日）, go-live=${liveStart}`);
   } else {
     const lastDate = existingRows[existingRows.length - 1].date_utc;
+    // 差し戻し是正（フェッチ窓拡張・推奨事項）: F2イベントペアの再構築窓は go-live 起点まで遡る。
+    // ただし Bitget無料APIのfunding history実務上の遡及上限（≈90日）で頭打ちにする。
+    // 増分マージ（writeF2EventPairs）と併用することで、この窓に入らない過去分は既存永続化ファイル側で担保される。
+    const liveStartExisting = existingRows.find(r => r.phase === 'live')?.date_utc ?? lastDate;
+    const backfillFloorKey = addDays(anchor, -(BITGET_FUNDING_HISTORY_LIMIT_DAYS - 1));
+    const f2WindowStart = liveStartExisting > backfillFloorKey ? liveStartExisting : backfillFloorKey;
+
     if (lastDate >= anchor) {
       mode = 'noop';
-      windowStart = anchor;
-      log(`既存ledger最終日=${lastDate} は anchor=${anchor} 以上。追記対象日なし（冪等・重複追記なし）`);
+      // 差し戻し是正: noopモードでも「直近1日」に窓を縮退させない（従来のバグ）。
+      // go-live起点（Bitget90日制限で頭打ち）まで遡ってF2イベントペアを再取得し、増分マージで永続化する。
+      windowStart = f2WindowStart;
+      log(`既存ledger最終日=${lastDate} は anchor=${anchor} 以上。追記対象日なし（冪等・重複追記なし）。F2イベントペア再取得窓=${windowStart}..${windowEnd}（noopでも縮退させず増分マージで永続化）`);
     } else {
       mode = 'append';
       datesToProcess = dateRange(addDays(lastDate, 1), anchor);
-      windowStart = addDays(datesToProcess[0], -SMA_WINDOW - 1);
-      log(`追記モード: 既存最終日=${lastDate}, 追記対象=${datesToProcess.join(',')}`);
+      const ledgerWindowStart = addDays(datesToProcess[0], -SMA_WINDOW - 1);
+      // ledger算出に必要な最小窓（SMA7+バッファ）と、F2再構築窓（go-live起点/Bitget90日制限）のうち、
+      // より過去まで遡る方（日付として小さい方）を採用してフェッチする。
+      windowStart = ledgerWindowStart < f2WindowStart ? ledgerWindowStart : f2WindowStart;
+      log(`追記モード: 既存最終日=${lastDate}, 追記対象=${datesToProcess.join(',')}, フェッチ窓=${windowStart}..${windowEnd}（ledger最小窓=${ledgerWindowStart} / F2再構築窓=${f2WindowStart} のうちより過去まで遡る方）`);
     }
   }
 
@@ -913,7 +989,7 @@ async function main(): Promise<void> {
     },
     dateAnchorDesignNote: '日次実行は「今日」でなく「最終完全経過UTC日（anchor=today-1）」を対象とする。理由：Bitget日足candle(1Dutc)は当日分が実行時刻までの部分足になり得るため、完結済みの前日分のみを確定値として記録し先読み/部分値混入を避ける設計判断。',
     markAvailability: Object.fromEntries(results.map(r => [r.assetCode, { available: r.marketData.markAvailable, error: r.marketData.markError ?? null }])),
-    ledgerGranularityNote: '日次ledger（forward-paper-ledger-{asset}.csv/json）は spec §3-1 のとおり1行=1UTC日（会計・清算判定用）。F2ゲート（spec §4-F2、8hイベント単位でBitget/Binanceを1対1ペア化）は日次ledgerの f2_pair_sign_match 列（日次合算の参考値）ではなく、forward-f2-event-pairs-{asset}.csv/json（8hイベント単位・全ペア・go-live以降を毎回全量再構築）を唯一の算出元とする。両ファイルは粒度が異なる別スキーマであり意図的に統一しない。',
+    ledgerGranularityNote: '日次ledger（forward-paper-ledger-{asset}.csv/json）は spec §3-1 のとおり1行=1UTC日（会計・清算判定用）。F2ゲート（spec §4-F2、8hイベント単位でBitget/Binanceを1対1ペア化）は日次ledgerの f2_pair_sign_match 列（日次合算の参考値）ではなく、forward-f2-event-pairs-{asset}.csv/json（8hイベント単位・全ペア）を唯一の算出元とする。両ファイルは粒度が異なる別スキーマであり意図的に統一しない。差し戻し是正（20-review-f2-recheck.md）: forward-f2-event-pairs-{asset}は各回のフェッチ窓（go-live起点/Bitget90日制限のいずれか新しい方まで拡張）で取得したペアを、既存永続化ファイルとevent_hour_utcキーで増分マージ（重複排除）してから書き出す方式に変更。フェッチ窓が狭い実行があっても、既存ファイル側の過去ペアは消えない。',
     runHistory,
   };
   writeFileSync(metaPath, JSON.stringify(meta, null, 2));
@@ -923,12 +999,16 @@ async function main(): Promise<void> {
   const interimPath = join(RESULT_DIR, 'forward-interim-metrics.json');
   const perAssetMetrics: Record<string, unknown> = {};
   const perAssetCheckpoints: Record<string, Checkpoints> = {};
+  const F2_APPEND_MODE = true; // 差し戻し是正: 常に増分マージ（全上書きは使わない）
   for (const r of results) {
     const assetLower = r.assetCode.toLowerCase();
-    perAssetMetrics[r.assetCode] = computeInterimMetricsForAsset(r.assetCode, assetLower, r.rows, r.eventPairsRecent);
-    perAssetCheckpoints[r.assetCode] = computeCheckpoints(r.assetCode, r.rows, r.eventPairsRecent);
-    writeF2EventPairs(assetLower, r.eventPairsRecent);
-    log(`>>> forward-f2-event-pairs-${assetLower}.{csv,json} 保存（8hイベント単位全ペア n=${r.eventPairsRecent.length}）`);
+    // 差し戻し是正: まず増分マージで永続化し、その戻り値（ライブ全期間・重複排除済みの母集団）を
+    // F1〜F4の暫定メトリクス・チェックポイント計算に使う。従来の r.eventPairsRecent（今回フェッチ窓のみ）
+    // を直接メトリクス計算に渡さない＝day90到達時に母集団が消える／偽陽性を通す経路を断つ。
+    const eventPairsAllLive = writeF2EventPairs(assetLower, r.eventPairsRecent, F2_APPEND_MODE);
+    perAssetMetrics[r.assetCode] = computeInterimMetricsForAsset(r.assetCode, assetLower, r.rows, eventPairsAllLive);
+    perAssetCheckpoints[r.assetCode] = computeCheckpoints(r.assetCode, r.rows, eventPairsAllLive);
+    log(`>>> forward-f2-event-pairs-${assetLower}.{csv,json} 保存（増分マージ後 全ペアn=${eventPairsAllLive.length}／今回フェッチ分n=${r.eventPairsRecent.length}）`);
   }
   const anyAlert = Object.values(perAssetCheckpoints).some(cp =>
     cp.immediateLiquidationOrMarginCall.triggered ||
@@ -1015,7 +1095,17 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch(err => {
-  console.error('FATAL ERROR:', err);
-  process.exit(1);
-});
+// 直接実行時のみ main() を起動する（`node --experimental-strip-types scripts/bitget-carry-forward-paper.ts`）。
+// これにより、増分マージ関数（loadExistingF2EventPairs/mergeF2EventPairs/writeF2EventPairs）を
+// 自己確認テストハーネスから安全にimportできる（import時にネットワークアクセスや本番ファイル書き込みが
+// 走らない）。実運用の起動条件（直接実行）は変えない。
+const isDirectRun = process.argv[1] ? import.meta.url === pathToFileURL(process.argv[1]).href : true;
+if (isDirectRun) {
+  main().catch(err => {
+    console.error('FATAL ERROR:', err);
+    process.exit(1);
+  });
+}
+
+export type { F2EventPair };
+export { loadExistingF2EventPairs, mergeF2EventPairs, writeF2EventPairs };
