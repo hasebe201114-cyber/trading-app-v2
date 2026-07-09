@@ -34,8 +34,6 @@ jobs:
       - name: Run forward calibration script
         run: |
           node --experimental-strip-types scripts/bitget-carry-forward-paper.ts
-        env:
-          # 公開APIのみ使用のためシークレット不要
 
       - name: Commit and push results
         if: ${{ github.event.inputs.dry_run != 'true' }}
