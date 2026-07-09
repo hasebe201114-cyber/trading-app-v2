@@ -1,0 +1,72 @@
+name: OBS000032 Forward Calibration (Daily)
+
+on:
+  schedule:
+    # 毎日 01:00 UTC に実行（Bitget 00:00 UTC funding 確定後1時間のマージン）
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Set to 'true' to run without committing results"
+        required: false
+        default: "false"
+
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: write   # 結果をコミット・push するために必要
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # デプロイキーなし。GITHUB_TOKEN で push するためにここで fetch-depth を確保
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run forward calibration script
+        run: |
+          node --experimental-strip-types scripts/bitget-carry-forward-paper.ts
+        env:
+          # 公開APIのみ使用のためシークレット不要
+
+      - name: Commit and push results
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # 変更があった場合のみコミット（冪等実行でも空コミットしない）
+          if git diff --quiet research/EXP-OBS000032/10-result/forward/; then
+            echo "No changes to forward calibration results — skipping commit"
+          else
+            git add research/EXP-OBS000032/10-result/forward/
+            LIVE_DAYS=$(node -e "
+              const fs = require('fs');
+              const path = 'research/EXP-OBS000032/10-result/forward/forward-interim-metrics.json';
+              if (fs.existsSync(path)) {
+                const d = JSON.parse(fs.readFileSync(path, 'utf-8'));
+                const btc = d.liveDaysCount?.BTC ?? 0;
+                const eth = d.liveDaysCount?.ETH ?? 0;
+                console.log(Math.min(btc, eth));
+              } else { console.log(0); }
+            " 2>/dev/null || echo "?")
+            git commit -m "chore(forward): daily calibration update — live day ${LIVE_DAYS}/90"
+            git push origin main
+            echo "Committed and pushed forward calibration results (live day ${LIVE_DAYS}/90)"
+          fi
+
+      - name: Upload results as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: forward-calibration-${{ github.run_id }}
+          path: research/EXP-OBS000032/10-result/forward/
+          retention-days: 30
