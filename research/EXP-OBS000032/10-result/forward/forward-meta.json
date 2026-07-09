@@ -10,8 +10,8 @@
   "warmupBackfillDays": 30,
   "liveDaysRequiredForGate": 90,
   "currentLiveDaysCount": {
-    "BTC": 1,
-    "ETH": 1
+    "BTC": 5,
+    "ETH": 5
   },
   "wStar": {
     "BTC": 3.629,
@@ -75,6 +75,7 @@
       "error": null
     }
   },
+  "ledgerGranularityNote": "日次ledger（forward-paper-ledger-{asset}.csv/json）は spec §3-1 のとおり1行=1UTC日（会計・清算判定用）。F2ゲート（spec §4-F2、8hイベント単位でBitget/Binanceを1対1ペア化）は日次ledgerの f2_pair_sign_match 列（日次合算の参考値）ではなく、forward-f2-event-pairs-{asset}.csv/json（8hイベント単位・全ペア）を唯一の算出元とする。両ファイルは粒度が異なる別スキーマであり意図的に統一しない。差し戻し是正（20-review-f2-recheck.md）: forward-f2-event-pairs-{asset}は各回のフェッチ窓（go-live起点/Bitget90日制限のいずれか新しい方まで拡張）で取得したペアを、既存永続化ファイルとevent_hour_utcキーで増分マージ（重複排除）してから書き出す方式に変更。フェッチ窓が狭い実行があっても、既存ファイル側の過去ペアは消えない。",
   "runHistory": [
     {
       "runTimestampUTC": "2026-07-05T22:19:04.202Z",
@@ -128,6 +129,34 @@
           "fetchWindow": {
             "start": "2026-07-04",
             "end": "2026-07-04"
+          }
+        }
+      }
+    },
+    {
+      "runTimestampUTC": "2026-07-09T22:32:06.309Z",
+      "anchorDateKey": "2026-07-08",
+      "gitCommit": "7f0269cec8a772c838b71fef488021b3117da03b",
+      "nodeVersion": "v22.23.1",
+      "perAsset": {
+        "BTC": {
+          "mode": "append",
+          "newRowsCount": 4,
+          "markAvailable": true,
+          "markError": null,
+          "fetchWindow": {
+            "start": "2026-06-27",
+            "end": "2026-07-08"
+          }
+        },
+        "ETH": {
+          "mode": "append",
+          "newRowsCount": 4,
+          "markAvailable": true,
+          "markError": null,
+          "fetchWindow": {
+            "start": "2026-06-27",
+            "end": "2026-07-08"
           }
         }
       }
