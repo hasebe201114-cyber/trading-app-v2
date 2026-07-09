@@ -670,12 +670,15 @@ function computeCheckpoints(assetCode: 'BTC' | 'ETH', rows: LedgerRow[], eventPa
 
   // eventPairsAllLive はライブ全期間・重複排除済み（差し戻し是正後）。直近30ペアのローリングは
   // 「本当に直近のイベント」を指すようになる（従来は当該実行のフェッチ窓のみだったため実質フェッチ窓全体だった）。
+  // C-2是正：最小サンプルガード（pairsAvailable≥30で無いと スプリアスalert 防止）
   const recentPairs = eventPairsAllLive.slice(-F2_ROLLING_WINDOW_PAIRS);
-  const agreementPct = recentPairs.length > 0 ? (recentPairs.filter(p => p.match === 1).length / recentPairs.length) * 100 : null;
+  const agreementPct = recentPairs.length >= F2_ROLLING_WINDOW_PAIRS ? (recentPairs.filter(p => p.match === 1).length / recentPairs.length) * 100 : null;
 
-  const cumulative = rows.length > 0 ? rows[rows.length - 1].cumulative_net_pnl_bps : 0;
-  const cumulativeNegative = cumulative < 0;
-  const last10 = rows.slice(-CARRY_NEGATIVE_STREAK_ALERT_DAYS);
+  // C-3是正：キャリー持続マイナス判定をライブ限定累積に修正（warmup混入排除）
+  const liveRows = rows.filter(r => r.phase === 'live');
+  const liveOnlyCumulative = liveRows.reduce((sum, r) => sum + r.daily_net_pnl_bps, 0);
+  const cumulativeNegative = liveOnlyCumulative < 0;
+  const last10 = liveRows.slice(-CARRY_NEGATIVE_STREAK_ALERT_DAYS);
   const last10AllNegative = last10.length === CARRY_NEGATIVE_STREAK_ALERT_DAYS ? last10.every(r => r.daily_net_pnl_bps < 0) : null;
 
   const last30 = rows.slice(-30).filter(r => r.basis_bps !== null).map(r => r.basis_bps as number);
