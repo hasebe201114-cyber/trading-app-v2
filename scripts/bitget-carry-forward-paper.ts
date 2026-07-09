@@ -85,6 +85,7 @@ const BACKTEST_REFERENCE: Record<'BTC' | 'ETH', {
 };
 
 const BOOTSTRAP_CONFIG = { blockLengthDays: 7, resamplingCount: 5000, seed: 20260705, percentile: 10 };
+const PROJECTION_TARGET_DAYS = 90;
 const F2_SIGN_AGREEMENT_THRESHOLD_PCT = 80;
 const F2_ROLLING_ALERT_THRESHOLD_PCT = 70;
 const F2_ROLLING_WINDOW_PAIRS = 30;
@@ -594,6 +595,76 @@ function blockBootstrapLowerBound(
 }
 
 // ============================================================
+// 90日予測収益試算（projection90d）
+// 同じcalm系列・同じblock-bootstrapパラメータでtargetLength=90固定で回し、
+// P10/P50/P90累積キャリーbpsと年率換算を返す。ライブday30未満は試験値。
+// ============================================================
+interface Projection90dResult {
+  basedOnLiveDays: number;
+  reliabilityNote: string;
+  p10_cumBps: number | null;
+  p50_cumBps: number | null;
+  p90_cumBps: number | null;
+  p50_annualReturnPct: number | null;
+  vsBacktestFullPeriodPct: number | null;
+  bootstrapNote: string;
+}
+
+function computeProjection90d(
+  calmSeries: number[],
+  liveDaysCount: number,
+  wStar: number,
+  fullMeanDailyNetCarryBps: number,
+): Projection90dResult {
+  if (calmSeries.length === 0) {
+    const note = 'calm系列が空のため算出不可';
+    return { basedOnLiveDays: liveDaysCount, reliabilityNote: note, p10_cumBps: null, p50_cumBps: null, p90_cumBps: null, p50_annualReturnPct: null, vsBacktestFullPeriodPct: null, bootstrapNote: note };
+  }
+
+  const { blockLengthDays, resamplingCount, seed } = BOOTSTRAP_CONFIG;
+  const rng = mulberry32(seed);
+  const n = calmSeries.length;
+  const effectiveBlockLen = Math.min(blockLengthDays, n);
+  const maxStart = Math.max(0, n - effectiveBlockLen);
+
+  const dailyMeans: number[] = [];
+  for (let iter = 0; iter < resamplingCount; iter++) {
+    const resample: number[] = [];
+    while (resample.length < PROJECTION_TARGET_DAYS) {
+      const start = maxStart > 0 ? Math.floor(rng() * (maxStart + 1)) : 0;
+      const block = calmSeries.slice(start, start + effectiveBlockLen);
+      resample.push(...block);
+    }
+    const trimmed = resample.slice(0, PROJECTION_TARGET_DAYS);
+    dailyMeans.push(trimmed.reduce((a, b) => a + b, 0) / trimmed.length);
+  }
+  dailyMeans.sort((a, b) => a - b);
+
+  const p10Mean = dailyMeans[Math.max(0, Math.ceil(0.10 * resamplingCount) - 1)];
+  const p50Mean = dailyMeans[Math.max(0, Math.ceil(0.50 * resamplingCount) - 1)];
+  const p90Mean = dailyMeans[Math.max(0, Math.ceil(0.90 * resamplingCount) - 1)];
+
+  const reliabilityNote = liveDaysCount < 30
+    ? `day${liveDaysCount}は試験値・day30以降で信頼度向上`
+    : liveDaysCount < 60
+    ? `day${liveDaysCount}（中程度信頼度・day60以降でさらに向上）`
+    : `day${liveDaysCount}（高信頼度帯）`;
+
+  return {
+    basedOnLiveDays: liveDaysCount,
+    reliabilityNote,
+    p10_cumBps: parseFloat((p10Mean * PROJECTION_TARGET_DAYS).toFixed(1)),
+    p50_cumBps: parseFloat((p50Mean * PROJECTION_TARGET_DAYS).toFixed(1)),
+    p90_cumBps: parseFloat((p90Mean * PROJECTION_TARGET_DAYS).toFixed(1)),
+    p50_annualReturnPct: parseFloat(((p50Mean / 10000) * wStar * 100 * 365).toFixed(1)),
+    vsBacktestFullPeriodPct: fullMeanDailyNetCarryBps !== 0
+      ? parseFloat(((p50Mean / fullMeanDailyNetCarryBps) * 100).toFixed(0))
+      : null,
+    bootstrapNote: `block-bootstrap: calm系列n=${n}日, blockLen=${effectiveBlockLen}, N=${resamplingCount}, seed=${seed}, targetLength=${PROJECTION_TARGET_DAYS}日, P10/P50/P90`,
+  };
+}
+
+// ============================================================
 // F1〜F4 暫定計算・中間チェックポイント（真偽値のみ・判定語なし）
 // ============================================================
 function computeInterimMetricsForAsset(assetCode: 'BTC' | 'ETH', assetLower: string, rows: LedgerRow[], eventPairsAllLive: F2EventPair[]) {
@@ -606,6 +677,7 @@ function computeInterimMetricsForAsset(assetCode: 'BTC' | 'ETH', assetLower: str
   const liveDailyMeanBps = liveDailyPnl.length > 0 ? cumulativeLivePnlBps / liveDailyPnl.length : null;
   const calmSeries = loadCalmDailySeries(assetLower);
   const bootstrap = blockBootstrapLowerBound(calmSeries, liveRows.length);
+  const projection90d = computeProjection90d(calmSeries, liveRows.length, W_STAR[assetCode], ref.fullMeanDailyNetCarryBps);
   const f1 = {
     liveDaysCount: liveRows.length,
     sufficientSampleFor90dGate: liveRows.length >= LIVE_DAYS_REQUIRED,
@@ -665,7 +737,7 @@ function computeInterimMetricsForAsset(assetCode: 'BTC' | 'ETH', assetLower: str
     note: 'RMS(|Δbasis_bps|)方式（g0-1-tail-reachability.jsonと同一算式）。ライブ日数<90は試験値。basis_bpsはperp_last基準（バックテスト参照値との算式整合のため。mark基準ではない）。',
   };
 
-  return { f1, f2, f3, f4 };
+  return { f1, f2, f3, f4, projection90d };
 }
 
 interface Checkpoints {
@@ -1055,6 +1127,10 @@ async function main(): Promise<void> {
     warmupDaysCount: Object.fromEntries(results.map(r => [r.assetCode, r.rows.filter(x => x.phase === 'warmup').length])),
     note: 'F1〜F4は判定語を使わず実測値と閾値の真偽値のみ。ライブ日数<90の間はすべて試験値（計算式の動作確認）であり、正式なゲート判定入力ではない。採否判定はC懐疑検証官が行う。',
     f1234: perAssetMetrics,
+    projection90d: Object.fromEntries(results.map(r => {
+      const m = perAssetMetrics[r.assetCode] as { projection90d: Projection90dResult };
+      return [r.assetCode, m.projection90d];
+    })),
     overall_allFourBothAssets: (() => {
       const vals = (['BTC', 'ETH'] as const).map(a => {
         const m = perAssetMetrics[a] as { f1: { f1a_cumulativePositive: boolean | null; f1b_liveMeanGteLowerBound: boolean | null }; f2: { f2_gte80pct: boolean | null }; f3: { f3_zeroLiquidationAndMarginCall: boolean | null }; f4: { f4_lteT1Threshold: boolean | null } };
