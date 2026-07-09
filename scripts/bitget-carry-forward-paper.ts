@@ -236,13 +236,26 @@ async function fetchBitgetCurrentFundRate(symbol: string): Promise<Record<string
   }
 }
 
-/** Binance funding history（F2用同時取得。認証不要） */
+/** Binance funding history（F2用同時取得。認証不要）
+ * ⚠ GitHub Actions（米国IP）では fapi.binance.com が 451 を返すためスキップ扱い。
+ *   451/403 はグレースフルスキップ→空配列を返す。F2イベントペアの既存永続化ファイルは保持される。
+ *   それ以外のHTTPエラーは通常通りthrowする。
+ */
 async function fetchBinanceFundingHistory(symbol: string, startTimeMs: number, endTimeMs: number): Promise<FundingEvent[]> {
   const url = `https://fapi.binance.com/fapi/v1/fundingRate?symbol=${symbol}&startTime=${startTimeMs}&endTime=${endTimeMs}&limit=1000`;
   log(`  GET ${url}`);
-  const data = await fetchJson(url) as { fundingTime: number; fundingRate: string }[];
-  log(`  Binance funding ${symbol}: ${data.length}件`);
-  return data.map(d => ({ timestampMs: d.fundingTime, date: dateKey(new Date(d.fundingTime)), rate: parseFloat(d.fundingRate) }));
+  try {
+    const data = await fetchJson(url) as { fundingTime: number; fundingRate: string }[];
+    log(`  Binance funding ${symbol}: ${data.length}件`);
+    return data.map(d => ({ timestampMs: d.fundingTime, date: dateKey(new Date(d.fundingTime)), rate: parseFloat(d.fundingRate) }));
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes('HTTP 451') || msg.includes('HTTP 403')) {
+      log(`  ⚠ WARN Binance funding ${symbol}: ジオブロック（${msg.split('\n')[0]}）— F2イベントペア取得スキップ（既存ファイル保持）`);
+      return [];
+    }
+    throw err;
+  }
 }
 
 // ============================================================
