@@ -4,10 +4,12 @@
 
 ## Current Focus
 - [x] プロジェクト構成・スクリプト実装完了
-- [ ] Fooocus で raw_images/ に画像生成（手動）
-- [ ] `python pipeline.py process` で背景透明化
+- [x] パイプライン全ステップ動作確認済み（テスト画像で検証）
+- [x] prompts/emotion_prompts.json 生成済み（12種）
+- [ ] **次のステップ**: Fooocusで raw_images/ に本番画像生成（手動）
+- [ ] rembg インストール後、`python pipeline.py process` で背景透明化
 - [ ] `python pipeline.py validate` でLINE仕様チェック
-- [ ] `python pipeline.py metadata` で申請セット作成
+- [ ] `python pipeline.py metadata` で申請セット最終作成
 
 ## Quick Start
 
@@ -22,12 +24,16 @@ pip install -r requirements.txt
 # Step 1: プロンプト生成 (prompts/emotion_prompts.json を出力)
 python pipeline.py prompts
 
-# Step 2: Fooocusで raw_images/ に画像生成（手動）
+# [動作テスト用] ダミー画像でパイプライン動作確認
+python tools/create_test_images.py
+python pipeline.py all
 
-# Step 3: 一括後処理
+# Step 2: Fooocusで raw_images/ に本番画像を生成（手動 / http://localhost:7865）
+
+# Step 3: 一括後処理（背景透明化 + 512×512リサイズ）
 python pipeline.py process
 
-# Step 4: 検証
+# Step 4: LINE仕様チェック
 python pipeline.py validate
 
 # Step 5: 申請セット作成

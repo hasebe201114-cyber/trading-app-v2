@@ -1,0 +1,158 @@
+[
+  {
+    "emotion": "happy",
+    "prompt": "kawaii piano teacher character, anime style, smiling brightly, energetic, chibi proportions, simple linework, expressive eyes, no background, transparent, white outline stroke, professional illustration, vibrant colors, 512x512, high quality",
+    "negative_prompt": "background, watermark, text, blurry, low quality, realistic, 3d, photorealistic, dark colors",
+    "filename": "sticker_happy.png",
+    "fooocus_settings": {
+      "sampler": "DPM++ 2M Karras",
+      "steps": 25,
+      "guidance_scale": 7.0,
+      "width": 512,
+      "height": 512
+    }
+  },
+  {
+    "emotion": "concentrated",
+    "prompt": "kawaii piano teacher character, anime style, focused expression, thinking, chibi proportions, simple linework, expressive eyes, no background, transparent, white outline stroke, professional illustration, vibrant colors, 512x512, high quality",
+    "negative_prompt": "background, watermark, text, blurry, low quality, realistic, 3d, photorealistic, dark colors",
+    "filename": "sticker_concentrated.png",
+    "fooocus_settings": {
+      "sampler": "DPM++ 2M Karras",
+      "steps": 25,
+      "guidance_scale": 7.0,
+      "width": 512,
+      "height": 512
+    }
+  },
+  {
+    "emotion": "tired",
+    "prompt": "kawaii piano teacher character, anime style, sleepy eyes, yawning, chibi proportions, simple linework, expressive eyes, no background, transparent, white outline stroke, professional illustration, vibrant colors, 512x512, high quality",
+    "negative_prompt": "background, watermark, text, blurry, low quality, realistic, 3d, photorealistic, dark colors",
+    "filename": "sticker_tired.png",
+    "fooocus_settings": {
+      "sampler": "DPM++ 2M Karras",
+      "steps": 25,
+      "guidance_scale": 7.0,
+      "width": 512,
+      "height": 512
+    }
+  },
+  {
+    "emotion": "excited",
+    "prompt": "kawaii piano teacher character, anime style, jumping, arms up, chibi proportions, simple linework, expressive eyes, no background, transparent, white outline stroke, professional illustration, vibrant colors, 512x512, high quality",
+    "negative_prompt": "background, watermark, text, blurry, low quality, realistic, 3d, photorealistic, dark colors",
+    "filename": "sticker_excited.png",
+    "fooocus_settings": {
+      "sampler": "DPM++ 2M Karras",
+      "steps": 25,
+      "guidance_scale": 7.0,
+      "width": 512,
+      "height": 512
+    }
+  },
+  {
+    "emotion": "sad",
+    "prompt": "kawaii piano teacher character, anime style, downturned mouth, teary, chibi proportions, simple linework, expressive eyes, no background, transparent, white outline stroke, professional illustration, vibrant colors, 512x512, high quality",
+    "negative_prompt": "background, watermark, text, blurry, low quality, realistic, 3d, photorealistic, dark colors",
+    "filename": "sticker_sad.png",
+    "fooocus_settings": {
+      "sampler": "DPM++ 2M Karras",
+      "steps": 25,
+      "guidance_scale": 7.0,
+      "width": 512,
+      "height": 512
+    }
+  },
+  {
+    "emotion": "proud",
+    "prompt": "kawaii piano teacher character, anime style, chest out, confident, chibi proportions, simple linework, expressive eyes, no background, transparent, white outline stroke, professional illustration, vibrant colors, 512x512, high quality",
+    "negative_prompt": "background, watermark, text, blurry, low quality, realistic, 3d, photorealistic, dark colors",
+    "filename": "sticker_proud.png",
+    "fooocus_settings": {
+      "sampler": "DPM++ 2M Karras",
+      "steps": 25,
+      "guidance_scale": 7.0,
+      "width": 512,
+      "height": 512
+    }
+  },
+  {
+    "emotion": "frustrated",
+    "prompt": "kawaii piano teacher character, anime style, furrowed brows, grumpy, chibi proportions, simple linework, expressive eyes, no background, transparent, white outline stroke, professional illustration, vibrant colors, 512x512, high quality",
+    "negative_prompt": "background, watermark, text, blurry, low quality, realistic, 3d, photorealistic, dark colors",
+    "filename": "sticker_frustrated.png",
+    "fooocus_settings": {
+      "sampler": "DPM++ 2M Karras",
+      "steps": 25,
+      "guidance_scale": 7.0,
+      "width": 512,
+      "height": 512
+    }
+  },
+  {
+    "emotion": "encouragement",
+    "prompt": "kawaii piano teacher character, anime style, thumbs up, supportive pose, chibi proportions, simple linework, expressive eyes, no background, transparent, white outline stroke, professional illustration, vibrant colors, 512x512, high quality",
+    "negative_prompt": "background, watermark, text, blurry, low quality, realistic, 3d, photorealistic, dark colors",
+    "filename": "sticker_encouragement.png",
+    "fooocus_settings": {
+      "sampler": "DPM++ 2M Karras",
+      "steps": 25,
+      "guidance_scale": 7.0,
+      "width": 512,
+      "height": 512
+    }
+  },
+  {
+    "emotion": "thanks",
+    "prompt": "kawaii piano teacher character, anime style, hands together, grateful expression, chibi proportions, simple linework, expressive eyes, no background, transparent, white outline stroke, professional illustration, vibrant colors, 512x512, high quality",
+    "negative_prompt": "background, watermark, text, blurry, low quality, realistic, 3d, photorealistic, dark colors",
+    "filename": "sticker_thanks.png",
+    "fooocus_settings": {
+      "sampler": "DPM++ 2M Karras",
+      "steps": 25,
+      "guidance_scale": 7.0,
+      "width": 512,
+      "height": 512
+    }
+  },
+  {
+    "emotion": "surprised",
+    "prompt": "kawaii piano teacher character, anime style, wide eyes, open mouth, chibi proportions, simple linework, expressive eyes, no background, transparent, white outline stroke, professional illustration, vibrant colors, 512x512, high quality",
+    "negative_prompt": "background, watermark, text, blurry, low quality, realistic, 3d, photorealistic, dark colors",
+    "filename": "sticker_surprised.png",
+    "fooocus_settings": {
+      "sampler": "DPM++ 2M Karras",
+      "steps": 25,
+      "guidance_scale": 7.0,
+      "width": 512,
+      "height": 512
+    }
+  },
+  {
+    "emotion": "nervous",
+    "prompt": "kawaii piano teacher character, anime style, sweating, anxious expression, chibi proportions, simple linework, expressive eyes, no background, transparent, white outline stroke, professional illustration, vibrant colors, 512x512, high quality",
+    "negative_prompt": "background, watermark, text, blurry, low quality, realistic, 3d, photorealistic, dark colors",
+    "filename": "sticker_nervous.png",
+    "fooocus_settings": {
+      "sampler": "DPM++ 2M Karras",
+      "steps": 25,
+      "guidance_scale": 7.0,
+      "width": 512,
+      "height": 512
+    }
+  },
+  {
+    "emotion": "love",
+    "prompt": "kawaii piano teacher character, anime style, heart eyes, blushing, chibi proportions, simple linework, expressive eyes, no background, transparent, white outline stroke, professional illustration, vibrant colors, 512x512, high quality",
+    "negative_prompt": "background, watermark, text, blurry, low quality, realistic, 3d, photorealistic, dark colors",
+    "filename": "sticker_love.png",
+    "fooocus_settings": {
+      "sampler": "DPM++ 2M Karras",
+      "steps": 25,
+      "guidance_scale": 7.0,
+      "width": 512,
+      "height": 512
+    }
+  }
+]

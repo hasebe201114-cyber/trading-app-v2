@@ -12,13 +12,12 @@ try:
     REMBG_AVAILABLE = True
 except ImportError:
     REMBG_AVAILABLE = False
-    print("⚠️  rembg が未インストールです。`pip install rembg` を実行してください。")
 
 from config import RAW_IMAGES_DIR, PROCESSED_IMAGES_DIR, STICKER_SIZE, FRAME_SIZE, MAX_FILE_SIZE_KB
 
 
 def remove_background(img: Image.Image) -> Image.Image:
-    """コントラスト強調後に背景除去。rembg が使えない場合は元画像を返す。"""
+    """コントラスト強調後に背景除去。rembg が使えない場合は元画像をRGBAで返す。"""
     if not REMBG_AVAILABLE:
         return img.convert("RGBA")
 
@@ -72,6 +71,10 @@ def process_sticker_images(
     if not png_files:
         print(f"⚠️  {input_path} に PNG ファイルが見つかりません。")
         return 0
+
+    if not REMBG_AVAILABLE:
+        print("⚠️  rembg 未インストール: 背景除去をスキップして処理します")
+        print("   本番時は `pip install rembg` でインストールしてください\n")
 
     processed = 0
     for img_file in png_files:
