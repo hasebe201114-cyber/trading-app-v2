@@ -35,17 +35,24 @@ jobs:
         run: |
           node --experimental-strip-types scripts/bitget-carry-forward-paper.ts
 
+      - name: Sync forward data to public folder (web app)
+        run: |
+          mkdir -p public/data/forward
+          cp research/EXP-OBS000032/10-result/forward/forward-interim-metrics.json public/data/forward/
+          cp research/EXP-OBS000032/10-result/forward/forward-paper-ledger-btc.json public/data/forward/
+          cp research/EXP-OBS000032/10-result/forward/forward-paper-ledger-eth.json public/data/forward/
+
       - name: Commit and push results
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # 変更があった場合のみコミット（冪等実行でも空コミットしない）
-          if git diff --quiet research/EXP-OBS000032/10-result/forward/; then
+          # research/ と public/data/forward/ 両方を対象に変更チェック
+          if git diff --quiet research/EXP-OBS000032/10-result/forward/ public/data/forward/; then
             echo "No changes to forward calibration results — skipping commit"
           else
-            git add research/EXP-OBS000032/10-result/forward/
+            git add research/EXP-OBS000032/10-result/forward/ public/data/forward/
             LIVE_DAYS=$(node -e "
               const fs = require('fs');
               const path = 'research/EXP-OBS000032/10-result/forward/forward-interim-metrics.json';
