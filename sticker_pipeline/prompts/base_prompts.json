@@ -1,0 +1,11 @@
+{
+  "base_template": "kawaii piano teacher character, anime style, {emotion}, chibi proportions, simple linework, expressive eyes, no background, transparent, white outline stroke, professional illustration, vibrant colors, 512x512, high quality",
+  "negative_prompt": "background, watermark, text, blurry, low quality, realistic, 3d, photorealistic, dark colors",
+  "recommended_settings": {
+    "sampler": "DPM++ 2M Karras",
+    "steps": 25,
+    "guidance_scale": 7.0,
+    "width": 512,
+    "height": 512
+  }
+}

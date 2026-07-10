@@ -1,0 +1,13 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# 生成画像（容量大）
+raw_images/*.png
+processed_images/*.png
+sticker_sets/
+
+# rembgモデルキャッシュ
+.u2net/
