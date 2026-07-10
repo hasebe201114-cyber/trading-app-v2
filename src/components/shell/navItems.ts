@@ -1,4 +1,4 @@
-import { Home, LineChart, Radio, BarChart3, Settings } from 'lucide-react';
+import { Home, LineChart, Radio, BarChart3, TrendingUp, Settings } from 'lucide-react';
 
 export interface NavItem {
   path: string;
@@ -12,5 +12,6 @@ export const NAV_ITEMS: NavItem[] = [
   { path: '/patterns', label: 'パターン分析', icon: LineChart },
   { path: '/signals', label: 'シグナル', icon: Radio },
   { path: '/evaluation', label: '評価', icon: BarChart3 },
+  { path: '/forward', label: 'フォワード', icon: TrendingUp },
   { path: '/settings', label: '設定', icon: Settings },
 ];

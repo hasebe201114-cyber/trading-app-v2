@@ -6,6 +6,7 @@ import { HomeScreen } from './components/screens/HomeScreen';
 import { PatternAnalysisScreen } from './components/screens/PatternAnalysisScreen';
 import { SignalsScreen } from './components/screens/SignalsScreen';
 import { EvaluationScreen } from './components/screens/EvaluationScreen';
+import { ForwardCalibrationScreen } from './components/screens/ForwardCalibrationScreen';
 import { SettingsScreen } from './components/screens/SettingsScreen';
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ function App() {
             <Route path="/patterns" element={<PatternAnalysisScreen />} />
             <Route path="/signals" element={<SignalsScreen />} />
             <Route path="/evaluation" element={<EvaluationScreen />} />
+            <Route path="/forward" element={<ForwardCalibrationScreen />} />
             <Route path="/settings" element={<SettingsScreen />} />
           </Route>
         </Routes>
