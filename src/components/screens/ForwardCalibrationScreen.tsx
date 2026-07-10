@@ -18,6 +18,12 @@ const fmt1 = (v: number | null | undefined, suffix = '') =>
 const fmtMoney = (v: number) =>
   v >= 10000 ? `${(v / 10000).toFixed(1)}万円` : `${Math.round(v).toLocaleString()}円`;
 
+// warmup最終日の累積値を求め、live期間の収益率を0基準にするオフセット
+const getLiveOffset = (rows: LedgerRow[]) => {
+  const warmup = rows.filter(r => r.phase === 'warmup');
+  return warmup[warmup.length - 1]?.sleeve_cumulative_return_pct ?? 0;
+};
+
 // ── ゲート状態バッジ ──────────────────────────────────────
 function GateBadge({ value, label, sub }: { value: boolean | null; label: string; sub?: string }) {
   const color =
@@ -41,11 +47,12 @@ function GateBadge({ value, label, sub }: { value: boolean | null; label: string
 function CumulativeChart({ rows, asset }: { rows: LedgerRow[]; asset: 'BTC' | 'ETH' }) {
   const uid = useId();
   const color = asset === 'BTC' ? '#3B82F6' : '#14B8A6';
+  const liveOffset = getLiveOffset(rows);
   const liveRows = rows.filter(r => r.phase === 'live');
   const data = liveRows.map((r, i) => ({
     day: i + 1,
-    date: r.date_utc.slice(5), // MM-DD
-    cum: parseFloat(r.sleeve_cumulative_return_pct.toFixed(3)),
+    date: r.date_utc.slice(5),
+    cum: parseFloat((r.sleeve_cumulative_return_pct - liveOffset).toFixed(3)),
     daily: parseFloat(r.daily_net_pnl_bps.toFixed(3)),
   }));
 
@@ -83,6 +90,7 @@ function ProjectionBandChart({
 }: { rows: LedgerRow[]; proj: Projection90d | undefined; asset: 'BTC' | 'ETH' }) {
   const accentColor = asset === 'BTC' ? '#3B82F6' : '#14B8A6';
   const wStar = W_STAR[asset];
+  const liveOffset = getLiveOffset(rows);
   const liveRows = rows.filter(r => r.phase === 'live');
   const liveDays = liveRows.length;
 
@@ -90,14 +98,14 @@ function ProjectionBandChart({
     const points: {
       day: number;
       actual: number | null;
-      p10base: number | null;    // stacked lower (transparent)
-      p10p90band: number | null; // stacked upper (visible band = p90 - p10)
+      p10base: number | null;
+      p10p90band: number | null;
       p50: number | null;
     }[] = [];
 
     for (let day = 0; day <= LIVE_TARGET; day++) {
       const actualVal = day <= liveDays && day > 0
-        ? parseFloat(liveRows[day - 1].sleeve_cumulative_return_pct.toFixed(3))
+        ? parseFloat((liveRows[day - 1].sleeve_cumulative_return_pct - liveOffset).toFixed(3))
         : day === 0 ? 0 : null;
 
       let p10base: number | null = null;
@@ -118,7 +126,7 @@ function ProjectionBandChart({
       points.push({ day, actual: actualVal, p10base, p10p90band, p50 });
     }
     return points;
-  }, [liveRows, proj, wStar]);
+  }, [liveRows, liveOffset, proj, wStar]);
 
   const hasProjection = proj?.p50_cumBps != null;
 
@@ -226,10 +234,12 @@ function SimulationPanel({
 
   const btcLive = btcRows.filter(r => r.phase === 'live');
   const ethLive = ethRows.filter(r => r.phase === 'live');
+  const btcOffset = getLiveOffset(btcRows);
+  const ethOffset = getLiveOffset(ethRows);
 
-  // 現在の実績累積収益率（BTC+ETH平均）
-  const btcActualPct = btcLive[btcLive.length - 1]?.sleeve_cumulative_return_pct ?? 0;
-  const ethActualPct = ethLive[ethLive.length - 1]?.sleeve_cumulative_return_pct ?? 0;
+  // 現在の実績累積収益率（ライブ開始基準・BTC+ETH平均）
+  const btcActualPct = (btcLive[btcLive.length - 1]?.sleeve_cumulative_return_pct ?? btcOffset) - btcOffset;
+  const ethActualPct = (ethLive[ethLive.length - 1]?.sleeve_cumulative_return_pct ?? ethOffset) - ethOffset;
   const avgActualPct = (btcActualPct + ethActualPct) / 2;
 
   // 90日予測（P10/P50/P90 sleeve return %）
@@ -336,11 +346,14 @@ export const ForwardCalibrationScreen = () => {
 
   const { metrics, btcLedger, ethLedger } = data;
   const ledger = asset === 'BTC' ? btcLedger : ethLedger;
+  const liveOffset = getLiveOffset(ledger);
   const liveRows = ledger.filter(r => r.phase === 'live');
   const liveDays = metrics.liveDaysCount[asset];
   const gateMetrics = metrics.f1234[asset];
   const proj = metrics.projection90d?.[asset];
   const progressPct = Math.min(100, (liveDays / LIVE_TARGET) * 100);
+  // ライブ開始基準の現在累積収益率
+  const liveCumPct = (liveRows[liveRows.length - 1]?.sleeve_cumulative_return_pct ?? liveOffset) - liveOffset;
 
   return (
     <div className="p-4 sm:p-6 space-y-5">
@@ -409,10 +422,10 @@ export const ForwardCalibrationScreen = () => {
         {liveRows.length > 0 ? (
           <>
             <div className="flex items-baseline gap-3 mb-3">
-              <span className={`text-2xl font-700 font-mono tabular-nums ${(liveRows[liveRows.length - 1]?.sleeve_cumulative_return_pct ?? 0) >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
-                {fmt1(liveRows[liveRows.length - 1]?.sleeve_cumulative_return_pct, '%')}
+              <span className={`text-2xl font-700 font-mono tabular-nums ${liveCumPct >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
+                {fmt1(liveCumPct, '%')}
               </span>
-              <span className="text-sm text-fg-3">Day {liveDays} 時点</span>
+              <span className="text-sm text-fg-3">Day {liveDays} 時点（ライブ開始比）</span>
             </div>
             <CumulativeChart rows={ledger} asset={asset} />
           </>
