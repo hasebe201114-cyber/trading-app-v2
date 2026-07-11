@@ -26,6 +26,13 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Debug — verify PAT auth (temporary, remove once resolved)
+        run: |
+          echo "--- whoami ---"
+          gh api user --jq .login || echo "AUTH FAILED (token invalid/expired)"
+          echo "--- repo access ---"
+          gh api repos/hasebe201114-cyber/btc-carry-executor --jq '.name, .private' || echo "REPO ACCESS FAILED (scope/permission issue)"
+
       - name: Fetch latest status + run history from btc-carry-executor
         run: |
           mkdir -p /tmp/carry-status
