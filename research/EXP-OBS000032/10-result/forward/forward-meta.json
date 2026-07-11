@@ -10,8 +10,8 @@
   "warmupBackfillDays": 30,
   "liveDaysRequiredForGate": 90,
   "currentLiveDaysCount": {
-    "BTC": 6,
-    "ETH": 6
+    "BTC": 7,
+    "ETH": 7
   },
   "wStar": {
     "BTC": 3.629,
@@ -62,7 +62,8 @@
     "bitgetPerpMarkDaily": "https://api.bitget.com/api/v2/mix/market/history-mark-candles?symbol={symbol}&productType=USDT-FUTURES&granularity=1Dutc&limit={n}",
     "bitgetFundingHistory": "https://api.bitget.com/api/v2/mix/market/history-fund-rate?symbol={symbol}&productType=USDT-FUTURES&pageSize=100&pageNo={n}（空応答で終了。length<pageSizeを終了条件に使わない）",
     "bitgetCurrentFundRate": "https://api.bitget.com/api/v2/mix/market/current-fund-rate?symbol={symbol}&productType=USDT-FUTURES（診断用スナップショットのみ。ledger会計には使わない。理由: 本スクリプトはanchor=最終完全経過UTC日のみを処理するため、その日のfunding 3イベントは常にhistory-fund-rateで確定済み。よってcurrent-fund-rate（当日未確定分）はledger会計上不要。§2-2の「funding（当日/次回）」要件は診断ログでカバーする設計判断）",
-    "binanceFunding": "https://fapi.binance.com/fapi/v1/fundingRate?symbol={symbol}&startTime={ms}&endTime={ms}&limit=1000"
+    "binanceFunding": "https://fapi.binance.com/fapi/v1/fundingRate?symbol={symbol}&startTime={ms}&endTime={ms}&limit=1000",
+    "binanceFundingViaProxy": true
   },
   "dateAnchorDesignNote": "日次実行は「今日」でなく「最終完全経過UTC日（anchor=today-1）」を対象とする。理由：Bitget日足candle(1Dutc)は当日分が実行時刻までの部分足になり得るため、完結済みの前日分のみを確定値として記録し先読み/部分値混入を避ける設計判断。",
   "markAvailability": {
@@ -185,6 +186,34 @@
           "fetchWindow": {
             "start": "2026-07-01",
             "end": "2026-07-09"
+          }
+        }
+      }
+    },
+    {
+      "runTimestampUTC": "2026-07-11T01:11:34.019Z",
+      "anchorDateKey": "2026-07-10",
+      "gitCommit": "f0f8c754d4625768e0a62a0ac853efbc88a57d50",
+      "nodeVersion": "v22.22.2",
+      "perAsset": {
+        "BTC": {
+          "mode": "append",
+          "newRowsCount": 1,
+          "markAvailable": true,
+          "markError": null,
+          "fetchWindow": {
+            "start": "2026-07-02",
+            "end": "2026-07-10"
+          }
+        },
+        "ETH": {
+          "mode": "append",
+          "newRowsCount": 1,
+          "markAvailable": true,
+          "markError": null,
+          "fetchWindow": {
+            "start": "2026-07-02",
+            "end": "2026-07-10"
           }
         }
       }

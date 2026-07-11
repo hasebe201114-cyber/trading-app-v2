@@ -32,6 +32,11 @@ jobs:
           node-version: "22"
 
       - name: Run forward calibration script
+        env:
+          # fapi.binance.com は GitHub Actions（米国IP）から451地理ブロックを受けるため、
+          # 東京リージョンのCloud Functionsプロキシ（functions/index.js）経由でF2用funding dataを取得する。
+          BINANCE_PROXY_URL: ${{ secrets.BINANCE_PROXY_URL }}
+          BINANCE_PROXY_TOKEN: ${{ secrets.BINANCE_PROXY_TOKEN }}
         run: |
           node --experimental-strip-types scripts/bitget-carry-forward-paper.ts
 

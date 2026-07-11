@@ -1,0 +1,12 @@
+{
+  "name": "functions",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-functions": "^6.3.1"
+  }
+}

@@ -238,15 +238,26 @@ async function fetchBitgetCurrentFundRate(symbol: string): Promise<Record<string
 }
 
 /** Binance funding history（F2用同時取得。認証不要）
- * ⚠ GitHub Actions（米国IP）では fapi.binance.com が 451 を返すためスキップ扱い。
- *   451/403 はグレースフルスキップ→空配列を返す。F2イベントペアの既存永続化ファイルは保持される。
+ * ⚠ GitHub Actions（米国IP）では fapi.binance.com が 451 を返す。
+ *   BINANCE_PROXY_URL / BINANCE_PROXY_TOKEN が設定されている場合は、東京リージョンの
+ *   Cloud Functionsプロキシ（functions/index.js の binanceFundingProxy）経由でfundingRateを
+ *   中継取得する（地理ブロック回避）。未設定時（ローカル実行等）は従来通り直接fapi.binance.comを叩く。
+ *   それでも451/403が出た場合はグレースフルスキップ→空配列を返す（F2イベントペアの既存永続化ファイルは保持）。
  *   それ以外のHTTPエラーは通常通りthrowする。
  */
 async function fetchBinanceFundingHistory(symbol: string, startTimeMs: number, endTimeMs: number): Promise<FundingEvent[]> {
-  const url = `https://fapi.binance.com/fapi/v1/fundingRate?symbol=${symbol}&startTime=${startTimeMs}&endTime=${endTimeMs}&limit=1000`;
-  log(`  GET ${url}`);
+  const proxyUrl = process.env.BINANCE_PROXY_URL;
+  const proxyToken = process.env.BINANCE_PROXY_TOKEN;
+  const params = `symbol=${symbol}&startTime=${startTimeMs}&endTime=${endTimeMs}&limit=1000`;
+  const url = proxyUrl ? `${proxyUrl}?${params}` : `https://fapi.binance.com/fapi/v1/fundingRate?${params}`;
+  log(`  GET ${url}${proxyUrl ? ' (via binanceFundingProxy)' : ''}`);
   try {
-    const data = await fetchJson(url) as { fundingTime: number; fundingRate: string }[];
+    const res = await fetch(url, proxyUrl && proxyToken ? { headers: { 'x-proxy-token': proxyToken } } : undefined);
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`HTTP ${res.status} for ${url}\n${text.slice(0, 300)}`);
+    }
+    const data = await res.json() as { fundingTime: number; fundingRate: string }[];
     log(`  Binance funding ${symbol}: ${data.length}件`);
     return data.map(d => ({ timestampMs: d.fundingTime, date: dateKey(new Date(d.fundingTime)), rate: parseFloat(d.fundingRate) }));
   } catch (err: unknown) {
@@ -1074,6 +1085,7 @@ async function main(): Promise<void> {
       bitgetFundingHistory: 'https://api.bitget.com/api/v2/mix/market/history-fund-rate?symbol={symbol}&productType=USDT-FUTURES&pageSize=100&pageNo={n}（空応答で終了。length<pageSizeを終了条件に使わない）',
       bitgetCurrentFundRate: 'https://api.bitget.com/api/v2/mix/market/current-fund-rate?symbol={symbol}&productType=USDT-FUTURES（診断用スナップショットのみ。ledger会計には使わない。理由: 本スクリプトはanchor=最終完全経過UTC日のみを処理するため、その日のfunding 3イベントは常にhistory-fund-rateで確定済み。よってcurrent-fund-rate（当日未確定分）はledger会計上不要。§2-2の「funding（当日/次回）」要件は診断ログでカバーする設計判断）',
       binanceFunding: 'https://fapi.binance.com/fapi/v1/fundingRate?symbol={symbol}&startTime={ms}&endTime={ms}&limit=1000',
+      binanceFundingViaProxy: process.env.BINANCE_PROXY_URL ? true : false,
     },
     dateAnchorDesignNote: '日次実行は「今日」でなく「最終完全経過UTC日（anchor=today-1）」を対象とする。理由：Bitget日足candle(1Dutc)は当日分が実行時刻までの部分足になり得るため、完結済みの前日分のみを確定値として記録し先読み/部分値混入を避ける設計判断。',
     markAvailability: Object.fromEntries(results.map(r => [r.assetCode, { available: r.marketData.markAvailable, error: r.marketData.markError ?? null }])),

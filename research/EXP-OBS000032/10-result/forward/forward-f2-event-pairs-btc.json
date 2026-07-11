@@ -1,1 +1,156 @@
-[]
+[
+  {
+    "event_hour_utc": "2026-07-04T00",
+    "date_utc": "2026-07-04",
+    "bitget_funding_rate": -0.000082,
+    "binance_funding_rate": 0.0001,
+    "match": 0
+  },
+  {
+    "event_hour_utc": "2026-07-04T08",
+    "date_utc": "2026-07-04",
+    "bitget_funding_rate": 0.00001,
+    "binance_funding_rate": 0.0001,
+    "match": 1
+  },
+  {
+    "event_hour_utc": "2026-07-04T16",
+    "date_utc": "2026-07-04",
+    "bitget_funding_rate": 0.000008,
+    "binance_funding_rate": 0.0000948,
+    "match": 1
+  },
+  {
+    "event_hour_utc": "2026-07-05T00",
+    "date_utc": "2026-07-05",
+    "bitget_funding_rate": -0.000029,
+    "binance_funding_rate": 0.00009533,
+    "match": 0
+  },
+  {
+    "event_hour_utc": "2026-07-05T08",
+    "date_utc": "2026-07-05",
+    "bitget_funding_rate": 0.000051,
+    "binance_funding_rate": 0.00008873,
+    "match": 1
+  },
+  {
+    "event_hour_utc": "2026-07-05T16",
+    "date_utc": "2026-07-05",
+    "bitget_funding_rate": 0.000023,
+    "binance_funding_rate": 0.00008608,
+    "match": 1
+  },
+  {
+    "event_hour_utc": "2026-07-06T00",
+    "date_utc": "2026-07-06",
+    "bitget_funding_rate": 0.000003,
+    "binance_funding_rate": 0.000077,
+    "match": 1
+  },
+  {
+    "event_hour_utc": "2026-07-06T08",
+    "date_utc": "2026-07-06",
+    "bitget_funding_rate": 0.000048,
+    "binance_funding_rate": 0.0000612,
+    "match": 1
+  },
+  {
+    "event_hour_utc": "2026-07-06T16",
+    "date_utc": "2026-07-06",
+    "bitget_funding_rate": 0.0001,
+    "binance_funding_rate": 0.0001,
+    "match": 1
+  },
+  {
+    "event_hour_utc": "2026-07-07T00",
+    "date_utc": "2026-07-07",
+    "bitget_funding_rate": 0.000065,
+    "binance_funding_rate": 0.0001,
+    "match": 1
+  },
+  {
+    "event_hour_utc": "2026-07-07T08",
+    "date_utc": "2026-07-07",
+    "bitget_funding_rate": 0.000093,
+    "binance_funding_rate": 0.00005792,
+    "match": 1
+  },
+  {
+    "event_hour_utc": "2026-07-07T16",
+    "date_utc": "2026-07-07",
+    "bitget_funding_rate": 0.000028,
+    "binance_funding_rate": 0.00006825,
+    "match": 1
+  },
+  {
+    "event_hour_utc": "2026-07-08T00",
+    "date_utc": "2026-07-08",
+    "bitget_funding_rate": 0.00004,
+    "binance_funding_rate": 0.00004846,
+    "match": 1
+  },
+  {
+    "event_hour_utc": "2026-07-08T08",
+    "date_utc": "2026-07-08",
+    "bitget_funding_rate": 0.000072,
+    "binance_funding_rate": 0.00000724,
+    "match": 1
+  },
+  {
+    "event_hour_utc": "2026-07-08T16",
+    "date_utc": "2026-07-08",
+    "bitget_funding_rate": 0.0001,
+    "binance_funding_rate": 0.00007171,
+    "match": 1
+  },
+  {
+    "event_hour_utc": "2026-07-09T00",
+    "date_utc": "2026-07-09",
+    "bitget_funding_rate": 0.00004,
+    "binance_funding_rate": 0.0000616,
+    "match": 1
+  },
+  {
+    "event_hour_utc": "2026-07-09T08",
+    "date_utc": "2026-07-09",
+    "bitget_funding_rate": -0.000023,
+    "binance_funding_rate": 0.00006615,
+    "match": 0
+  },
+  {
+    "event_hour_utc": "2026-07-09T16",
+    "date_utc": "2026-07-09",
+    "bitget_funding_rate": 0.000024,
+    "binance_funding_rate": 0.00004912,
+    "match": 1
+  },
+  {
+    "event_hour_utc": "2026-07-10T00",
+    "date_utc": "2026-07-10",
+    "bitget_funding_rate": 0.000018,
+    "binance_funding_rate": 0.00009058,
+    "match": 1
+  },
+  {
+    "event_hour_utc": "2026-07-10T08",
+    "date_utc": "2026-07-10",
+    "bitget_funding_rate": -0.00005,
+    "binance_funding_rate": 0.00007247,
+    "match": 0
+  },
+  {
+    "event_hour_utc": "2026-07-10T16",
+    "date_utc": "2026-07-10",
+    "bitget_funding_rate": 0.00003,
+    "binance_funding_rate": 0.00009508,
+    "match": 1
+  },
+  {
+    "event_hour_utc": "2026-07-11T00",
+    "date_utc": "2026-07-11",
+    "bitget_funding_rate": 0.0001,
+    "binance_funding_rate": 0.0001,
+    "match": 1
+  }
+]
