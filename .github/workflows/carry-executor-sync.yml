@@ -1,0 +1,75 @@
+name: Carry Executor Status Sync
+
+on:
+  schedule:
+    # Margin Monitor（btc-carry-executor側・毎4h）に少し遅らせて追従
+    - cron: "15 */4 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      contents: write   # public/data/carry-executor/ を commit・push するために必要
+
+    env:
+      GH_TOKEN: ${{ secrets.CARRY_EXECUTOR_PAT }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Fetch latest status + run history from btc-carry-executor
+        run: |
+          mkdir -p /tmp/carry-status
+
+          gh api -H "Accept: application/vnd.github.raw" \
+            repos/hasebe201114-cyber/btc-carry-executor/contents/status/latest-signal.json \
+            > /tmp/carry-status/latest-signal.json \
+            || { echo "latest-signal.json not available yet"; echo 'null' > /tmp/carry-status/latest-signal.json; }
+
+          gh api -H "Accept: application/vnd.github.raw" \
+            repos/hasebe201114-cyber/btc-carry-executor/contents/status/latest-margin.json \
+            > /tmp/carry-status/latest-margin.json \
+            || { echo "latest-margin.json not available yet"; echo 'null' > /tmp/carry-status/latest-margin.json; }
+
+          gh run list --repo hasebe201114-cyber/btc-carry-executor --limit 10 \
+            --json databaseId,name,status,conclusion,createdAt,event \
+            > /tmp/carry-status/runs.json \
+            || echo '[]' > /tmp/carry-status/runs.json
+
+      - name: Merge into public/data/carry-executor/status.json
+        run: |
+          mkdir -p public/data/carry-executor
+          node -e "
+            const fs = require('fs');
+            const read = (p) => { try { return JSON.parse(fs.readFileSync(p, 'utf-8')); } catch { return null; } };
+            const merged = {
+              syncedAtUTC: new Date().toISOString(),
+              signal: read('/tmp/carry-status/latest-signal.json'),
+              margin: read('/tmp/carry-status/latest-margin.json'),
+              runs: read('/tmp/carry-status/runs.json') ?? [],
+            };
+            fs.writeFileSync('public/data/carry-executor/status.json', JSON.stringify(merged, null, 2));
+          "
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # git diff --quiet だけだと public/data/carry-executor/ が未追跡（初回）の場合を
+          # 見逃すため、git status --porcelain（未追跡ファイルも拾う）で変更有無を判定する。
+          if [ -z "$(git status --porcelain public/data/carry-executor/)" ]; then
+            echo "No changes"
+          else
+            git add public/data/carry-executor/
+            git commit -m "chore(carry-executor): sync status $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push origin main
+          fi
