@@ -217,6 +217,34 @@
           }
         }
       }
+    },
+    {
+      "runTimestampUTC": "2026-07-11T04:12:29.115Z",
+      "anchorDateKey": "2026-07-10",
+      "gitCommit": "99b65309e5486d0ac1a8da15e8df9018c77f8a2c",
+      "nodeVersion": "v22.23.1",
+      "perAsset": {
+        "BTC": {
+          "mode": "noop",
+          "newRowsCount": 0,
+          "markAvailable": true,
+          "markError": null,
+          "fetchWindow": {
+            "start": "2026-07-04",
+            "end": "2026-07-10"
+          }
+        },
+        "ETH": {
+          "mode": "noop",
+          "newRowsCount": 0,
+          "markAvailable": true,
+          "markError": null,
+          "fetchWindow": {
+            "start": "2026-07-04",
+            "end": "2026-07-10"
+          }
+        }
+      }
     }
   ]
 }
