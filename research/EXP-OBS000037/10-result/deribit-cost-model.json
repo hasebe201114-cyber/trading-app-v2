@@ -5,9 +5,9 @@
   "scriptPath": "scripts/probe-deribit-cost-model.ts",
   "specReference": "research/EXP-OBS000037/00-spec-stage0.md",
   "executedBy": "B実装チーム (Quant Researcher)",
-  "runTimestampUTC": "2026-07-12T06:39:01.673Z",
-  "gitCommit": "8a50c8c16b46459f1fd837185a7f86e025a9e133",
-  "nodeVersion": "v22.22.2",
+  "runTimestampUTC": "2026-07-12T06:42:35.207Z",
+  "gitCommit": "a765773d4ed7148e5eaa54edc1f0d5243d5dbc9e",
+  "nodeVersion": "v22.23.1",
   "scope": {
     "assets": [
       "BTC"
@@ -77,28 +77,28 @@
       "instrumentName": "BTC-PERPETUAL",
       "requestUrl": "https://www.deribit.com/api/v2/public/get_order_book?instrument_name=BTC-PERPETUAL&depth=5",
       "status": 200,
-      "bestBid": 63723.5,
-      "bestAsk": 63724,
-      "midPrice": 63723.75,
+      "bestBid": 63740.5,
+      "bestAsk": 63741,
+      "midPrice": 63740.75,
       "spreadAbsolute": 0.5,
-      "spreadBps": 0.07846368112359992,
-      "bidSizeTop": 27480,
-      "askSizeTop": 314470,
-      "snapshotUtc": "2026-07-12T06:39:07.394Z"
+      "spreadBps": 0.07844275443887937,
+      "bidSizeTop": 153790,
+      "askSizeTop": 62300,
+      "snapshotUtc": "2026-07-12T06:42:38.678Z"
     },
     "selectedNearAtmOptions": [
       {
         "instrumentName": "BTC-12JUL26-63500-C",
         "requestUrl": "https://www.deribit.com/api/v2/public/get_order_book?instrument_name=BTC-12JUL26-63500-C&depth=5",
         "status": 200,
-        "bestBid": 0.0026,
-        "bestAsk": 0.0043,
-        "midPrice": 0.00345,
-        "spreadAbsolute": 0.0017000000000000001,
-        "spreadBps": 4927.536231884058,
+        "bestBid": 0.0028,
+        "bestAsk": 0.0045,
+        "midPrice": 0.0036499999999999996,
+        "spreadAbsolute": 0.0016999999999999997,
+        "spreadBps": 4657.534246575342,
         "bidSizeTop": 16,
         "askSizeTop": 16,
-        "snapshotUtc": "2026-07-12T06:39:03.949Z"
+        "snapshotUtc": "2026-07-12T06:42:36.350Z"
       },
       {
         "instrumentName": "BTC-12JUL26-64000-C",
@@ -109,22 +109,22 @@
         "midPrice": 0.00025,
         "spreadAbsolute": 0.00030000000000000003,
         "spreadBps": 12000.000000000002,
-        "bidSizeTop": 10.3,
-        "askSizeTop": 22.8,
-        "snapshotUtc": "2026-07-12T06:39:05.077Z"
+        "bidSizeTop": 42.3,
+        "askSizeTop": 25.7,
+        "snapshotUtc": "2026-07-12T06:42:37.126Z"
       },
       {
         "instrumentName": "BTC-12JUL26-63000-C",
         "requestUrl": "https://www.deribit.com/api/v2/public/get_order_book?instrument_name=BTC-12JUL26-63000-C&depth=5",
         "status": 200,
         "bestBid": 0.006,
-        "bestAsk": 0.0145,
-        "midPrice": 0.01025,
-        "spreadAbsolute": 0.0085,
-        "spreadBps": 8292.68292682927,
+        "bestAsk": 0.016,
+        "midPrice": 0.011,
+        "spreadAbsolute": 0.01,
+        "spreadBps": 9090.909090909092,
         "bidSizeTop": 8.3,
         "askSizeTop": 64.3,
-        "snapshotUtc": "2026-07-12T06:39:06.269Z"
+        "snapshotUtc": "2026-07-12T06:42:37.903Z"
       }
     ],
     "optionGreeksSnapshots": [
@@ -132,19 +132,19 @@
         "instrumentName": "BTC-12JUL26-63500-C",
         "requestUrl": "https://www.deribit.com/api/v2/public/ticker?instrument_name=BTC-12JUL26-63500-C",
         "status": 200,
-        "indexPrice": 63700.82,
-        "markPrice": 0.0036,
-        "bestBidPrice": 0.0026,
-        "bestAskPrice": 0.0043,
+        "indexPrice": 63728.52,
+        "markPrice": 0.004,
+        "bestBidPrice": 0.0028,
+        "bestAskPrice": 0.0045,
         "greeks": {
-          "delta": 0.78577,
-          "gamma": 0.00114,
-          "vega": 2.3058,
-          "theta": -37.12726,
-          "rho": 0.07678
+          "theta": -32.31021,
+          "delta": 0.82228,
+          "gamma": 0.00105,
+          "vega": 2.00781,
+          "rho": 0.0764
         },
         "raw": {
-          "timestamp": 1783838344073,
+          "timestamp": 1783838555612,
           "state": "open",
           "stats": {
             "high": 0.0135,
@@ -154,29 +154,29 @@
             "volume_usd": 4256.33
           },
           "greeks": {
-            "delta": 0.78577,
-            "gamma": 0.00114,
-            "vega": 2.3058,
-            "theta": -37.12726,
-            "rho": 0.07678
+            "theta": -32.31021,
+            "delta": 0.82228,
+            "gamma": 0.00105,
+            "vega": 2.00781,
+            "rho": 0.0764
           },
           "interest_rate": 0,
           "instrument_name": "BTC-12JUL26-63500-C",
-          "index_price": 63700.82,
+          "index_price": 63728.52,
           "last_price": 0.0135,
           "settlement_price": 0.01062814,
           "min_price": 0.0001,
-          "max_price": 0.0365,
+          "max_price": 0.037,
           "open_interest": 96.2,
-          "mark_price": 0.0036,
-          "best_ask_price": 0.0043,
-          "best_bid_price": 0.0026,
-          "mark_iv": 32.2,
+          "mark_price": 0.004,
+          "best_ask_price": 0.0045,
+          "best_bid_price": 0.0028,
+          "mark_iv": 32.18,
           "bid_iv": 0,
-          "ask_iv": 48.57,
-          "underlying_price": 63700.82,
+          "ask_iv": 47.11,
+          "underlying_price": 63728.52,
           "underlying_index": "index_price",
-          "estimated_delivery_price": 63700.82,
+          "estimated_delivery_price": 63728.52,
           "best_ask_amount": 16,
           "best_bid_amount": 16
         }
@@ -185,19 +185,19 @@
         "instrumentName": "BTC-12JUL26-64000-C",
         "requestUrl": "https://www.deribit.com/api/v2/public/ticker?instrument_name=BTC-12JUL26-64000-C",
         "status": 200,
-        "indexPrice": 63700.73,
+        "indexPrice": 63727.61,
         "markPrice": 0.0002,
         "bestBidPrice": 0.0001,
         "bestAskPrice": 0.0004,
         "greeks": {
-          "delta": 0.10197,
-          "gamma": 0.00076,
-          "vega": 1.40772,
-          "theta": -11.38632,
-          "rho": 0.00999
+          "theta": -13.36922,
+          "delta": 0.11793,
+          "gamma": 0.00086,
+          "vega": 1.52419,
+          "rho": 0.01099
         },
         "raw": {
-          "timestamp": 1783838346087,
+          "timestamp": 1783838556619,
           "state": "open",
           "stats": {
             "high": 0.0075,
@@ -207,50 +207,50 @@
             "volume_usd": 11123.05
           },
           "greeks": {
-            "delta": 0.10197,
-            "gamma": 0.00076,
-            "vega": 1.40772,
-            "theta": -11.38632,
-            "rho": 0.00999
+            "theta": -13.36922,
+            "delta": 0.11793,
+            "gamma": 0.00086,
+            "vega": 1.52419,
+            "rho": 0.01099
           },
           "interest_rate": 0,
           "instrument_name": "BTC-12JUL26-64000-C",
-          "index_price": 63700.73,
+          "index_price": 63727.61,
           "last_price": 0.0005,
           "settlement_price": 0.00427843,
           "min_price": 0.0001,
-          "max_price": 0.029,
+          "max_price": 0.0295,
           "open_interest": 174.5,
           "mark_price": 0.0002,
           "best_ask_price": 0.0004,
           "best_bid_price": 0.0001,
           "mark_iv": 29.68,
-          "bid_iv": 25.67,
-          "ask_iv": 38.04,
-          "underlying_price": 63700.73,
+          "bid_iv": 24.49,
+          "ask_iv": 36.7,
+          "underlying_price": 63727.61,
           "underlying_index": "index_price",
-          "estimated_delivery_price": 63700.73,
-          "best_ask_amount": 22.8,
-          "best_bid_amount": 10.3
+          "estimated_delivery_price": 63727.61,
+          "best_ask_amount": 25.7,
+          "best_bid_amount": 42.3
         }
       },
       {
         "instrumentName": "BTC-12JUL26-63000-C",
         "requestUrl": "https://www.deribit.com/api/v2/public/ticker?instrument_name=BTC-12JUL26-63000-C",
         "status": 200,
-        "indexPrice": 63700.73,
-        "markPrice": 0.011,
+        "indexPrice": 63727.61,
+        "markPrice": 0.0115,
         "bestBidPrice": 0.006,
-        "bestAskPrice": 0.0145,
+        "bestAskPrice": 0.016,
         "greeks": {
-          "delta": 0.9802,
-          "gamma": 0.00014,
-          "vega": 0.37963,
-          "theta": -8.22928,
-          "rho": 0.09514
+          "theta": -6.0507,
+          "delta": 0.98577,
+          "gamma": 0.00011,
+          "vega": 0.27913,
+          "rho": 0.09096
         },
         "raw": {
-          "timestamp": 1783838346087,
+          "timestamp": 1783838556619,
           "state": "open",
           "stats": {
             "high": 0.019,
@@ -260,29 +260,29 @@
             "volume_usd": 949.46
           },
           "greeks": {
-            "delta": 0.9802,
-            "gamma": 0.00014,
-            "vega": 0.37963,
-            "theta": -8.22928,
-            "rho": 0.09514
+            "theta": -6.0507,
+            "delta": 0.98577,
+            "gamma": 0.00011,
+            "vega": 0.27913,
+            "rho": 0.09096
           },
           "interest_rate": 0,
           "instrument_name": "BTC-12JUL26-63000-C",
-          "index_price": 63700.73,
+          "index_price": 63727.61,
           "last_price": 0.018,
           "settlement_price": 0.01799983,
           "min_price": 0.0001,
           "max_price": 0.0445,
           "open_interest": 99.3,
-          "mark_price": 0.011,
-          "best_ask_price": 0.0145,
+          "mark_price": 0.0115,
+          "best_ask_price": 0.016,
           "best_bid_price": 0.006,
           "mark_iv": 43.35,
           "bid_iv": 0,
-          "ask_iv": 158.3,
-          "underlying_price": 63700.73,
+          "ask_iv": 191.3,
+          "underlying_price": 63727.61,
           "underlying_index": "index_price",
-          "estimated_delivery_price": 63700.73,
+          "estimated_delivery_price": 63727.61,
           "best_ask_amount": 64.3,
           "best_bid_amount": 8.3
         }
@@ -294,8 +294,8 @@
     "perpMakerCommission": 0,
     "commissionSource": "API配信 (get_instruments kind=future の maker_commission/taker_commission フィールド)",
     "slippageEstimateNotionalUsd": 100000,
-    "buySideSlippageBps": 0.03923184056179996,
-    "sellSideSlippageBps": -0.03923184056179996,
+    "buySideSlippageBps": 0.03922137721943968,
+    "sellSideSlippageBps": -0.03922137721943968,
     "orderBookDepthUsed": 50
   },
   "d_integratedWeeklyCost": {
