@@ -77,6 +77,24 @@
       "dvolRowsFetched": 9,
       "priceSource": "deribit-tradingview",
       "priceRowsFetched": 9
+    },
+    {
+      "runTimestampUTC": "2026-07-12T06:46:31.495Z",
+      "anchorDateKey": "2026-07-11",
+      "gitCommit": "bda99b632c3703d689e261710459dc5a5068875f",
+      "nodeVersion": "v22.22.2",
+      "mode": "noop",
+      "newRowsAppended": 0,
+      "backfillCount": 0,
+      "rowCountBefore": 8,
+      "rowCountAfter": 8,
+      "dvolFetchWindow": {
+        "start": "2026-07-04",
+        "end": "2026-07-11"
+      },
+      "dvolRowsFetched": 9,
+      "priceSource": "deribit-tradingview",
+      "priceRowsFetched": 9
     }
   ]
 }
