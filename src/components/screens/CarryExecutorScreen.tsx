@@ -6,6 +6,7 @@ import {
   type WorkflowRun,
 } from '../../hooks/useCarryExecutorData';
 import { SectionBox } from '../../ui/components/SectionBox';
+import { formatJST } from '../../ui/utils/formatters';
 
 const WORKFLOW_NAMES = ['OBS000032 Daily Signal Check', 'OBS000032 Margin Monitor'];
 const TRACKED_SYMBOLS = ['BTCUSDT', 'ETHUSDT'];
@@ -15,8 +16,6 @@ const signalLabelJa = (signal: AssetSignal['signal']): string =>
 
 const sideLabelJa = (side: MarginPosition['side']): string =>
   side === 'long' ? 'ロング' : 'ショート';
-
-const fmtUTC = (iso: string) => iso.slice(0, 16).replace('T', ' ');
 
 // ── ワークフロー実行ステータスのドット ─────────────────────
 function RunStatusDot({ run }: { run: WorkflowRun }) {
@@ -28,7 +27,7 @@ function RunStatusDot({ run }: { run: WorkflowRun }) {
   return (
     <div
       className={`w-2.5 h-2.5 rounded-full ${color}`}
-      title={`${fmtUTC(run.createdAt)} UTC — ${run.conclusion ?? run.status}`}
+      title={`${formatJST(run.createdAt)} JST — ${run.conclusion ?? run.status}`}
     />
   );
 }
@@ -44,7 +43,7 @@ function WorkflowHealthRow({ name, runs }: { name: string; runs: WorkflowRun[] }
         <p className="text-sm font-600 truncate">{name}</p>
         <p className="text-[11px] text-fg-3">
           {latest
-            ? `直近: ${fmtUTC(latest.createdAt)} UTC — ${latest.conclusion === 'success' ? '✅ 成功' : latest.conclusion === 'failure' ? '❌ 失敗' : latest.status}`
+            ? `直近: ${formatJST(latest.createdAt)} JST — ${latest.conclusion === 'success' ? '✅ 成功' : latest.conclusion === 'failure' ? '❌ 失敗' : latest.status}`
             : '実行履歴なし'}
         </p>
       </div>
@@ -166,8 +165,8 @@ export const CarryExecutorScreen = () => {
               {signal.liveMode ? '🔴 本番' : '⚪ ドライラン'}
             </span>
           )}
-          <p className="text-[11px] text-fg-3">最終同期</p>
-          <p className="text-xs font-mono text-fg-2">{fmtUTC(data.syncedAtUTC)} UTC</p>
+          <p className="text-[11px] text-fg-3">最終同期（JST）</p>
+          <p className="text-xs font-mono text-fg-2">{formatJST(data.syncedAtUTC)}</p>
         </div>
       </div>
 

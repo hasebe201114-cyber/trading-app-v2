@@ -7,6 +7,7 @@ import {
 import { AlertTriangle, CheckCircle, Clock, TrendingUp } from 'lucide-react';
 import { useForwardData, type LedgerRow, type Projection90d, type AssetGateMetrics } from '../../hooks/useForwardData';
 import { SectionBox } from '../../ui/components/SectionBox';
+import { formatJST } from '../../ui/utils/formatters';
 
 // ── 定数 ─────────────────────────────────────────────────
 const W_STAR = { BTC: 3.629, ETH: 3.789 };
@@ -514,8 +515,8 @@ export const ForwardCalibrationScreen = () => {
           <p className="text-sm text-fg-2">OBS000032 · EXP デルタニュートラル・キャリー戦略</p>
         </div>
         <div className="text-right">
-          <p className="text-[11px] text-fg-3">最終更新</p>
-          <p className="text-xs font-mono text-fg-2">{metrics.generatedAtUTC.slice(0, 16).replace('T', ' ')} UTC</p>
+          <p className="text-[11px] text-fg-3">最終更新（JST）</p>
+          <p className="text-xs font-mono text-fg-2">{formatJST(metrics.generatedAtUTC)}</p>
         </div>
       </div>
 
@@ -636,7 +637,7 @@ export const ForwardCalibrationScreen = () => {
           </>
         ) : (
           <div className="text-fg-3 text-sm py-4">
-            projection90d は次回のGitHub Actions実行（毎日01:00 UTC）後に表示されます。
+            projection90d は次回のGitHub Actions実行（毎日10:00 JST）後に表示されます。
           </div>
         )}
       </SectionBox>

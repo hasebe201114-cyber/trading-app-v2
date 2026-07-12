@@ -11,3 +11,17 @@ export const formatPrice = (price: number): string => {
   const decimals = getDecimalPlaces(price);
   return `$${price.toLocaleString('ja-JP', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}`;
 };
+
+// UTC ISO文字列（例: "2026-07-12T04:24:39.660Z"）を日本時間(JST=UTC+9)の "YYYY-MM-DD HH:MM" に変換。
+// バックエンド（GitHub Actions等）はUTCで記録するため、表示側でJSTへ変換して統一する。
+export const formatJST = (isoUTC: string): string => {
+  const d = new Date(isoUTC);
+  if (Number.isNaN(d.getTime())) return isoUTC;
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false,
+  }).formatToParts(d);
+  const get = (type: string) => parts.find(p => p.type === type)?.value ?? '';
+  return `${get('year')}-${get('month')}-${get('day')} ${get('hour')}:${get('minute')}`;
+};
