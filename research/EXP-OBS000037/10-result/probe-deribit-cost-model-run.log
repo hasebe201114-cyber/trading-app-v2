@@ -1,0 +1,44 @@
+======================================================================
+=== probe-deribit-cost-model.ts 実行 2026-07-12T06:39:01.673Z ===
+Git commit: 8a50c8c16b46459f1fd837185a7f86e025a9e133
+Node version: v22.22.2
+
+REPRODUCTION COMMAND:
+  node --experimental-strip-types scripts/probe-deribit-cost-model.ts
+
+EXECUTION LOG:
+[2026-07-12T06:39:01.676Z] === EXP-OBS000037 Stage 0 G0-3: Deribit 実コストモデルプローブ ===
+[2026-07-12T06:39:01.676Z] 実行UTC時刻: 2026-07-12T06:39:01.673Z
+[2026-07-12T06:39:01.676Z] Node version: v22.22.2
+[2026-07-12T06:39:01.872Z] Git commit: 8a50c8c16b46459f1fd837185a7f86e025a9e133
+[2026-07-12T06:39:01.872Z] 
+>>> (a) オプション手数料体系（get_instruments kind=option）
+[2026-07-12T06:39:01.872Z]   GET https://www.deribit.com/api/v2/public/get_instruments?currency=BTC&kind=option&expired=false
+[2026-07-12T06:39:02.307Z]   取得件数: 872
+[2026-07-12T06:39:02.308Z]   サンプル5件: [{"instrument_name":"BTC-12JUL26-55000-C","maker_commission":0.0003,"taker_commission":0.0003,"block_trade_commission":0.0003},{"instrument_name":"BTC-12JUL26-55000-P","maker_commission":0.0003,"taker_commission":0.0003,"block_trade_commission":0.0003},{"instrument_name":"BTC-12JUL26-56000-C","maker_commission":0.0003,"taker_commission":0.0003,"block_trade_commission":0.0003},{"instrument_name":"BTC-12JUL26-56000-P","maker_commission":0.0003,"taker_commission":0.0003,"block_trade_commission":0.0003},{"instrument_name":"BTC-12JUL26-57000-C","maker_commission":0.0003,"taker_commission":0.0003,"block_trade_commission":0.0003}]
+[2026-07-12T06:39:02.308Z]   distinct maker_commission値: [0.0003]
+[2026-07-12T06:39:02.308Z]   distinct taker_commission値: [0.0003]
+[2026-07-12T06:39:02.611Z]   GET https://www.deribit.com/api/v2/public/get_instruments?currency=BTC&kind=future&expired=false
+[2026-07-12T06:39:02.871Z]   取得件数: 13
+[2026-07-12T06:39:02.871Z]   BTC-PERPETUAL instrument spec: maker_commission=0 taker_commission=0.0005
+[2026-07-12T06:39:03.444Z]   公式手数料表ページ fetch: status=200 bodyLength=12085
+[2026-07-12T06:39:03.444Z] 
+>>> (b) 実スプレッド スナップショット（BTC ATM近傍オプション + BTC-PERPETUAL）
+[2026-07-12T06:39:03.694Z]   BTC-PERPETUAL index_price=63700.82
+[2026-07-12T06:39:03.694Z]   直近満期候補: 2026-07-12T08:00:00.000Z
+[2026-07-12T06:39:03.695Z]   選定ATM近傍オプション: ["BTC-12JUL26-63500-C","BTC-12JUL26-64000-C","BTC-12JUL26-63000-C"]
+[2026-07-12T06:39:03.949Z]   BTC-12JUL26-63500-C: bestBid=0.0026 bestAsk=0.0043 spreadBps=4927.536231884058
+[2026-07-12T06:39:04.506Z]   BTC-12JUL26-63500-C greeks: {"delta":0.78577,"gamma":0.00114,"vega":2.3058,"theta":-37.12726,"rho":0.07678}
+[2026-07-12T06:39:05.078Z]   BTC-12JUL26-64000-C: bestBid=0.0001 bestAsk=0.0004 spreadBps=12000.000000000002
+[2026-07-12T06:39:05.681Z]   BTC-12JUL26-64000-C greeks: {"delta":0.10197,"gamma":0.00076,"vega":1.40772,"theta":-11.38632,"rho":0.00999}
+[2026-07-12T06:39:06.269Z]   BTC-12JUL26-63000-C: bestBid=0.006 bestAsk=0.0145 spreadBps=8292.68292682927
+[2026-07-12T06:39:06.830Z]   BTC-12JUL26-63000-C greeks: {"delta":0.9802,"gamma":0.00014,"vega":0.37963,"theta":-8.22928,"rho":0.09514}
+[2026-07-12T06:39:07.394Z]   BTC-PERPETUAL: bestBid=63723.5 bestAsk=63724 spreadBps=0.07846368112359992
+[2026-07-12T06:39:07.394Z] 
+>>> (c) perpデルタヘッジコスト（BTC-PERPETUAL 手数料 + 板厚スリッページ, $100k想定）
+[2026-07-12T06:39:08.219Z]   想定ヘッジ名目=$100000: 買い方向スリッページ=0.03923184056179996bps 売り方向スリッページ=-0.03923184056179996bps
+[2026-07-12T06:39:08.219Z]   ⚠ Deribit BTC-PERPETUAL の get_order_book size単位はUSD建て建玉（$1=1コントラクト想定）。size単位の解釈はDeribit契約仕様のcontract_sizeフィールドに準拠すべきだが、本Stage 0では簡易にsize値をUSD建て名目として扱っている旨を明記（Stage 1で契約仕様を再確認のこと）。
+[2026-07-12T06:39:08.219Z] 
+>>> (d) 統合週次コストとlab仮置きの並置
+[2026-07-12T06:39:08.221Z] 
+>>> 保存: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000037\10-result\deribit-cost-model.json

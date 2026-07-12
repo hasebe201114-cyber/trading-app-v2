@@ -1,0 +1,9 @@
+date,phase,dvol,dvol_daily_change_vol_pts,dvol_spike_marker,rv_forward_7d,vrp,net_pnl_pct,sleeve_return,price_source
+2026-07-04,warmup,39.18,-0.28999999999999915,0,13.18091664019445,25.99908335980555,25.741940502662693,25.741940502662693,deribit-tradingview
+2026-07-05,warmup,38.67,-0.509999999999998,0,,,,,deribit-tradingview
+2026-07-06,warmup,37.26,-1.4100000000000037,0,,,,,deribit-tradingview
+2026-07-07,warmup,38.87,1.6099999999999994,0,,,,,deribit-tradingview
+2026-07-08,warmup,39.53,0.6600000000000037,0,,,,,deribit-tradingview
+2026-07-09,warmup,37.29,-2.240000000000002,0,,,,,deribit-tradingview
+2026-07-10,warmup,36.23,-1.0600000000000023,0,,,,,deribit-tradingview
+2026-07-11,live,36.78,0.5500000000000043,0,,,,,deribit-tradingview

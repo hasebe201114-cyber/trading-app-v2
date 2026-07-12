@@ -1,0 +1,83 @@
+======================================================================
+=== probe-deribit-vrp-data.ts 実行 2026-07-12T06:38:33.922Z (env=local) ===
+Git commit: 8a50c8c16b46459f1fd837185a7f86e025a9e133
+Node version: v22.22.2
+
+REPRODUCTION COMMAND:
+  node --experimental-strip-types scripts/probe-deribit-vrp-data.ts
+
+EXECUTION LOG:
+[2026-07-12T06:38:33.936Z] === EXP-OBS000037 Stage 0: Deribit データプローブ（G0-1 + G0-2） ===
+[2026-07-12T06:38:33.936Z] 実行UTC時刻: 2026-07-12T06:38:33.922Z
+[2026-07-12T06:38:33.937Z] 実行環境判定: RUN_ENV=local（process.env.GITHUB_ACTIONS=undefined）
+[2026-07-12T06:38:33.937Z] Node version: v22.22.2
+[2026-07-12T06:38:34.058Z] Git commit: 8a50c8c16b46459f1fd837185a7f86e025a9e133
+[2026-07-12T06:38:34.058Z] 
+>>> G0-1: エンドポイント疎通確認（3系統）
+[2026-07-12T06:38:34.059Z]   GET https://www.deribit.com/api/v2/public/get_volatility_index_data?currency=BTC&start_timestamp=1783233514059&end_timestamp=1783838314059&resolution=86400
+[2026-07-12T06:38:34.463Z]     status=200 ok=true hasResultField=true
+[2026-07-12T06:38:34.764Z]   GET https://www.deribit.com/api/v2/public/get_tradingview_chart_data?instrument_name=BTC-PERPETUAL&start_timestamp=1783233514059&end_timestamp=1783838314059&resolution=1D
+[2026-07-12T06:38:35.089Z]     status=200 ok=true hasResultField=true
+[2026-07-12T06:38:35.394Z]   GET https://www.deribit.com/api/v2/public/get_order_book?instrument_name=BTC-PERPETUAL&depth=5
+[2026-07-12T06:38:35.700Z]     status=200 ok=true hasResultField=true
+[2026-07-12T06:38:36.009Z]   GET https://www.deribit.com/api/v2/public/ticker?instrument_name=BTC-PERPETUAL
+[2026-07-12T06:38:36.320Z]     status=200 ok=true hasResultField=true
+[2026-07-12T06:38:36.625Z] 
+>>> G0-2-1: DVOL実起点特定（過去方向ページング。フロア=2015-01-01）
+[2026-07-12T06:38:36.948Z]   DVOL page#1 (BTC): rowsReturned=1000 continuation=1697414400000
+[2026-07-12T06:38:37.574Z]   DVOL page#2 (BTC): rowsReturned=937 continuation=null
+[2026-07-12T06:38:37.576Z]   DVOL pagination終了（continuationなし＝これ以上遡る過去データなし）
+[2026-07-12T06:38:37.577Z]   DVOL実起点候補（最古足）: 2021-03-24T00:00:00.000Z（総取得件数=1937, リクエスト回数=2, 終了理由=continuation_null_or_absent）
+[2026-07-12T06:38:37.577Z] 
+>>> G0-2-2: 固定窓ごとのDVOLカバレッジ実測（T1/T2/T3/INC/calm）
+[2026-07-12T06:38:37.577Z] 
+  --- 窓 T1 (2020-02-20〜2020-04-30) ---
+[2026-07-12T06:38:37.829Z]   DVOL page#1 (BTC): rowsReturned=0 continuation=null
+[2026-07-12T06:38:37.829Z]   DVOL pagination終了（空応答）
+[2026-07-12T06:38:37.829Z]   DVOL: 期待日数=71 実測本数=0 欠損本数=71 欠損率=100.00%
+[2026-07-12T06:38:37.830Z]   GET https://www.deribit.com/api/v2/public/get_tradingview_chart_data?instrument_name=BTC-PERPETUAL&start_timestamp=1581984000000&end_timestamp=1588291200000&resolution=1D
+[2026-07-12T06:38:38.119Z]   BTC-PERPETUAL price: status=ok ticks=74
+[2026-07-12T06:38:38.120Z]   価格(RV用, source=deribit-tradingview): 取得本数=74 窓内欠損本数=0 rawTickHourUtc=8
+[2026-07-12T06:38:38.149Z]   VRP構築可否: dvolAvailableDays=0 windowRvComputed=true vrpConstructibleDaysCount=0
+[2026-07-12T06:38:38.360Z] 
+  --- 窓 T2 (2022-05-01〜2022-06-30) ---
+[2026-07-12T06:38:38.622Z]   DVOL page#1 (BTC): rowsReturned=62 continuation=null
+[2026-07-12T06:38:38.622Z]   DVOL pagination終了（continuationなし＝これ以上遡る過去データなし）
+[2026-07-12T06:38:38.622Z]   DVOL: 期待日数=61 実測本数=61 欠損本数=0 欠損率=0.00%
+[2026-07-12T06:38:38.623Z]   GET https://www.deribit.com/api/v2/public/get_tradingview_chart_data?instrument_name=BTC-PERPETUAL&start_timestamp=1651190400000&end_timestamp=1656633600000&resolution=1D
+[2026-07-12T06:38:38.891Z]   BTC-PERPETUAL price: status=ok ticks=64
+[2026-07-12T06:38:38.892Z]   価格(RV用, source=deribit-tradingview): 取得本数=64 窓内欠損本数=0 rawTickHourUtc=8
+[2026-07-12T06:38:38.892Z]   VRP構築可否: dvolAvailableDays=61 windowRvComputed=true vrpConstructibleDaysCount=61
+[2026-07-12T06:38:39.096Z] 
+  --- 窓 T3 (2022-10-25〜2022-12-15) ---
+[2026-07-12T06:38:39.353Z]   DVOL page#1 (BTC): rowsReturned=53 continuation=null
+[2026-07-12T06:38:39.353Z]   DVOL pagination終了（continuationなし＝これ以上遡る過去データなし）
+[2026-07-12T06:38:39.354Z]   DVOL: 期待日数=52 実測本数=52 欠損本数=0 欠損率=0.00%
+[2026-07-12T06:38:39.354Z]   GET https://www.deribit.com/api/v2/public/get_tradingview_chart_data?instrument_name=BTC-PERPETUAL&start_timestamp=1666483200000&end_timestamp=1671148800000&resolution=1D
+[2026-07-12T06:38:39.612Z]   BTC-PERPETUAL price: status=ok ticks=55
+[2026-07-12T06:38:39.612Z]   価格(RV用, source=deribit-tradingview): 取得本数=55 窓内欠損本数=0 rawTickHourUtc=8
+[2026-07-12T06:38:39.612Z]   VRP構築可否: dvolAvailableDays=52 windowRvComputed=true vrpConstructibleDaysCount=52
+[2026-07-12T06:38:39.821Z] 
+  --- 窓 INC (2021-01-01〜2021-06-30) ---
+[2026-07-12T06:38:40.085Z]   DVOL page#1 (BTC): rowsReturned=100 continuation=null
+[2026-07-12T06:38:40.085Z]   DVOL pagination終了（continuationなし＝これ以上遡る過去データなし）
+[2026-07-12T06:38:40.085Z]   DVOL: 期待日数=181 実測本数=99 欠損本数=82 欠損率=45.30%
+[2026-07-12T06:38:40.086Z]   GET https://www.deribit.com/api/v2/public/get_tradingview_chart_data?instrument_name=BTC-PERPETUAL&start_timestamp=1609286400000&end_timestamp=1625097600000&resolution=1D
+[2026-07-12T06:38:40.360Z]   BTC-PERPETUAL price: status=ok ticks=184
+[2026-07-12T06:38:40.361Z]   価格(RV用, source=deribit-tradingview): 取得本数=184 窓内欠損本数=0 rawTickHourUtc=8
+[2026-07-12T06:38:40.361Z]   VRP構築可否: dvolAvailableDays=99 windowRvComputed=true vrpConstructibleDaysCount=99
+[2026-07-12T06:38:40.563Z] 
+  --- 窓 calm (2021-07-01〜2021-12-31) ---
+[2026-07-12T06:38:40.828Z]   DVOL page#1 (BTC): rowsReturned=185 continuation=null
+[2026-07-12T06:38:40.829Z]   DVOL pagination終了（continuationなし＝これ以上遡る過去データなし）
+[2026-07-12T06:38:40.830Z]   DVOL: 期待日数=184 実測本数=184 欠損本数=0 欠損率=0.00%
+[2026-07-12T06:38:40.830Z]   GET https://www.deribit.com/api/v2/public/get_tradingview_chart_data?instrument_name=BTC-PERPETUAL&start_timestamp=1624924800000&end_timestamp=1640995200000&resolution=1D
+[2026-07-12T06:38:41.304Z]   BTC-PERPETUAL price: status=ok ticks=187
+[2026-07-12T06:38:41.305Z]   価格(RV用, source=deribit-tradingview): 取得本数=187 窓内欠損本数=0 rawTickHourUtc=8
+[2026-07-12T06:38:41.306Z]   VRP構築可否: dvolAvailableDays=184 windowRvComputed=true vrpConstructibleDaysCount=184
+[2026-07-12T06:38:41.521Z] 
+>>> G0-2-3: get_historical_volatility 返却範囲の実測（参考・長期RV取得不可の確認）
+[2026-07-12T06:38:41.521Z]   GET https://www.deribit.com/api/v2/public/get_historical_volatility?currency=BTC
+[2026-07-12T06:38:41.851Z]   status=200 count=384 oldest=2026-06-26T09:00:00.000Z newest=2026-07-12T07:00:00.000Z
+[2026-07-12T06:38:41.854Z] 
+>>> 保存: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000037\10-result\deribit-probe-local.json

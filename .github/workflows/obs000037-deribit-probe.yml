@@ -1,0 +1,66 @@
+name: OBS000037 Deribit Data Probe (G0-1 US-IP verification)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Set to 'true' to run without committing results"
+        required: false
+        default: "false"
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: write   # 結果をコミット・push するために必要
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Show runner IP (diagnostic only)
+        run: curl -s https://api.ipify.org || true
+
+      - name: Run Deribit data probe (G0-1 + G0-2)
+        run: |
+          node --experimental-strip-types scripts/probe-deribit-vrp-data.ts
+
+      - name: Run Deribit cost model probe (G0-3)
+        run: |
+          node --experimental-strip-types scripts/probe-deribit-cost-model.ts
+
+      - name: Run Deribit VRP forward paper harness (G0-4)
+        run: |
+          node --experimental-strip-types scripts/deribit-vrp-forward-paper.ts
+
+      - name: Commit and push results
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet research/EXP-OBS000037/10-result/; then
+            echo "No changes to Deribit probe results — skipping commit"
+          else
+            git add research/EXP-OBS000037/10-result/
+            git commit -m "chore(obs000037): Deribit data probe run from GitHub Actions (US IP) — $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push origin main
+            echo "Committed and pushed Deribit probe results"
+          fi
+
+      - name: Upload results as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: obs000037-deribit-probe-${{ github.run_id }}
+          path: research/EXP-OBS000037/10-result/
+          retention-days: 30

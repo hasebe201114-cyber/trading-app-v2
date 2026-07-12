@@ -1,0 +1,64 @@
+{
+  "experiment": "EXP-OBS000037",
+  "stage": "Stage 0",
+  "gate": "G0-4",
+  "scriptPath": "scripts/deribit-vrp-forward-paper.ts",
+  "specReference": "research/EXP-OBS000037/00-spec-stage0.md",
+  "executedBy": "B実装チーム (Quant Researcher)",
+  "goLiveDateUTC": "2026-07-11",
+  "warmupDays": 7,
+  "rvForwardDays": 7,
+  "liveDaysRequiredForGate": 90,
+  "currentLiveDaysCount": 1,
+  "currentWarmupDaysCount": 7,
+  "fixedParams": {
+    "dvolSpikeThresholdVolPts": 5,
+    "labPlaceholderWeeklyCostVolPtPerWeek": 1.8,
+    "placeholderCapitalScaling": 1,
+    "accountingNote": "net_pnl_pct / sleeve_return はStage 0のプレースホルダ会計（vol pt(net VRP)を資本%に1:1で変換する恣意的な仮定）。VRPシグナル検証・予測単位/会計の独立再現・Sharpe算出はStage 1の職務であり本Stage 0では行っていない。使用コストはlab仮置き（往復1.5+ヘッジ0.3=1.8 vol pt/週）を日割り。G0-3で実測したDeribit実コストへの正式な置換はStage 1で行う。"
+  },
+  "endpoints": {
+    "dvol": "https://www.deribit.com/api/v2/public/get_volatility_index_data?currency=BTC&start_timestamp={ms}&end_timestamp={ms}&resolution=86400",
+    "perpPrice": "https://www.deribit.com/api/v2/public/get_tradingview_chart_data?instrument_name=BTC-PERPETUAL&start_timestamp={ms}&end_timestamp={ms}&resolution=1D"
+  },
+  "dateAnchorDesignNote": "日次実行は「今日」でなく「最終完全経過UTC日（anchor=today-1）」を対象とする（OBS000032と同型設計）。",
+  "sleeveReturnJoinNote": "sleeve_return は日次VRPスリーブ収益（資本比%）。OBS000032フォワードledger（research/EXP-OBS000032/10-result/forward/forward-paper-ledger-btc.json）とdate（UTC日）キーで突合可能な形式（spec §8必須条件A）。テール窓・同時ドローダウンの算出・判定はStage 1で行う（本Stage 0では形式準備のみ）。",
+  "runHistory": [
+    {
+      "runTimestampUTC": "2026-07-12T06:39:37.296Z",
+      "anchorDateKey": "2026-07-11",
+      "gitCommit": "8a50c8c16b46459f1fd837185a7f86e025a9e133",
+      "nodeVersion": "v22.22.2",
+      "mode": "initial",
+      "newRowsAppended": 8,
+      "backfillCount": 0,
+      "rowCountBefore": 0,
+      "rowCountAfter": 8,
+      "dvolFetchWindow": {
+        "start": "2026-07-03",
+        "end": "2026-07-11"
+      },
+      "dvolRowsFetched": 10,
+      "priceSource": "deribit-tradingview",
+      "priceRowsFetched": 10
+    },
+    {
+      "runTimestampUTC": "2026-07-12T06:39:45.724Z",
+      "anchorDateKey": "2026-07-11",
+      "gitCommit": "8a50c8c16b46459f1fd837185a7f86e025a9e133",
+      "nodeVersion": "v22.22.2",
+      "mode": "noop",
+      "newRowsAppended": 0,
+      "backfillCount": 0,
+      "rowCountBefore": 8,
+      "rowCountAfter": 8,
+      "dvolFetchWindow": {
+        "start": "2026-07-04",
+        "end": "2026-07-11"
+      },
+      "dvolRowsFetched": 9,
+      "priceSource": "deribit-tradingview",
+      "priceRowsFetched": 9
+    }
+  ]
+}

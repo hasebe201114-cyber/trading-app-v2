@@ -1,0 +1,98 @@
+[
+  {
+    "date": "2026-07-04",
+    "phase": "warmup",
+    "dvol": 39.18,
+    "dvol_daily_change_vol_pts": -0.28999999999999915,
+    "dvol_spike_marker": 0,
+    "rv_forward_7d": 13.18091664019445,
+    "vrp": 25.99908335980555,
+    "net_pnl_pct": 25.741940502662693,
+    "sleeve_return": 25.741940502662693,
+    "price_source": "deribit-tradingview"
+  },
+  {
+    "date": "2026-07-05",
+    "phase": "warmup",
+    "dvol": 38.67,
+    "dvol_daily_change_vol_pts": -0.509999999999998,
+    "dvol_spike_marker": 0,
+    "rv_forward_7d": null,
+    "vrp": null,
+    "net_pnl_pct": null,
+    "sleeve_return": null,
+    "price_source": "deribit-tradingview"
+  },
+  {
+    "date": "2026-07-06",
+    "phase": "warmup",
+    "dvol": 37.26,
+    "dvol_daily_change_vol_pts": -1.4100000000000037,
+    "dvol_spike_marker": 0,
+    "rv_forward_7d": null,
+    "vrp": null,
+    "net_pnl_pct": null,
+    "sleeve_return": null,
+    "price_source": "deribit-tradingview"
+  },
+  {
+    "date": "2026-07-07",
+    "phase": "warmup",
+    "dvol": 38.87,
+    "dvol_daily_change_vol_pts": 1.6099999999999994,
+    "dvol_spike_marker": 0,
+    "rv_forward_7d": null,
+    "vrp": null,
+    "net_pnl_pct": null,
+    "sleeve_return": null,
+    "price_source": "deribit-tradingview"
+  },
+  {
+    "date": "2026-07-08",
+    "phase": "warmup",
+    "dvol": 39.53,
+    "dvol_daily_change_vol_pts": 0.6600000000000037,
+    "dvol_spike_marker": 0,
+    "rv_forward_7d": null,
+    "vrp": null,
+    "net_pnl_pct": null,
+    "sleeve_return": null,
+    "price_source": "deribit-tradingview"
+  },
+  {
+    "date": "2026-07-09",
+    "phase": "warmup",
+    "dvol": 37.29,
+    "dvol_daily_change_vol_pts": -2.240000000000002,
+    "dvol_spike_marker": 0,
+    "rv_forward_7d": null,
+    "vrp": null,
+    "net_pnl_pct": null,
+    "sleeve_return": null,
+    "price_source": "deribit-tradingview"
+  },
+  {
+    "date": "2026-07-10",
+    "phase": "warmup",
+    "dvol": 36.23,
+    "dvol_daily_change_vol_pts": -1.0600000000000023,
+    "dvol_spike_marker": 0,
+    "rv_forward_7d": null,
+    "vrp": null,
+    "net_pnl_pct": null,
+    "sleeve_return": null,
+    "price_source": "deribit-tradingview"
+  },
+  {
+    "date": "2026-07-11",
+    "phase": "live",
+    "dvol": 36.78,
+    "dvol_daily_change_vol_pts": 0.5500000000000043,
+    "dvol_spike_marker": 0,
+    "rv_forward_7d": null,
+    "vrp": null,
+    "net_pnl_pct": null,
+    "sleeve_return": null,
+    "price_source": "deribit-tradingview"
+  }
+]
