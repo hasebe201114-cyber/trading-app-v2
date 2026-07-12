@@ -1,4 +1,4 @@
-import { useState, useMemo, useId } from 'react';
+import { useState, useMemo, useId, type ReactNode } from 'react';
 import {
   ComposedChart, AreaChart, BarChart,
   Area, Bar, Cell, Line, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -23,6 +23,15 @@ const getLiveOffset = (rows: LedgerRow[]) => {
   const warmup = rows.filter(r => r.phase === 'warmup');
   return warmup[warmup.length - 1]?.sleeve_cumulative_return_pct ?? 0;
 };
+
+// ── 補足説明ボックス ──────────────────────────────────────
+function InfoNote({ children }: { children: ReactNode }) {
+  return (
+    <div className="text-[11px] leading-relaxed text-fg-2 bg-fg-4/30 border border-fg-3/50 rounded p-2.5">
+      {children}
+    </div>
+  );
+}
 
 // ── ゲート状態バッジ ──────────────────────────────────────
 function GateBadge({ value, label, sub }: { value: boolean | null; label: string; sub?: string }) {
@@ -221,6 +230,106 @@ function GateSection({ metrics, asset }: { metrics: AssetGateMetrics; asset: 'BT
   );
 }
 
+// ── 損益額 進捗チャート ────────────────────────────────────
+// series: 表示対象の資産1つ、または複数（複数の場合は日毎に単純平均する＝「平均」表示用）
+function ProfitProjectionChart({
+  series, principal, color,
+}: { series: { rows: LedgerRow[]; proj: Projection90d | undefined; wStar: number }[]; principal: number; color: string }) {
+  const liveDays = Math.max(...series.map(s => s.rows.filter(r => r.phase === 'live').length), 0);
+
+  const data = useMemo(() => {
+    const points: {
+      day: number;
+      actual: number | null;
+      p10base: number | null;
+      p10p90band: number | null;
+      p50: number | null;
+    }[] = [];
+
+    for (let day = 0; day <= LIVE_TARGET; day++) {
+      // 実績（%）: 対象資産（複数なら単純平均）の当日累積収益率
+      const actualPcts: number[] = [];
+      let actualMissing = false;
+      for (const s of series) {
+        const liveOffset = getLiveOffset(s.rows);
+        const liveRows = s.rows.filter(r => r.phase === 'live');
+        if (day === 0) { actualPcts.push(0); continue; }
+        if (day > liveRows.length) { actualMissing = true; break; }
+        actualPcts.push(liveRows[day - 1].sleeve_cumulative_return_pct - liveOffset);
+      }
+      const actualVal = !actualMissing
+        ? Math.round(principal * (actualPcts.reduce((a, b) => a + b, 0) / actualPcts.length) / 100)
+        : null;
+
+      // 予測（金額）: 対象資産（複数なら単純平均）のP10/P50/P90
+      let p10base: number | null = null;
+      let p10p90band: number | null = null;
+      let p50: number | null = null;
+      const amounts10: number[] = [];
+      const amounts50: number[] = [];
+      const amounts90: number[] = [];
+      let projMissing = false;
+      for (const s of series) {
+        if (s.proj?.p10_cumBps == null || s.proj.p50_cumBps == null || s.proj.p90_cumBps == null) { projMissing = true; break; }
+        const toAmount = (cumBps: number) => principal * (cumBps * s.wStar / 10000);
+        amounts10.push(toAmount(s.proj.p10_cumBps));
+        amounts50.push(toAmount(s.proj.p50_cumBps));
+        amounts90.push(toAmount(s.proj.p90_cumBps));
+      }
+      if (!projMissing) {
+        const avg = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length;
+        const total90_p10 = avg(amounts10);
+        const total90_p50 = avg(amounts50);
+        const total90_p90 = avg(amounts90);
+        const t = day / LIVE_TARGET;
+        p10base = Math.round(total90_p10 * t);
+        p10p90band = Math.round((total90_p90 - total90_p10) * t);
+        p50 = Math.round(total90_p50 * t);
+      }
+
+      points.push({ day, actual: actualVal, p10base, p10p90band, p50 });
+    }
+    return points;
+  }, [series, principal]);
+
+  const hasProjection = data.some(d => d.p50 != null);
+
+  return (
+    <ResponsiveContainer width="100%" height={220}>
+      <ComposedChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--fg-4)" />
+        <XAxis dataKey="day" tick={{ fontSize: 11, fill: 'var(--fg-3)' }} tickLine={false}
+          label={{ value: '経過日数', position: 'insideBottomRight', offset: -4, fontSize: 11, fill: 'var(--fg-3)' }} />
+        <YAxis tick={{ fontSize: 11, fill: 'var(--fg-3)' }} tickLine={false} axisLine={false}
+          tickFormatter={v => fmtMoney(v)} width={72} />
+        <Tooltip
+          contentStyle={{ background: 'var(--surface)', border: '1px solid var(--fg-4)', borderRadius: 4, fontSize: 12 }}
+          formatter={(v: number, name: string) => {
+            if (name === '実績') return [fmtMoney(v), '実績損益額'];
+            if (name === 'P50予測') return [fmtMoney(v), 'P50（中央値）予測損益額'];
+            return [v, name];
+          }}
+        />
+        {hasProjection && (
+          <>
+            <Area type="monotone" dataKey="p10base" stackId="band"
+              stroke="none" fill="transparent" legendType="none" isAnimationActive={false} />
+            <Area type="monotone" dataKey="p10p90band" stackId="band" name="P10-P90予測幅"
+              stroke="none" fill={color} fillOpacity={0.18} isAnimationActive={false} />
+            <Line type="monotone" dataKey="p50" stroke={color} strokeWidth={1.5}
+              strokeDasharray="6 3" dot={false} name="P50予測" isAnimationActive={false} />
+          </>
+        )}
+        <ReferenceLine x={liveDays} stroke="#F59E0B" strokeWidth={1.5}
+          label={{ value: `Day${liveDays}`, position: 'top', fontSize: 10, fill: '#F59E0B' }} />
+        <ReferenceLine y={0} stroke="var(--fg-3)" strokeDasharray="2 2" />
+        <Line type="monotone" dataKey="actual" stroke="#10B981" strokeWidth={2.5}
+          dot={false} name="実績" isAnimationActive={false} connectNulls={false} />
+      </ComposedChart>
+    </ResponsiveContainer>
+  );
+}
+
 // ── 収益シミュレーション ──────────────────────────────────
 function SimulationPanel({
   btcRows, ethRows, btcProj, ethProj,
@@ -231,13 +340,14 @@ function SimulationPanel({
   ethProj?: Projection90d;
 }) {
   const [principal, setPrincipal] = useState(1000000);
+  const [simAsset, setSimAsset] = useState<'AVG' | 'BTC' | 'ETH'>('AVG');
 
   const btcLive = btcRows.filter(r => r.phase === 'live');
   const ethLive = ethRows.filter(r => r.phase === 'live');
   const btcOffset = getLiveOffset(btcRows);
   const ethOffset = getLiveOffset(ethRows);
 
-  // 現在の実績累積収益率（ライブ開始基準・BTC+ETH平均）
+  // 現在の実績累積収益率（ライブ開始基準）
   const btcActualPct = (btcLive[btcLive.length - 1]?.sleeve_cumulative_return_pct ?? btcOffset) - btcOffset;
   const ethActualPct = (ethLive[ethLive.length - 1]?.sleeve_cumulative_return_pct ?? ethOffset) - ethOffset;
   const avgActualPct = (btcActualPct + ethActualPct) / 2;
@@ -260,6 +370,14 @@ function SimulationPanel({
 
   const STEPS = [100000, 300000, 500000, 1000000, 3000000, 5000000, 10000000];
 
+  // 選択中の資産に応じた表示切替
+  const viewByAsset = {
+    AVG: { actualPct: avgActualPct, p10: avgP10Pct, p50: avgP50Pct, p90: avgP90Pct, color: '#8B5CF6', label: '平均（BTC+ETH）' },
+    BTC: { actualPct: btcActualPct, p10: btcRet?.p10 ?? null, p50: btcRet?.p50 ?? null, p90: btcRet?.p90 ?? null, color: '#3B82F6', label: 'BTC' },
+    ETH: { actualPct: ethActualPct, p10: ethRet?.p10 ?? null, p50: ethRet?.p50 ?? null, p90: ethRet?.p90 ?? null, color: '#14B8A6', label: 'ETH' },
+  } as const;
+  const view = viewByAsset[simAsset];
+
   return (
     <div className="space-y-4">
       {/* 元本スライダー */}
@@ -276,44 +394,73 @@ function SimulationPanel({
         </div>
       </div>
 
+      {/* 資産選択タブ */}
+      <div className="flex gap-2">
+        {(['AVG', 'BTC', 'ETH'] as const).map(a => (
+          <button key={a} onClick={() => setSimAsset(a)}
+            className={`px-3 py-1 rounded text-xs font-600 border transition-colors ${simAsset === a ? 'text-white' : 'border-fg-3 text-fg-2 hover:border-blue-400'}`}
+            style={simAsset === a ? { backgroundColor: viewByAsset[a].color, borderColor: viewByAsset[a].color } : undefined}>
+            {viewByAsset[a].label}
+          </button>
+        ))}
+      </div>
+
       {/* 結果グリッド */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="border border-fg-3 rounded p-3">
           <p className="text-[11px] text-fg-3 mb-1">現在の実績収益</p>
-          <p className={`text-xl font-700 font-mono tabular-nums ${avgActualPct >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
-            {fmt1(avgActualPct, '%')}
+          <p className={`text-xl font-700 font-mono tabular-nums ${view.actualPct >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
+            {fmt1(view.actualPct, '%')}
           </p>
-          <p className={`text-sm font-mono ${avgActualPct >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
-            {fmtMoney(principal * avgActualPct / 100)}
+          <p className={`text-sm font-mono ${view.actualPct >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
+            {fmtMoney(principal * view.actualPct / 100)}
           </p>
         </div>
         <div className="border border-fg-3 rounded p-3 opacity-60">
           <p className="text-[11px] text-fg-3 mb-1">90日予測 P10（悲観）</p>
           <p className="text-xl font-700 font-mono tabular-nums text-red-400">
-            {avgP10Pct != null ? fmt1(avgP10Pct, '%') : '—'}
+            {view.p10 != null ? fmt1(view.p10, '%') : '—'}
           </p>
           <p className="text-sm font-mono text-red-400">
-            {avgP10Pct != null ? fmtMoney(principal * avgP10Pct / 100) : '—'}
+            {view.p10 != null ? fmtMoney(principal * view.p10 / 100) : '—'}
           </p>
         </div>
         <div className="border border-blue-400 dark:border-blue-600 rounded p-3 bg-blue-50 dark:bg-blue-950/20">
           <p className="text-[11px] text-blue-600 dark:text-blue-400 mb-1">90日予測 P50（中央値）</p>
           <p className="text-xl font-700 font-mono tabular-nums text-blue-600 dark:text-blue-400">
-            {avgP50Pct != null ? fmt1(avgP50Pct, '%') : '—'}
+            {view.p50 != null ? fmt1(view.p50, '%') : '—'}
           </p>
           <p className="text-sm font-mono text-blue-600 dark:text-blue-400">
-            {avgP50Pct != null ? fmtMoney(principal * avgP50Pct / 100) : '—'}
+            {view.p50 != null ? fmtMoney(principal * view.p50 / 100) : '—'}
           </p>
         </div>
         <div className="border border-fg-3 rounded p-3 opacity-60">
           <p className="text-[11px] text-fg-3 mb-1">90日予測 P90（楽観）</p>
           <p className="text-xl font-700 font-mono tabular-nums text-emerald-500">
-            {avgP90Pct != null ? fmt1(avgP90Pct, '%') : '—'}
+            {view.p90 != null ? fmt1(view.p90, '%') : '—'}
           </p>
           <p className="text-sm font-mono text-emerald-500">
-            {avgP90Pct != null ? fmtMoney(principal * avgP90Pct / 100) : '—'}
+            {view.p90 != null ? fmtMoney(principal * view.p90 / 100) : '—'}
           </p>
         </div>
+      </div>
+
+      {/* 進捗による予測損益額の推移チャート */}
+      <div>
+        <p className="text-xs font-600 text-fg-2 mb-2">
+          予測損益額の推移（{view.label}・元本{fmtMoney(principal)}時）
+        </p>
+        <ProfitProjectionChart
+          series={
+            simAsset === 'AVG'
+              ? [{ rows: btcRows, proj: btcProj, wStar: W_STAR.BTC }, { rows: ethRows, proj: ethProj, wStar: W_STAR.ETH }]
+              : simAsset === 'ETH'
+              ? [{ rows: ethRows, proj: ethProj, wStar: W_STAR.ETH }]
+              : [{ rows: btcRows, proj: btcProj, wStar: W_STAR.BTC }]
+          }
+          principal={principal}
+          color={view.color}
+        />
       </div>
 
       {(btcProj?.reliabilityNote || ethProj?.reliabilityNote) && (
@@ -402,6 +549,13 @@ export const ForwardCalibrationScreen = () => {
         </div>
       </SectionBox>
 
+      {/* 用語ミニガイド: bps */}
+      <InfoNote>
+        <span className="font-600">bps（ベーシスポイント）</span>とは「1万分の1」を表す単位です（1bps = 0.01%）。
+        金利や利回りのようなごく小さな変化率を扱う際に使われ、例えば「10bps」は「0.1%」を意味します。
+        下記の各セクションで頻出するので、迷ったらここに戻ってきてください。
+      </InfoNote>
+
       {/* 資産タブ */}
       <div className="flex gap-2">
         {(['BTC', 'ETH'] as const).map(a => (
@@ -414,11 +568,27 @@ export const ForwardCalibrationScreen = () => {
 
       {/* F1-F4 ゲート */}
       <SectionBox title={`F1–F4 ゲート状態 — ${asset}（試験値: Day${liveDays} < 90）`}>
+        <InfoNote>
+          本番反映の判定基準となる4つのゲートです。<span className="font-600">90日ライブ到達（2026-10-02予定）まではすべて「試験値」</span>で、正式な採否はC品質チームの較正監査で決まります。
+          <br /><br />
+          <span className="font-600">F1（ネットキャリー）</span>: 日々の純損益が①累積でプラス基調か（F1a）、②バックテスト平時（calm）水準の統計的下限を上回っているか（F1b）。
+          <br />
+          <span className="font-600">F2（取引所間の符号一致率）</span>: 実運用先Bitgetと参照先Binanceで、Funding金利の方向（プラス/マイナス）が80%以上一致しているか＝データの構造的な整合性の確認。
+          <br />
+          <span className="font-600">F3（清算・追証ゼロ）</span>: デルタニュートラル・ポジションが証拠金不足で強制清算・追証扱いになっていないか（0件が正常）。
+          <br />
+          <span className="font-600">F4（Basis変動幅）</span>: 現物とperp先物の価格差（ベーシス）の日々の変動が、バックテストの最大ストレス期（コロナショック時=T1）の水準を超えていないか。
+        </InfoNote>
         <GateSection metrics={gateMetrics} asset={asset} />
       </SectionBox>
 
       {/* 累積収益率グラフ */}
       <SectionBox title={`累積スリーブ収益率 — ${asset}`}>
+        <InfoNote>
+          「スリーブ」とは、この戦略単体（現物ロング＋perpショートを同量保有し、価格変動の影響を打ち消す＝デルタニュートラル）が生み出す損益のことです。
+          方向を当てにいかず、Funding金利差とベーシス（現物・先物の価格差）から生じる収益だけを積み上げます。
+          グラフはライブ開始日（2026-07-04）を0%として、その後の累積収益率（%）の推移を示します。
+        </InfoNote>
         {liveRows.length > 0 ? (
           <>
             <div className="flex items-baseline gap-3 mb-3">
@@ -434,6 +604,18 @@ export const ForwardCalibrationScreen = () => {
 
       {/* 90日予測バンド */}
       <SectionBox title={`90日予測バンド（P10/P50/P90）— ${asset}`}>
+        <InfoNote>
+          バックテストの平時（calm）相場データを使い、統計的な再抽出手法（ブロック・ブートストラップ法・5,000回試行）で「90日後にどのくらいの収益になりそうか」の分布を推定したものです。
+          <br /><br />
+          <span className="font-600 text-red-400">P10</span>＝下位10%点（悲観的な下振れシナリオ）、
+          <span className="font-600 text-blue-500"> P50</span>＝中央値（最も可能性が高いシナリオ）、
+          <span className="font-600 text-emerald-500"> P90</span>＝上位10%点（楽観的な上振れシナリオ）を表します。
+          <br /><br />
+          チャートの見方：<span className="text-emerald-500 font-600">緑の実線</span>が実績の累積収益率、
+          <span className="font-600" style={{ color: asset === 'BTC' ? '#3B82F6' : '#14B8A6' }}> 点線</span>がP50予測の推移、
+          帯（塗りつぶし部分）がP10〜P90の予測幅です。オレンジの縦線が「現在地点（Day{liveDays}）」を示します。
+          日数が浅いうちは予測の信頼度が低く、Day30以降で徐々に精度が上がります。
+        </InfoNote>
         {proj ? (
           <>
             <div className="grid grid-cols-3 gap-2 mb-3 text-center">
@@ -461,12 +643,17 @@ export const ForwardCalibrationScreen = () => {
 
       {/* 日次PnL */}
       <SectionBox title={`日次純損益 (bps) — ${asset}`}>
-        <p className="text-xs text-fg-3 mb-2">ライブ期間のみ表示。上=収益、下=損失</p>
+        <p className="text-xs text-fg-3 mb-2">ライブ期間のみ表示。上=収益、下=損失（単位はbps＝1万分の1）</p>
         <DailyPnlChart rows={ledger} />
       </SectionBox>
 
       {/* 収益シミュレーション */}
-      <SectionBox title="収益額シミュレーション（BTC + ETH 平均）">
+      <SectionBox title="損益額シミュレーション">
+        <InfoNote>
+          投資元本を入力すると、現在の実績収益率および90日後の予測（P10/P50/P90）が、実際の金額でいくらになるかを試算します。
+          「平均」はBTC・ETH両スリーブを均等に持った場合の想定値、「BTC」「ETH」は各資産単体の想定値です。
+          下のチャートは、選択した元本に対する予測損益額が、経過日数に応じてどう変化していくかを示します。
+        </InfoNote>
         <SimulationPanel
           btcRows={btcLedger} ethRows={ethLedger}
           btcProj={metrics.projection90d?.BTC}
