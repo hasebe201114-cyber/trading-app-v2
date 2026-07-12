@@ -1,0 +1,226 @@
+{
+  "experiment": "EXP-OBS000037",
+  "stage": "Stage 1",
+  "scriptPath": "scripts/vrp-tail-correlation.ts",
+  "specReference": "research/EXP-OBS000037/00-spec-stage1.md §5",
+  "executedBy": "B実装チーム (Quant Researcher)",
+  "runTimestampUTC": "2026-07-12T12:48:03.657Z",
+  "gitCommit": "60b78ea4a498e2efc528692fcbf6c5a0e12d7c65",
+  "nodeVersion": "v22.22.2",
+  "scope": {
+    "assets": [
+      "BTC"
+    ],
+    "note": "ETH取得禁止（spec §4固定）"
+  },
+  "params": {
+    "anchorDate": "2021-03-24",
+    "rvForwardWindowDays": 7,
+    "annualizationRv": 19.1049731745428,
+    "confirmStart": "2023-07-01",
+    "tailWindows": {
+      "T2": {
+        "start": "2022-05-01",
+        "end": "2022-06-30",
+        "label": "LUNA/UST崩壊"
+      },
+      "T3": {
+        "start": "2022-10-25",
+        "end": "2022-12-15",
+        "label": "FTX破綻"
+      }
+    },
+    "averageCorrelationThreshold_calm": 0.3,
+    "tailCorrelationThreshold": 0.6,
+    "momentumProductionConfig": {
+      "horizon": 10,
+      "k": 30,
+      "momentumLookback": 30,
+      "momentumConfidenceScale": 30,
+      "initialEquity": 1000000
+    },
+    "momentumBacktestStartDate": "2020-06-01"
+  },
+  "dataSources": {
+    "dvol": {
+      "totalRows": 1937,
+      "pageLog": [
+        "DVOL request#1 status=200 rowsReturned=1000 continuation=1697414400000",
+        "DVOL request#2 status=200 rowsReturned=937 continuation=null",
+        "終了理由: continuation_null_or_absent"
+      ],
+      "pagingPolicyNote": "終了条件は空応答またはcontinuation null/undefinedのみ。"
+    },
+    "mainPriceSeries": {
+      "source": "deribit-tradingview",
+      "ticksReturned": 1938,
+      "rawTickHourUtc": 8
+    },
+    "vrpDailyConstructibleRange": {
+      "start": "2021-03-24",
+      "end": "2026-07-05",
+      "count": 1930
+    },
+    "carryL3": {
+      "path": "research/EXP-OBS000032/10-result/stage1-liquidation-daily-returns-btc-L3.json",
+      "rowCount": 2493,
+      "firstDate": "2019-09-08",
+      "lastDate": "2026-07-05",
+      "note": "フォワードledgerはテール非カバーのため使用していない（ヒストリカルL3のみ使用）。"
+    },
+    "momentumProduction": {
+      "config": {
+        "horizon": 10,
+        "k": 30,
+        "momentumLookback": 30,
+        "momentumConfidenceScale": 30,
+        "initialEquity": 1000000
+      },
+      "backtestStartDateUsed": "2020-06-01",
+      "tradeCount": 222,
+      "dailyRowCount": 2222,
+      "firstDate": "2020-06-01",
+      "lastDate": "2026-07-01"
+    }
+  },
+  "joinKeyAlignment": {
+    "note": "VRPスリーブは`date`（YYYY-MM-DD）、OBS000032 L3は`date`（YYYY-MM-DD）、②momentumは equityCurveから導出した`date`（YYYY-MM-DD）。ISO日付文字列で3系列をjoin。",
+    "commonMatchedDays": 1926,
+    "commonDateRange": {
+      "start": "2021-03-24",
+      "end": "2026-07-01"
+    },
+    "vrpDateSetSize": 1930,
+    "missingInCarry_countBasedOnVrpDates": 0,
+    "missingInMomentum_countBasedOnVrpDates": 4
+  },
+  "g1_a1_calmPeriodCorrelation": {
+    "confirmationPeriodStart": "2023-07-01",
+    "confirmationPeriodEnd": "2026-07-01",
+    "n_full": 1097,
+    "n_h1": 548,
+    "n_h2": 549,
+    "corr_vrp_032carry": {
+      "full": 0.07257645678576571,
+      "abs_full": 0.07257645678576571,
+      "h1": 0.13020296595380365,
+      "abs_h1": 0.13020296595380365,
+      "h2": -0.046489250106389525,
+      "abs_h2": 0.046489250106389525
+    },
+    "corr_vrp_momentum": {
+      "full": -0.01955960429580678,
+      "abs_full": 0.01955960429580678,
+      "h1": -0.024667096405760387,
+      "abs_h1": 0.024667096405760387,
+      "h2": -0.016219161282062203,
+      "abs_h2": 0.016219161282062203
+    }
+  },
+  "g1_a2_a3_tailWindows": {
+    "T2": {
+      "windowStart": "2022-05-01",
+      "windowEnd": "2022-06-30",
+      "label": "LUNA/UST崩壊",
+      "expectedCalendarDays": 61,
+      "matchedDays": 61,
+      "unmatchedDays": 0,
+      "correlation": {
+        "corr_tail_vrp_032carry": -0.225000933253481,
+        "abs_corr_tail_vrp_032carry": 0.225000933253481,
+        "corr_tail_vrp_momentum": 0.16595021471803056,
+        "abs_corr_tail_vrp_momentum": 0.16595021471803056
+      },
+      "individualSleeves_windowNormalized": {
+        "vrp": {
+          "windowStd_rawUnits": 35.76826517777835,
+          "cumulativeReturn_normalizedUnits": 20.752913191719315,
+          "maxDrawdown_normalizedUnits": 10.306976405770936,
+          "ddPeakDate": "2022-05-29",
+          "ddTroughDate": "2022-06-15"
+        },
+        "obs032carry": {
+          "windowStd_rawUnits": 8.045055934268454,
+          "cumulativeReturn_normalizedUnits": -10.648708287733058,
+          "maxDrawdown_normalizedUnits": 11.805634081647685,
+          "ddPeakDate": null,
+          "ddTroughDate": "2022-06-24"
+        },
+        "momentum": {
+          "windowStd_rawUnits": 0.6549507357790554,
+          "cumulativeReturn_normalizedUnits": 10.118652206987157,
+          "maxDrawdown_normalizedUnits": 1.3922315655683128,
+          "ddPeakDate": "2022-05-21",
+          "ddTroughDate": "2022-05-22"
+        }
+      },
+      "composite2Sleeve_momentumPlus032carry_equalVol": {
+        "formula": "0.5 * momentum_normalized + 0.5 * obs032carry_normalized（各系列を自窓std(母集団)で規格化）",
+        "cumulativeReturn_normalizedUnits": -0.26502804037294936,
+        "maxDrawdown_normalizedUnits": 3.252509153297657,
+        "ddPeakDate": "2022-05-12",
+        "ddTroughDate": "2022-06-24"
+      },
+      "composite3Sleeve_momentumPlus032carryPlusVrp_equalVol": {
+        "formula": "(1/3) * momentum_normalized + (1/3) * obs032carry_normalized + (1/3) * vrp_normalized（VRPを1/3ウェイトで追加）",
+        "cumulativeReturn_normalizedUnits": 6.740952370324471,
+        "maxDrawdown_normalizedUnits": 2.977080555860218,
+        "ddPeakDate": "2022-06-04",
+        "ddTroughDate": "2022-06-18"
+      },
+      "maxDrawdownDiff_composite3MinusComposite2_normalizedUnits": -0.2754285974374393
+    },
+    "T3": {
+      "windowStart": "2022-10-25",
+      "windowEnd": "2022-12-15",
+      "label": "FTX破綻",
+      "expectedCalendarDays": 52,
+      "matchedDays": 52,
+      "unmatchedDays": 0,
+      "correlation": {
+        "corr_tail_vrp_032carry": -0.3580884080428433,
+        "abs_corr_tail_vrp_032carry": 0.3580884080428433,
+        "corr_tail_vrp_momentum": -0.01881522852534488,
+        "abs_corr_tail_vrp_momentum": 0.01881522852534488
+      },
+      "individualSleeves_windowNormalized": {
+        "vrp": {
+          "windowStd_rawUnits": 30.172737947674193,
+          "cumulativeReturn_normalizedUnits": 47.278497429449494,
+          "maxDrawdown_normalizedUnits": 7.237671144307601,
+          "ddPeakDate": "2022-10-31",
+          "ddTroughDate": "2022-11-07"
+        },
+        "obs032carry": {
+          "windowStd_rawUnits": 6.277965647057753,
+          "cumulativeReturn_normalizedUnits": -8.352261971013341,
+          "maxDrawdown_normalizedUnits": 11.9634087880586,
+          "ddPeakDate": "2022-11-08",
+          "ddTroughDate": "2022-11-25"
+        },
+        "momentum": {
+          "windowStd_rawUnits": 0.38626999606191614,
+          "cumulativeReturn_normalizedUnits": -7.715359263760047,
+          "maxDrawdown_normalizedUnits": 7.715359263760047,
+          "ddPeakDate": "2022-10-28",
+          "ddTroughDate": "2022-12-08"
+        }
+      },
+      "composite2Sleeve_momentumPlus032carry_equalVol": {
+        "formula": "0.5 * momentum_normalized + 0.5 * obs032carry_normalized（各系列を自窓std(母集団)で規格化）",
+        "cumulativeReturn_normalizedUnits": -8.033810617386694,
+        "maxDrawdown_normalizedUnits": 8.915338750300382,
+        "ddPeakDate": "2022-10-26",
+        "ddTroughDate": "2022-12-13"
+      },
+      "composite3Sleeve_momentumPlus032carryPlusVrp_equalVol": {
+        "formula": "(1/3) * momentum_normalized + (1/3) * obs032carry_normalized + (1/3) * vrp_normalized（VRPを1/3ウェイトで追加）",
+        "cumulativeReturn_normalizedUnits": 10.403625398225365,
+        "maxDrawdown_normalizedUnits": 3.3227526468436634,
+        "ddPeakDate": "2022-10-28",
+        "ddTroughDate": "2022-11-08"
+      },
+      "maxDrawdownDiff_composite3MinusComposite2_normalizedUnits": -5.592586103456719
+    }
+  }
+}

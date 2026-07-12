@@ -1,0 +1,196 @@
+======================================================================
+=== vrp-prediction-unit.ts 実行 2026-07-12T12:44:46.166Z ===
+Git commit: 60b78ea4a498e2efc528692fcbf6c5a0e12d7c65
+Node version: v22.22.2
+
+REPRODUCTION COMMAND:
+  node --experimental-strip-types scripts/vrp-prediction-unit.ts
+
+EXECUTION LOG:
+[2026-07-12T12:44:46.188Z] === EXP-OBS000037 Stage 1: vrp-prediction-unit.ts ===
+[2026-07-12T12:44:46.188Z] 実行UTC時刻: 2026-07-12T12:44:46.166Z
+[2026-07-12T12:44:46.292Z] Git commit: 60b78ea4a498e2efc528692fcbf6c5a0e12d7c65
+[2026-07-12T12:44:46.292Z] Node version: v22.22.2
+[2026-07-12T12:44:46.292Z] 
+>>> DVOL BTC 日次取得（アンカー2021-03-24〜末尾）
+[2026-07-12T12:44:46.921Z]   DVOL page#1: rowsReturned=1000 continuation=1697414400000
+[2026-07-12T12:44:47.534Z]   DVOL page#2: rowsReturned=937 continuation=null
+[2026-07-12T12:44:47.537Z]   DVOL総取得件数=1937 最古=2021-03-24 最新=2026-07-12
+[2026-07-12T12:44:47.537Z] 
+>>> 主系列価格取得（Deribit-tradingview BTC-PERPETUAL）
+[2026-07-12T12:44:47.537Z]   GET https://www.deribit.com/api/v2/public/get_tradingview_chart_data?instrument_name=BTC-PERPETUAL&start_timestamp=1616544000000&end_timestamp=1783900800000&resolution=1D
+[2026-07-12T12:44:47.974Z]   BTC-PERPETUAL price: status=ok ticks=1938
+[2026-07-12T12:44:47.982Z]   主系列: ticksReturned=1938 rawTickHourUtc=8 status=ok
+[2026-07-12T12:44:47.982Z] 
+>>> 副系列価格取得（Binance CSV btc-daily-binance-2017-2026.csv）
+[2026-07-12T12:44:47.989Z]   副系列: rowCount=3243 firstDate=2017-08-17 lastDate=2026-07-03
+[2026-07-12T12:44:47.989Z] 
+>>> 週次VRP系列構築（主系列）
+[2026-07-12T12:44:47.997Z]   主系列: 週次候補点数=277 VRP構築可能点数=276
+[2026-07-12T12:44:47.997Z] 
+>>> 週次VRP系列構築（副系列）
+[2026-07-12T12:44:48.005Z]   副系列: 週次候補点数=277 VRP構築可能点数=275
+[2026-07-12T12:44:48.005Z] 
+>>> 先読み排除自己点検: 主系列違反件数=0 副系列違反件数=0
+[2026-07-12T12:44:48.005Z] 
+>>> R1〜R4: 期間別統計計算（主系列）
+[2026-07-12T12:44:48.064Z]   full: n=276 mean=14.2313 p=0 max|Δmean|=6.2076
+[2026-07-12T12:44:48.064Z]   selection: n=119 mean=18.4651 p=0
+[2026-07-12T12:44:48.064Z]   confirmation: n=157 mean=11.0222 p=0
+[2026-07-12T12:44:48.064Z] 
+>>> R1〜R4: 期間別統計計算（副系列）
+[2026-07-12T12:44:48.114Z]   full: n=275 mean=12.4351 p=0
+[2026-07-12T12:44:48.114Z]   selection: n=119 mean=16.9430 p=0
+[2026-07-12T12:44:48.114Z]   confirmation: n=156 mean=8.9963 p=0
+[2026-07-12T12:44:48.114Z] 
+>>> R5〜R6: パイプライン統計（lab仮置きコスト1.8 vol pt/週）
+[2026-07-12T12:44:48.114Z]   主系列: n=276 meanNet=12.4313 sharpe(√52)=3.6912 maxDD_volPt=97.7184 maxDD_pct=3.5967
+[2026-07-12T12:44:48.114Z]   副系列: n=275 meanNet=10.6351 sharpe(√52)=3.3033 maxDD_volPt=132.4645 maxDD_pct=97.9202
+[2026-07-12T12:44:48.122Z] 
+>>> 保存: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000037\10-result\stage1-vrp-prediction-unit.json
+[2026-07-12T12:44:48.123Z] >>> 保存: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000037\10-result\stage1-vrp-prediction-unit-params.json
+======================================================================
+=== vrp-tail-correlation.ts 実行 2026-07-12T12:47:18.085Z ===
+Git commit: 60b78ea4a498e2efc528692fcbf6c5a0e12d7c65
+Node version: v22.22.2
+
+REPRODUCTION COMMAND:
+  node --experimental-strip-types scripts/vrp-tail-correlation.ts
+
+EXECUTION LOG:
+[2026-07-12T12:47:18.102Z] === EXP-OBS000037 Stage 1: vrp-tail-correlation.ts ===
+[2026-07-12T12:47:18.102Z] 実行UTC時刻: 2026-07-12T12:47:18.085Z
+[2026-07-12T12:47:18.205Z] Git commit: 60b78ea4a498e2efc528692fcbf6c5a0e12d7c65
+[2026-07-12T12:47:18.205Z] Node version: v22.22.2
+[2026-07-12T12:47:18.205Z] 
+>>> DVOL BTC 日次取得
+[2026-07-12T12:47:18.737Z]   DVOL page#1: rowsReturned=1000 continuation=1697414400000
+[2026-07-12T12:47:19.404Z]   DVOL page#2: rowsReturned=937 continuation=null
+[2026-07-12T12:47:19.420Z]   DVOL総取得件数=1937
+[2026-07-12T12:47:19.421Z] 
+>>> 主系列価格取得（Deribit-tradingview BTC-PERPETUAL）
+[2026-07-12T12:47:19.422Z]   GET https://www.deribit.com/api/v2/public/get_tradingview_chart_data?instrument_name=BTC-PERPETUAL&start_timestamp=1616544000000&end_timestamp=1783900800000&resolution=1D
+[2026-07-12T12:47:19.871Z]   BTC-PERPETUAL price: ticks=1938 rawTickHourUtc=8
+[2026-07-12T12:47:19.871Z] 
+>>> VRPスリーブ日次系列構築（毎日ローリング・spec §5-1）
+[2026-07-12T12:47:19.920Z]   VRP日次構築可能日数=1930（期間 2021-03-24〜2026-07-05）
+[2026-07-12T12:47:19.921Z] 
+>>> OBS000032キャリー日次（ヒストリカルL3）読み込み
+[2026-07-12T12:47:19.925Z]   キャリーL3行数=2493（期間 2019-09-08〜2026-07-05）
+[2026-07-12T12:47:19.925Z] 
+>>> ②モメンタム日次（simulatePortfolio本番構成）
+[2026-07-12T12:47:20.177Z]   ②: trades=222 equityCurvePoints=223
+[2026-07-12T12:47:20.183Z]   ②日次リターン行数=2222（期間 2020-06-01〜2026-07-01）
+[2026-07-12T12:47:20.191Z] 
+>>> 3系列共通突合日数=1926（2021-03-24〜2026-07-01）
+[2026-07-12T12:47:20.193Z]   VRP日付基準の片側欠損: carry非突合=0 momentum非突合=4
+[2026-07-12T12:47:20.193Z] 
+>>> G1-A1: 確認期間の平時相関
+[2026-07-12T12:47:20.196Z]   確認期間(2023-07-01〜2026-07-01) n=1097
+[2026-07-12T12:47:20.196Z]   |corr(VRP,032キャリー)| full=0.0726 h1=0.1302 h2=0.0465
+[2026-07-12T12:47:20.197Z]   |corr(VRP,②)|        full=0.0196 h1=0.0247 h2=0.0162
+[2026-07-12T12:47:20.197Z] 
+>>> G1-A2/G1-A3: テール窓別相関・同時DD
+[2026-07-12T12:47:20.198Z]   T2(2022-05-01〜2022-06-30): matched=61/61 corr(VRP,032carry)=-0.2250 corr(VRP,②)=0.1660 DD2sleeve=3.2525 DD3sleeve=2.9771
+[2026-07-12T12:47:20.199Z]   T3(2022-10-25〜2022-12-15): matched=52/52 corr(VRP,032carry)=-0.3581 corr(VRP,②)=-0.0188 DD2sleeve=8.9153 DD3sleeve=3.3228
+[2026-07-12T12:47:20.201Z] 
+>>> 保存: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000037\10-result\stage1-vrp-tail-correlation.json
+[2026-07-12T12:47:20.202Z] >>> 保存: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000037\10-result\stage1-vrp-tail-correlation-params.json
+======================================================================
+=== vrp-prediction-unit.ts 実行 2026-07-12T12:47:53.137Z ===
+Git commit: 60b78ea4a498e2efc528692fcbf6c5a0e12d7c65
+Node version: v22.22.2
+
+REPRODUCTION COMMAND:
+  node --experimental-strip-types scripts/vrp-prediction-unit.ts
+
+EXECUTION LOG:
+[2026-07-12T12:47:53.139Z] === EXP-OBS000037 Stage 1: vrp-prediction-unit.ts ===
+[2026-07-12T12:47:53.140Z] 実行UTC時刻: 2026-07-12T12:47:53.137Z
+[2026-07-12T12:47:53.223Z] Git commit: 60b78ea4a498e2efc528692fcbf6c5a0e12d7c65
+[2026-07-12T12:47:53.223Z] Node version: v22.22.2
+[2026-07-12T12:47:53.223Z] 
+>>> DVOL BTC 日次取得（アンカー2021-03-24〜末尾）
+[2026-07-12T12:47:53.641Z]   DVOL page#1: rowsReturned=1000 continuation=1697414400000
+[2026-07-12T12:47:54.266Z]   DVOL page#2: rowsReturned=937 continuation=null
+[2026-07-12T12:47:54.271Z]   DVOL総取得件数=1937 最古=2021-03-24 最新=2026-07-12
+[2026-07-12T12:47:54.271Z] 
+>>> 主系列価格取得（Deribit-tradingview BTC-PERPETUAL）
+[2026-07-12T12:47:54.272Z]   GET https://www.deribit.com/api/v2/public/get_tradingview_chart_data?instrument_name=BTC-PERPETUAL&start_timestamp=1616544000000&end_timestamp=1783900800000&resolution=1D
+[2026-07-12T12:47:54.707Z]   BTC-PERPETUAL price: status=ok ticks=1938
+[2026-07-12T12:47:54.717Z]   主系列: ticksReturned=1938 rawTickHourUtc=8 status=ok
+[2026-07-12T12:47:54.717Z] 
+>>> 副系列価格取得（Binance CSV btc-daily-binance-2017-2026.csv）
+[2026-07-12T12:47:54.723Z]   副系列: rowCount=3243 firstDate=2017-08-17 lastDate=2026-07-03
+[2026-07-12T12:47:54.723Z] 
+>>> 週次VRP系列構築（主系列）
+[2026-07-12T12:47:54.731Z]   主系列: 週次候補点数=277 VRP構築可能点数=276
+[2026-07-12T12:47:54.731Z] 
+>>> 週次VRP系列構築（副系列）
+[2026-07-12T12:47:54.739Z]   副系列: 週次候補点数=277 VRP構築可能点数=275
+[2026-07-12T12:47:54.739Z] 
+>>> 先読み排除自己点検: 主系列違反件数=0 副系列違反件数=0
+[2026-07-12T12:47:54.739Z] 
+>>> R1〜R4: 期間別統計計算（主系列）
+[2026-07-12T12:47:54.789Z]   full: n=276 mean=14.2313 p=0 max|Δmean|=6.2076
+[2026-07-12T12:47:54.789Z]   selection: n=119 mean=18.4651 p=0
+[2026-07-12T12:47:54.789Z]   confirmation: n=157 mean=11.0222 p=0
+[2026-07-12T12:47:54.789Z] 
+>>> R1〜R4: 期間別統計計算（副系列）
+[2026-07-12T12:47:54.840Z]   full: n=275 mean=12.4351 p=0
+[2026-07-12T12:47:54.840Z]   selection: n=119 mean=16.9430 p=0
+[2026-07-12T12:47:54.840Z]   confirmation: n=156 mean=8.9963 p=0
+[2026-07-12T12:47:54.840Z] 
+>>> R5〜R6: パイプライン統計（lab仮置きコスト1.8 vol pt/週）
+[2026-07-12T12:47:54.841Z]   主系列: n=276 meanNet=12.4313 sharpe(√52)=3.6912 maxDD_volPt=97.7184 maxDD_pct=3.5967
+[2026-07-12T12:47:54.841Z]   副系列: n=275 meanNet=10.6351 sharpe(√52)=3.3033 maxDD_volPt=132.4645 maxDD_pct=97.9202
+[2026-07-12T12:47:54.849Z] 
+>>> 保存: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000037\10-result\stage1-vrp-prediction-unit.json
+[2026-07-12T12:47:54.850Z] >>> 保存: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000037\10-result\stage1-vrp-prediction-unit-params.json
+======================================================================
+=== vrp-tail-correlation.ts 実行 2026-07-12T12:48:03.657Z ===
+Git commit: 60b78ea4a498e2efc528692fcbf6c5a0e12d7c65
+Node version: v22.22.2
+
+REPRODUCTION COMMAND:
+  node --experimental-strip-types scripts/vrp-tail-correlation.ts
+
+EXECUTION LOG:
+[2026-07-12T12:48:03.660Z] === EXP-OBS000037 Stage 1: vrp-tail-correlation.ts ===
+[2026-07-12T12:48:03.660Z] 実行UTC時刻: 2026-07-12T12:48:03.657Z
+[2026-07-12T12:48:03.723Z] Git commit: 60b78ea4a498e2efc528692fcbf6c5a0e12d7c65
+[2026-07-12T12:48:03.723Z] Node version: v22.22.2
+[2026-07-12T12:48:03.723Z] 
+>>> DVOL BTC 日次取得
+[2026-07-12T12:48:04.144Z]   DVOL page#1: rowsReturned=1000 continuation=1697414400000
+[2026-07-12T12:48:04.728Z]   DVOL page#2: rowsReturned=937 continuation=null
+[2026-07-12T12:48:04.743Z]   DVOL総取得件数=1937
+[2026-07-12T12:48:04.743Z] 
+>>> 主系列価格取得（Deribit-tradingview BTC-PERPETUAL）
+[2026-07-12T12:48:04.744Z]   GET https://www.deribit.com/api/v2/public/get_tradingview_chart_data?instrument_name=BTC-PERPETUAL&start_timestamp=1616544000000&end_timestamp=1783900800000&resolution=1D
+[2026-07-12T12:48:05.190Z]   BTC-PERPETUAL price: ticks=1938 rawTickHourUtc=8
+[2026-07-12T12:48:05.190Z] 
+>>> VRPスリーブ日次系列構築（毎日ローリング・spec §5-1）
+[2026-07-12T12:48:05.236Z]   VRP日次構築可能日数=1930（期間 2021-03-24〜2026-07-05）
+[2026-07-12T12:48:05.236Z] 
+>>> OBS000032キャリー日次（ヒストリカルL3）読み込み
+[2026-07-12T12:48:05.239Z]   キャリーL3行数=2493（期間 2019-09-08〜2026-07-05）
+[2026-07-12T12:48:05.239Z] 
+>>> ②モメンタム日次（simulatePortfolio本番構成）
+[2026-07-12T12:48:05.479Z]   ②: trades=222 equityCurvePoints=223
+[2026-07-12T12:48:05.483Z]   ②日次リターン行数=2222（期間 2020-06-01〜2026-07-01）
+[2026-07-12T12:48:05.487Z] 
+>>> 3系列共通突合日数=1926（2021-03-24〜2026-07-01）
+[2026-07-12T12:48:05.487Z]   VRP日付基準の片側欠損: carry非突合=0 momentum非突合=4
+[2026-07-12T12:48:05.487Z] 
+>>> G1-A1: 確認期間の平時相関
+[2026-07-12T12:48:05.492Z]   確認期間(2023-07-01〜2026-07-01) n=1097
+[2026-07-12T12:48:05.492Z]   |corr(VRP,032キャリー)| full=0.0726 h1=0.1302 h2=0.0465
+[2026-07-12T12:48:05.492Z]   |corr(VRP,②)|        full=0.0196 h1=0.0247 h2=0.0162
+[2026-07-12T12:48:05.492Z] 
+>>> G1-A2/G1-A3: テール窓別相関・同時DD
+[2026-07-12T12:48:05.493Z]   T2(2022-05-01〜2022-06-30): matched=61/61 corr(VRP,032carry)=-0.2250 corr(VRP,②)=0.1660 DD2sleeve=3.2525 DD3sleeve=2.9771
+[2026-07-12T12:48:05.494Z]   T3(2022-10-25〜2022-12-15): matched=52/52 corr(VRP,032carry)=-0.3581 corr(VRP,②)=-0.0188 DD2sleeve=8.9153 DD3sleeve=3.3228
+[2026-07-12T12:48:05.496Z] 
+>>> 保存: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000037\10-result\stage1-vrp-tail-correlation.json
+[2026-07-12T12:48:05.498Z] >>> 保存: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000037\10-result\stage1-vrp-tail-correlation-params.json

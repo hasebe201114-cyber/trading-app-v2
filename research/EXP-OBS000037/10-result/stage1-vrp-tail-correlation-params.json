@@ -1,0 +1,28 @@
+{
+  "anchorDate": "2021-03-24",
+  "rvForwardWindowDays": 7,
+  "annualizationRv": 19.1049731745428,
+  "confirmStart": "2023-07-01",
+  "tailWindows": {
+    "T2": {
+      "start": "2022-05-01",
+      "end": "2022-06-30",
+      "label": "LUNA/UST崩壊"
+    },
+    "T3": {
+      "start": "2022-10-25",
+      "end": "2022-12-15",
+      "label": "FTX破綻"
+    }
+  },
+  "averageCorrelationThreshold_calm": 0.3,
+  "tailCorrelationThreshold": 0.6,
+  "momentumProductionConfig": {
+    "horizon": 10,
+    "k": 30,
+    "momentumLookback": 30,
+    "momentumConfidenceScale": 30,
+    "initialEquity": 1000000
+  },
+  "momentumBacktestStartDate": "2020-06-01"
+}
