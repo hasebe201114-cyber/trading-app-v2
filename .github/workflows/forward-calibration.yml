@@ -69,6 +69,9 @@ jobs:
               } else { console.log(0); }
             " 2>/dev/null || echo "?")
             git commit -m "chore(forward): daily calibration update — live day ${LIVE_DAYS}/90"
+
+            # push前に git pull --rebase で競合を回避（複数同時実行対策）
+            git pull --rebase origin main
             git push origin main
             echo "Committed and pushed forward calibration results (live day ${LIVE_DAYS}/90)"
           fi
