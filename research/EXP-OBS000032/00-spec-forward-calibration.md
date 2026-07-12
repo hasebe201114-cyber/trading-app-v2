@@ -171,6 +171,10 @@ binance_funding_daily_bps, f2_pair_sign_match, data_gap_flag
 
 ### 5-3. ≥90ライブ日到達後
 - ライブ日数が 90 を超えたら、`forward-f1f4-verdict-inputs.json`（F1〜F4 の最終実測値＋各閾値＋真偽値・両銘柄）を出力し、**C品質チームの較正監査に引き渡す**。B実装官は判定語を使わず実測値と真偽値のみ。
+- **⚠ 追加検証項目（2026-07-12追加・司令塔指示・PJ000004課題#9関連）**: C較正監査時に以下を分解分析すること。既存のF1〜F4基準・閾値を変更・緩和するものではなく、その解釈に文脈を与える追加分析。
+  - **順キャリー/反転局面の収益分解**: ledgerの`signal_pos`（+1=順キャリー／−1=反転・逆キャリー）と`reversal_flag`を用いて、順キャリー局面のみの累積収益と、反転（逆キャリー）局面のみの累積収益を分離集計する。
+  - **反転局面の借入コスト後日再計算**: 本specの会計モデル（§0-3・§2-3）は、反転時の「現物ショート×perpロング」構成における現物ショートの借入コスト（Bitgetスポットマージンのborrow rate）を計上していない（資本コストはperpショート証拠金のみに課される）。ライブ90日間の実際のborrow rate水準をBitget公開API等で確認し、反転局面の収益から後日控除して再計算すること。
+  - **実運用（btc-carry-executor）との整合確認**: 実行層は反転構成（現物ショート×perpロング）を実装しておらず「順キャリーのみ・逆局面はフラット化」で稼働する設計（2026-07-12時点）。ゆえに、F1参照値との比較は「順キャリーのみの収益」を主指標とし、「両方向合算（本specの生値）」は参考値として併記すること。実行層側で反転ロジックを追加実装する場合は、その時点で本specの会計モデルにも借入コストを追加し再検証すること。
 
 ### 5-4. スクリプト
 - **新規 `scripts/bitget-carry-forward-paper.ts`**（Stage 1 spec §10-4 で設計固定済みのハーネスを本specの記録形式・F1〜F4基準で実装）。
@@ -232,4 +236,5 @@ binance_funding_daily_bps, f2_pair_sign_match, data_gap_flag
 ---
 
 ## 変更履歴
+- 2026-07-12: 司令塔とのセッションで、フォワード較正の会計モデル（§2-3）が反転（逆キャリー）局面の借入コストを計上していないこと、および実運用`btc-carry-executor`がこの反転構成自体を実装していないことが判明（PJ000004課題#9）。既存のF1〜F4基準・閾値は変更しないが、§5-3「≥90ライブ日到達後」に追加検証項目（順キャリー/反転局面の収益分解・借入コスト後日再計算・実運用との整合確認）を追記。Day90のC較正監査で対応する。
 - 2026-07-05: 初版作成（A設計チーム）。EXP-OBS000032 フォワード較正フェーズ（Bitgetペーパートレード ≥90日・F1〜F4）specを確定。Stage 1（`22-verdict-stage1-final.md` 採用可・バックテスト全ゲート達成＝スリーブ候補推薦）を受け、C条件C・Stage 1 spec §8 を実装可能粒度まで具体化。**ペーパートレード機構**＝Bitget公開API日次取得（現物/perp last/perp mark/funding）＋Binance funding同時取得で、W=7・3倍・w*(BTC3.629/ETH3.789)のデルタニュートラル仮想ポジションをStage 1バグF/G根治版方式I会計（`margin_t=floor(0,margin_{t-1}+pos·perp_mtm+pos·funding_flow)`・清算損二重計上なし）で日次評価。**記録項目**＝29カラムの追記型ledger（basis/funding/signal/pnl/margin/清算/追証/F2ペア符号/phase warmup|live 等）＋meta＋interim-metrics＋alerts＋run.log。**F1〜F4合否基準を数値固定**：F1=累積>0 かつ ライブ日次平均≥calm窓(BTC11.62/ETH14.40bps)block-bootstrap片側90%下側境界（未達はレジーム差ゆえ司令塔上申・FULL 1.586/2.368bps併記）／F2=Bitget⇔Binance符号一致≥80%（G0-2基準64.68/71.75%・ライブ重複で再測）／F3=清算・追証0件（発生即警告）／F4=Bitget basis日次変化std≤T1水準(BTC12.14/ETH19.47bps)。**両銘柄成立で初めてF成立**。**実行方式＝日次冪等追記**（初回warmup back-fill≤30日でシグナル立ち上げ＋go-live確定、F1〜F4はライブ≥90暦日・90日をback-fillで一括生成しない＝C条件Cのライブ性厳守）。**中間チェックポイント**＝清算/追証即時・符号一致<70%・キャリー10日連続マイナス・basis T1超過・データ欠損2日連続で早期警告＋30/60日スナップショット。使用スクリプト＝新規`bitget-carry-forward-paper.ts`（fetch-bitget-data.ts/compare-bitget-binance-funding.ts[length<pageSize break修正]/carry-liquidation-sim.ts流用）。本番反映はF1〜F4両銘柄合格＋C較正監査＋司令塔最終GOの3点必須。B実装官に判定語禁止・生データのみ・w*フォワード再算出禁止・warmup水増し禁止・ページングバグ非再発・成果物実在確認後の完了報告・MMR仮置き明示を指示。担当をB実装チーム（フォワード較正ハーネス実装・日次ライブ蓄積待ち）に更新（A設計チーム）。
