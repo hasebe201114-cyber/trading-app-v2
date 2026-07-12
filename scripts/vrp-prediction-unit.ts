@@ -9,12 +9,13 @@
  *
  * VRP定義（spec §2・ハードコード・チューニング禁止）:
  *   VRP_t = DVOL_t（日D・00:00 UTC close） − RV_forward(t, t+7d)
- *   RV_forward: 日D+1〜D+7の終値のみを使用（Dの当日足・過去足は混ぜない＝先読み排除自己点検 spec §6-3）。
- *     close(D+1)〜close(D+7) の 7 本の終値から隣接対数リターン 6 本を計算し、年率化標準偏差(ddof=1)×√365。
- *     （spec §2 原文「窓＝tの翌営業日から7本の日次リターン（すなわちD+1..D+7の終値から計算）」と
- *      spec §6-3「RV_forwardは必ず日Dより後(D+1以降)の価格のみを使う」を両立させる読み方を採用。
- *      Dの終値を混ぜると§6-3の自己点検に抵触するため、D+1..D+7の7終値のみを使用し6本のリターンを得る。
- *      この解釈をmetaに明記し、C品質チームが独立に検証できるようにする＝判定はしない。）
+ *   RV_forward: 日D+1〜D+8の8終値を使用（Dの当日足・過去足は混ぜない＝先読み排除自己点検 spec §6-3）。
+ *     close(D+1)〜close(D+8) の 8 本の終値から隣接対数リターン 7 本（r_k=ln(close_{D+k+1}/close_{D+k}), k=1..7）
+ *     を計算し、年率化標準偏差(ddof=1)×√365×100。
+ *     （2026-07-12是正版 spec §2「RV窓長の一義的定義＝7リターン＝D+1..D+8の8終値」に基づく。
+ *      D+1..D+8はいずれも日Dより後の価格のみ＝§6-3の先読み排除と両立する。
+ *      旧版（初回実装）はD+1..D+7の7終値・6リターンを採用していたが、C判定書`20-verdict-stage1.md`の
+ *      是正指示を受けD+1..D+8の8終値・7リターンへ修正した。）
  * 週次非重複サンプリング（spec §2）: アンカー2021-03-24、7暦日ステップ。
  * 年率化係数（spec §2）: √365。ddof=1（標本標準偏差）。
  *
@@ -60,7 +61,7 @@ const BASE = 'https://www.deribit.com/api/v2';
 const PARAMS = {
   anchorDate: '2021-03-24',
   weeklyStepDays: 7,
-  rvForwardWindowDays: 7, // D+1..D+7 の7終値使用（6リターン）
+  rvForwardReturnCount: 7, // D+1..D+8 の8終値から7本の隣接対数リターンを生成（2026-07-12是正版 spec §2）
   annualizationRv: Math.sqrt(365),
   selectionStart: '2021-03-24',
   selectionEnd: '2023-06-30',
@@ -203,17 +204,19 @@ function loadBinanceCsvCloseByDate(csvPath: string): { closeByDate: Map<string, 
 }
 
 // ============================================================
-// RV_forward(D, D+7d)：D+1..D+7 の7終値のみ使用（先読み排除）。6本の対数リターンの年率化std(ddof=1)。
+// RV_forward(D, D+7d)：D+1..D+8 の8終値を使用（先読み排除）。7本の対数リターンの年率化std(ddof=1)。
+// （2026-07-12是正版 spec §2: targetReturnCount本のリターンを得るには targetReturnCount+1 個の終値が必要）
 // ============================================================
 interface RvForwardResult {
   rv_annualized_pct: number | null;
   priceDatesUsed: string[];
   returnCount: number;
 }
-function computeRvForward(dateD: string, closeByDate: Map<string, number>, windowDays: number): RvForwardResult {
+function computeRvForward(dateD: string, closeByDate: Map<string, number>, targetReturnCount: number): RvForwardResult {
   const priceDates: string[] = [];
   const closesUsed: number[] = [];
-  for (let i = 1; i <= windowDays; i++) {
+  const closesNeeded = targetReturnCount + 1; // 7リターン → 8終値
+  for (let i = 1; i <= closesNeeded; i++) {
     const d = addDaysKey(dateD, i);
     const c = closeByDate.get(d);
     if (c === undefined) return { rv_annualized_pct: null, priceDatesUsed: priceDates, returnCount: 0 };
@@ -248,7 +251,7 @@ function buildWeeklySeries(
   stepDays: number,
   dvolByDate: Map<string, number>,
   closeByDate: Map<string, number>,
-  windowDays: number,
+  targetReturnCount: number,
 ): WeeklyPoint[] {
   const points: WeeklyPoint[] = [];
   let cur = anchorDate;
@@ -257,7 +260,7 @@ function buildWeeklySeries(
   while (cur <= lastDvolDate) {
     const dvol = dvolByDate.get(cur);
     if (dvol !== undefined) {
-      const rv = computeRvForward(cur, closeByDate, windowDays);
+      const rv = computeRvForward(cur, closeByDate, targetReturnCount);
       const lookaheadCheckPassed = rv.priceDatesUsed.every(d => d > cur);
       points.push({
         date: cur,
@@ -435,11 +438,11 @@ async function main(): Promise<void> {
 
   // ---- 週次VRP系列構築（主・副） ----
   log('\n>>> 週次VRP系列構築（主系列）');
-  const mainWeekly = buildWeeklySeries(PARAMS.anchorDate, PARAMS.weeklyStepDays, dvolByDate, mainPrice.closeByDate, PARAMS.rvForwardWindowDays);
+  const mainWeekly = buildWeeklySeries(PARAMS.anchorDate, PARAMS.weeklyStepDays, dvolByDate, mainPrice.closeByDate, PARAMS.rvForwardReturnCount);
   log(`  主系列: 週次候補点数=${mainWeekly.length} VRP構築可能点数=${mainWeekly.filter(p => p.vrp !== null).length}`);
 
   log('\n>>> 週次VRP系列構築（副系列）');
-  const secondaryWeekly = buildWeeklySeries(PARAMS.anchorDate, PARAMS.weeklyStepDays, dvolByDate, secondaryPrice.closeByDate, PARAMS.rvForwardWindowDays);
+  const secondaryWeekly = buildWeeklySeries(PARAMS.anchorDate, PARAMS.weeklyStepDays, dvolByDate, secondaryPrice.closeByDate, PARAMS.rvForwardReturnCount);
   log(`  副系列: 週次候補点数=${secondaryWeekly.length} VRP構築可能点数=${secondaryWeekly.filter(p => p.vrp !== null).length}`);
 
   // ---- 先読み排除の自己点検 ----
@@ -495,9 +498,10 @@ async function main(): Promise<void> {
     params: PARAMS,
     methodologyNote: {
       rvForwardDefinition:
-        'RV_forward(D,D+7d)はD+1..D+7の7終値のみを使用し6本の隣接対数リターンの年率化標準偏差(ddof=1)×√365で算出。' +
-        'Dの当日終値は使用しない（spec §6-3「D+1以降の価格のみ」の自己点検を優先し、spec §2「7本の日次リターン」の記述は' +
-        'D+1..D+7の7終値使用と解釈）。',
+        'RV_forward(D,D+7d)はD+1..D+8の8終値を使用し7本の隣接対数リターン(r_k=ln(close_{D+k+1}/close_{D+k}), k=1..7)の' +
+        '年率化標準偏差(ddof=1)×√365×100で算出。Dの当日終値は使用しない（D+1..D+8はいずれも日Dより後の価格のみ＝' +
+        'spec §6-3「D+1以降の価格のみ」の先読み排除自己点検と両立する）。2026-07-12是正版spec §2の一義的定義' +
+        '（7リターン＝D+1..D+8の8終値）に基づく再実装（C判定書`20-verdict-stage1.md`の是正指示反映）。',
       vrpDefinition: 'VRP_t = DVOL_t(日D・00:00 UTC close) − RV_forward(t,t+7d)。',
       weeklySampling: `アンカー${PARAMS.anchorDate}から${PARAMS.weeklyStepDays}暦日ステップの非重複週次サンプル。系列は最後にRV_forwardが構築可能な週次点で打ち切り。`,
     },

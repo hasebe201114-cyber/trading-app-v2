@@ -4,8 +4,8 @@
   "scriptPath": "scripts/vrp-tail-correlation.ts",
   "specReference": "research/EXP-OBS000037/00-spec-stage1.md §5",
   "executedBy": "B実装チーム (Quant Researcher)",
-  "runTimestampUTC": "2026-07-12T12:48:03.657Z",
-  "gitCommit": "60b78ea4a498e2efc528692fcbf6c5a0e12d7c65",
+  "runTimestampUTC": "2026-07-12T21:55:39.031Z",
+  "gitCommit": "342346752f198d2fbbdf35f66c7c2a24df34b903",
   "nodeVersion": "v22.22.2",
   "scope": {
     "assets": [
@@ -15,7 +15,7 @@
   },
   "params": {
     "anchorDate": "2021-03-24",
-    "rvForwardWindowDays": 7,
+    "rvForwardReturnCount": 7,
     "annualizationRv": 19.1049731745428,
     "confirmStart": "2023-07-01",
     "tailWindows": {
@@ -58,8 +58,8 @@
     },
     "vrpDailyConstructibleRange": {
       "start": "2021-03-24",
-      "end": "2026-07-05",
-      "count": 1930
+      "end": "2026-07-04",
+      "count": 1929
     },
     "carryL3": {
       "path": "research/EXP-OBS000032/10-result/stage1-liquidation-daily-returns-btc-L3.json",
@@ -90,9 +90,9 @@
       "start": "2021-03-24",
       "end": "2026-07-01"
     },
-    "vrpDateSetSize": 1930,
+    "vrpDateSetSize": 1929,
     "missingInCarry_countBasedOnVrpDates": 0,
-    "missingInMomentum_countBasedOnVrpDates": 4
+    "missingInMomentum_countBasedOnVrpDates": 3
   },
   "g1_a1_calmPeriodCorrelation": {
     "confirmationPeriodStart": "2023-07-01",
@@ -101,20 +101,20 @@
     "n_h1": 548,
     "n_h2": 549,
     "corr_vrp_032carry": {
-      "full": 0.07257645678576571,
-      "abs_full": 0.07257645678576571,
-      "h1": 0.13020296595380365,
-      "abs_h1": 0.13020296595380365,
-      "h2": -0.046489250106389525,
-      "abs_h2": 0.046489250106389525
+      "full": 0.062124897831472965,
+      "abs_full": 0.062124897831472965,
+      "h1": 0.12225012173550016,
+      "abs_h1": 0.12225012173550016,
+      "h2": -0.062057457413625255,
+      "abs_h2": 0.062057457413625255
     },
     "corr_vrp_momentum": {
-      "full": -0.01955960429580678,
-      "abs_full": 0.01955960429580678,
-      "h1": -0.024667096405760387,
-      "abs_h1": 0.024667096405760387,
-      "h2": -0.016219161282062203,
-      "abs_h2": 0.016219161282062203
+      "full": -0.03473389455443609,
+      "abs_full": 0.03473389455443609,
+      "h1": -0.05126355799206565,
+      "abs_h1": 0.05126355799206565,
+      "h2": -0.014921925254254582,
+      "abs_h2": 0.014921925254254582
     }
   },
   "g1_a2_a3_tailWindows": {
@@ -126,17 +126,17 @@
       "matchedDays": 61,
       "unmatchedDays": 0,
       "correlation": {
-        "corr_tail_vrp_032carry": -0.225000933253481,
-        "abs_corr_tail_vrp_032carry": 0.225000933253481,
-        "corr_tail_vrp_momentum": 0.16595021471803056,
-        "abs_corr_tail_vrp_momentum": 0.16595021471803056
+        "corr_tail_vrp_032carry": -0.2492658970507952,
+        "abs_corr_tail_vrp_032carry": 0.2492658970507952,
+        "corr_tail_vrp_momentum": 0.14495779326579147,
+        "abs_corr_tail_vrp_momentum": 0.14495779326579147
       },
       "individualSleeves_windowNormalized": {
         "vrp": {
-          "windowStd_rawUnits": 35.76826517777835,
-          "cumulativeReturn_normalizedUnits": 20.752913191719315,
-          "maxDrawdown_normalizedUnits": 10.306976405770936,
-          "ddPeakDate": "2022-05-29",
+          "windowStd_rawUnits": 35.35636427571931,
+          "cumulativeReturn_normalizedUnits": 19.157762335443227,
+          "maxDrawdown_normalizedUnits": 11.30107307879528,
+          "ddPeakDate": "2022-06-02",
           "ddTroughDate": "2022-06-15"
         },
         "obs032carry": {
@@ -163,12 +163,12 @@
       },
       "composite3Sleeve_momentumPlus032carryPlusVrp_equalVol": {
         "formula": "(1/3) * momentum_normalized + (1/3) * obs032carry_normalized + (1/3) * vrp_normalized（VRPを1/3ウェイトで追加）",
-        "cumulativeReturn_normalizedUnits": 6.740952370324471,
-        "maxDrawdown_normalizedUnits": 2.977080555860218,
-        "ddPeakDate": "2022-06-04",
+        "cumulativeReturn_normalizedUnits": 6.209235418232442,
+        "maxDrawdown_normalizedUnits": 3.2121089859214926,
+        "ddPeakDate": "2022-06-02",
         "ddTroughDate": "2022-06-18"
       },
-      "maxDrawdownDiff_composite3MinusComposite2_normalizedUnits": -0.2754285974374393
+      "maxDrawdownDiff_composite3MinusComposite2_normalizedUnits": -0.040400167376164475
     },
     "T3": {
       "windowStart": "2022-10-25",
@@ -178,17 +178,17 @@
       "matchedDays": 52,
       "unmatchedDays": 0,
       "correlation": {
-        "corr_tail_vrp_032carry": -0.3580884080428433,
-        "abs_corr_tail_vrp_032carry": 0.3580884080428433,
-        "corr_tail_vrp_momentum": -0.01881522852534488,
-        "abs_corr_tail_vrp_momentum": 0.01881522852534488
+        "corr_tail_vrp_032carry": -0.36571445362317934,
+        "abs_corr_tail_vrp_032carry": 0.36571445362317934,
+        "corr_tail_vrp_momentum": 0.008273221421306947,
+        "abs_corr_tail_vrp_momentum": 0.008273221421306947
       },
       "individualSleeves_windowNormalized": {
         "vrp": {
-          "windowStd_rawUnits": 30.172737947674193,
-          "cumulativeReturn_normalizedUnits": 47.278497429449494,
-          "maxDrawdown_normalizedUnits": 7.237671144307601,
-          "ddPeakDate": "2022-10-31",
+          "windowStd_rawUnits": 29.365319151107464,
+          "cumulativeReturn_normalizedUnits": 47.51472248802828,
+          "maxDrawdown_normalizedUnits": 7.588667853380764,
+          "ddPeakDate": "2022-10-30",
           "ddTroughDate": "2022-11-07"
         },
         "obs032carry": {
@@ -215,12 +215,12 @@
       },
       "composite3Sleeve_momentumPlus032carryPlusVrp_equalVol": {
         "formula": "(1/3) * momentum_normalized + (1/3) * obs032carry_normalized + (1/3) * vrp_normalized（VRPを1/3ウェイトで追加）",
-        "cumulativeReturn_normalizedUnits": 10.403625398225365,
-        "maxDrawdown_normalizedUnits": 3.3227526468436634,
+        "cumulativeReturn_normalizedUnits": 10.482367084418296,
+        "maxDrawdown_normalizedUnits": 3.5853596734277002,
         "ddPeakDate": "2022-10-28",
         "ddTroughDate": "2022-11-08"
       },
-      "maxDrawdownDiff_composite3MinusComposite2_normalizedUnits": -5.592586103456719
+      "maxDrawdownDiff_composite3MinusComposite2_normalizedUnits": -5.329979076872682
     }
   }
 }

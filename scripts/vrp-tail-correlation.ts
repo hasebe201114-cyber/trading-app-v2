@@ -48,7 +48,7 @@ const BASE = 'https://www.deribit.com/api/v2';
 // ============================================================
 const PARAMS = {
   anchorDate: '2021-03-24',
-  rvForwardWindowDays: 7,
+  rvForwardReturnCount: 7, // D+1..D+8 の8終値から7本の隣接対数リターンを生成（2026-07-12是正版 spec §2）
   annualizationRv: Math.sqrt(365),
   confirmStart: '2023-07-01',
   tailWindows: {
@@ -167,12 +167,14 @@ async function fetchDeribitPerpPriceDaily(instrument: string, floorKey: string, 
 }
 
 // ============================================================
-// RV_forward(D,D+7d)：D+1..D+7 の7終値のみ使用（vrp-prediction-unit.tsと同一定義。先読み排除）
+// RV_forward(D,D+7d)：D+1..D+8 の8終値を使用（vrp-prediction-unit.tsと同一定義・先読み排除）。
+// （2026-07-12是正版 spec §2: 7リターン＝D+1..D+8の8終値）
 // ============================================================
-function computeRvForward(dateD: string, closeByDate: Map<string, number>, windowDays: number): { rv: number | null; priceDatesUsed: string[] } {
+function computeRvForward(dateD: string, closeByDate: Map<string, number>, targetReturnCount: number): { rv: number | null; priceDatesUsed: string[] } {
   const priceDates: string[] = [];
   const closesUsed: number[] = [];
-  for (let i = 1; i <= windowDays; i++) {
+  const closesNeeded = targetReturnCount + 1; // 7リターン → 8終値
+  for (let i = 1; i <= closesNeeded; i++) {
     const d = addDaysKey(dateD, i);
     const c = closeByDate.get(d);
     if (c === undefined) return { rv: null, priceDatesUsed: priceDates };
@@ -205,7 +207,7 @@ function buildDailyVrpSeries(startKey: string, endKey: string, dvolByDate: Map<s
   while (cur <= endKey) {
     const dvol = dvolByDate.get(cur);
     if (dvol !== undefined) {
-      const { rv } = computeRvForward(cur, closeByDate, PARAMS.rvForwardWindowDays);
+      const { rv } = computeRvForward(cur, closeByDate, PARAMS.rvForwardReturnCount);
       if (rv !== null) rows.push({ date: cur, dvol, rv_forward_pct: rv, vrp_level: dvol - rv });
     }
     cur = addDaysKey(cur, 1);

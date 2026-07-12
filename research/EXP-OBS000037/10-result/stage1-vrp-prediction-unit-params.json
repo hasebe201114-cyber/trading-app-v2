@@ -1,7 +1,7 @@
 {
   "anchorDate": "2021-03-24",
   "weeklyStepDays": 7,
-  "rvForwardWindowDays": 7,
+  "rvForwardReturnCount": 7,
   "annualizationRv": 19.1049731745428,
   "selectionStart": "2021-03-24",
   "selectionEnd": "2023-06-30",
