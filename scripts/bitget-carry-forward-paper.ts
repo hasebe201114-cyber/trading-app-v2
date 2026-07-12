@@ -115,20 +115,9 @@ function addDays(key: string, n: number): string {
 function todayUTCKey(): string {
   return dateKey(new Date());
 }
-/**
- * 最後に完全に経過したUTC日（=今日ではなく昨日）。当日の途中経過candleを使わないための設計判断。
- * ⚠ GitHub Actions schedule の遅延実行対策（最大3〜4時間遅延で日付がズレる問題）：
- *    既存レコードがあれば、その最後の日付をanchorとして返す。
- *    既存レコードがなければ、通常の today-1 ロジックで返す。
- */
-function anchorDateKey(existingRows: Record<string, unknown>[]): string {
-  if (!existingRows || existingRows.length === 0) {
-    // 初回実行時は today-1 を返す（warmup開始日から計算される）
-    return addDays(todayUTCKey(), -1);
-  }
-  // 既存レコードの最後の日付を anchor として返す（遅延実行対策）
-  const lastDate = (existingRows[existingRows.length - 1] as Record<string, unknown>).date_utc as string;
-  return lastDate;
+/** 最後に完全に経過したUTC日（=今日ではなく昨日）。当日の途中経過candleを使わないための設計判断。 */
+function anchorDateKey(): string {
+  return addDays(todayUTCKey(), -1);
 }
 function dateRange(startKey: string, endKeyInclusive: string): string[] {
   const out: string[] = [];
@@ -939,8 +928,8 @@ async function processAsset(assetCode: 'BTC' | 'ETH'): Promise<AssetProcessResul
 
   log(`\n======== ${assetCode} (${symbol}) ========`);
 
+  const anchor = anchorDateKey();
   const existingRows = loadExistingLedger(assetLower);
-  const anchor = anchorDateKey(existingRows);
   let mode: 'initial' | 'append' | 'noop';
   let datesToProcess: string[] = [];
   let windowStart: string;

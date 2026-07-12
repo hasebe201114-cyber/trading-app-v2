@@ -70,8 +70,13 @@ jobs:
             " 2>/dev/null || echo "?")
             git commit -m "chore(forward): daily calibration update — live day ${LIVE_DAYS}/90"
 
-            # push前に git pull --rebase で競合を回避（複数同時実行対策）
-            git pull --rebase origin main
+            # push前に git pull --rebase で競合を回避（複数同時実行対策）。
+            # rebase失敗時は中途半端な状態でpushせず安全にabortし、次回実行に委ねる。
+            if ! git pull --rebase origin main; then
+              git rebase --abort || true
+              echo "::warning::git pull --rebase failed (conflict). Aborted rebase. This run's results are NOT pushed — will retry on next scheduled run."
+              exit 1
+            fi
             git push origin main
             echo "Committed and pushed forward calibration results (live day ${LIVE_DAYS}/90)"
           fi
