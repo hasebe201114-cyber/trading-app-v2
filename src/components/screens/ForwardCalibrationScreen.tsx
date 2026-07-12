@@ -12,6 +12,20 @@ import { formatJST } from '../../ui/utils/formatters';
 // ── 定数 ─────────────────────────────────────────────────
 const W_STAR = { BTC: 3.629, ETH: 3.789 };
 const LIVE_TARGET = 90;
+// フォワード較正spec（00-spec-forward-calibration.md §0-3）固定値: perpレバレッジ3倍・IMR=1/3、
+// 現物レッグは全額自己資本（レバレッジなし）。sleeve_cumulative_return_pct等の生データは
+// 「配分資本（証拠金相当額）に対する名目w*倍リターン」であり、投資家が実際に用意する総資金
+// （現物フルキャッシュ購入 + perp証拠金）とは異なる。両者を明示的に区別するための定数。
+const LEVERAGE = 3;
+// 総資金 = 配分資本 × w* × (1 + 1/LEVERAGE)（現物w*倍 + perp証拠金w*/LEVERAGE倍）
+// ゆえに「配分資本ベースの%」を CASH_MULTIPLIER で割ると「総資金ベースの%」になる。
+const CASH_MULTIPLIER = {
+  BTC: W_STAR.BTC * (1 + 1 / LEVERAGE),
+  ETH: W_STAR.ETH * (1 + 1 / LEVERAGE),
+};
+// 総資金の内訳比率（LEVERAGE=3固定のため資産に依存せず一定）: 現物75% / perp証拠金25%
+const SPOT_SHARE = LEVERAGE / (LEVERAGE + 1);
+const MARGIN_SHARE = 1 / (LEVERAGE + 1);
 
 // ── 小ヘルパー ────────────────────────────────────────────
 const fmt1 = (v: number | null | undefined, suffix = '') =>
@@ -233,9 +247,10 @@ function GateSection({ metrics, asset }: { metrics: AssetGateMetrics; asset: 'BT
 
 // ── 損益額 進捗チャート ────────────────────────────────────
 // series: 表示対象の資産1つ、または複数（複数の場合は日毎に単純平均する＝「平均」表示用）
+// principalは投資家が実際に用意する総資金（現物フルキャッシュ＋perp証拠金の合計）として扱う。
 function ProfitProjectionChart({
   series, principal, color,
-}: { series: { rows: LedgerRow[]; proj: Projection90d | undefined; wStar: number }[]; principal: number; color: string }) {
+}: { series: { rows: LedgerRow[]; proj: Projection90d | undefined; wStar: number; cashMultiplier: number }[]; principal: number; color: string }) {
   const liveDays = Math.max(...series.map(s => s.rows.filter(r => r.phase === 'live').length), 0);
 
   const data = useMemo(() => {
@@ -248,7 +263,7 @@ function ProfitProjectionChart({
     }[] = [];
 
     for (let day = 0; day <= LIVE_TARGET; day++) {
-      // 実績（%）: 対象資産（複数なら単純平均）の当日累積収益率
+      // 実績（%）: 対象資産（複数なら単純平均）の当日累積収益率（配分資本ベース→総資金ベースに換算）
       const actualPcts: number[] = [];
       let actualMissing = false;
       for (const s of series) {
@@ -256,13 +271,13 @@ function ProfitProjectionChart({
         const liveRows = s.rows.filter(r => r.phase === 'live');
         if (day === 0) { actualPcts.push(0); continue; }
         if (day > liveRows.length) { actualMissing = true; break; }
-        actualPcts.push(liveRows[day - 1].sleeve_cumulative_return_pct - liveOffset);
+        actualPcts.push((liveRows[day - 1].sleeve_cumulative_return_pct - liveOffset) / s.cashMultiplier);
       }
       const actualVal = !actualMissing
         ? Math.round(principal * (actualPcts.reduce((a, b) => a + b, 0) / actualPcts.length) / 100)
         : null;
 
-      // 予測（金額）: 対象資産（複数なら単純平均）のP10/P50/P90
+      // 予測（金額）: 対象資産（複数なら単純平均）のP10/P50/P90（総資金principalベース）
       let p10base: number | null = null;
       let p10p90band: number | null = null;
       let p50: number | null = null;
@@ -272,7 +287,7 @@ function ProfitProjectionChart({
       let projMissing = false;
       for (const s of series) {
         if (s.proj?.p10_cumBps == null || s.proj.p50_cumBps == null || s.proj.p90_cumBps == null) { projMissing = true; break; }
-        const toAmount = (cumBps: number) => principal * (cumBps * s.wStar / 10000);
+        const toAmount = (cumBps: number) => principal * (cumBps * s.wStar / 10000) / s.cashMultiplier;
         amounts10.push(toAmount(s.proj.p10_cumBps));
         amounts50.push(toAmount(s.proj.p50_cumBps));
         amounts90.push(toAmount(s.proj.p90_cumBps));
@@ -348,22 +363,25 @@ function SimulationPanel({
   const btcOffset = getLiveOffset(btcRows);
   const ethOffset = getLiveOffset(ethRows);
 
-  // 現在の実績累積収益率（ライブ開始基準）
-  const btcActualPct = (btcLive[btcLive.length - 1]?.sleeve_cumulative_return_pct ?? btcOffset) - btcOffset;
-  const ethActualPct = (ethLive[ethLive.length - 1]?.sleeve_cumulative_return_pct ?? ethOffset) - ethOffset;
+  // 現在の実績累積収益率（配分資本ベース・ライブ開始基準）
+  const btcActualPctAlloc = (btcLive[btcLive.length - 1]?.sleeve_cumulative_return_pct ?? btcOffset) - btcOffset;
+  const ethActualPctAlloc = (ethLive[ethLive.length - 1]?.sleeve_cumulative_return_pct ?? ethOffset) - ethOffset;
+  // 総資金（現物フルキャッシュ＋perp証拠金）ベースに換算＝投資家が実際に用意する金額に対する利回り
+  const btcActualPct = btcActualPctAlloc / CASH_MULTIPLIER.BTC;
+  const ethActualPct = ethActualPctAlloc / CASH_MULTIPLIER.ETH;
   const avgActualPct = (btcActualPct + ethActualPct) / 2;
 
-  // 90日予測（P10/P50/P90 sleeve return %）
-  const toSleeveRet = (proj: Projection90d | undefined, ws: number) => {
+  // 90日予測（P10/P50/P90 sleeve return %・配分資本ベース→総資金ベースに換算）
+  const toSleeveRet = (proj: Projection90d | undefined, ws: number, cashMultiplier: number) => {
     if (!proj?.p10_cumBps) return null;
     return {
-      p10: proj.p10_cumBps * ws / 10000 * 100,
-      p50: proj.p50_cumBps! * ws / 10000 * 100,
-      p90: proj.p90_cumBps! * ws / 10000 * 100,
+      p10: (proj.p10_cumBps * ws / 10000 * 100) / cashMultiplier,
+      p50: (proj.p50_cumBps! * ws / 10000 * 100) / cashMultiplier,
+      p90: (proj.p90_cumBps! * ws / 10000 * 100) / cashMultiplier,
     };
   };
-  const btcRet = toSleeveRet(btcProj, W_STAR.BTC);
-  const ethRet = toSleeveRet(ethProj, W_STAR.ETH);
+  const btcRet = toSleeveRet(btcProj, W_STAR.BTC, CASH_MULTIPLIER.BTC);
+  const ethRet = toSleeveRet(ethProj, W_STAR.ETH, CASH_MULTIPLIER.ETH);
 
   const avgP50Pct = btcRet && ethRet ? (btcRet.p50 + ethRet.p50) / 2 : null;
   const avgP10Pct = btcRet && ethRet ? (btcRet.p10 + ethRet.p10) / 2 : null;
@@ -394,6 +412,16 @@ function SimulationPanel({
           <span>10万</span><span>30万</span><span>50万</span><span>100万</span><span>300万</span><span>500万</span><span>1000万</span>
         </div>
       </div>
+
+      {/* 資金内訳（デルタニュートラル・ポジションを建てるのに実際に必要な資金の内訳） */}
+      <InfoNote>
+        この元本{fmtMoney(principal)}を投資すると、資産ごとに以下の内訳で資金を使います
+        （perpレバレッジ{LEVERAGE}倍・現物は全額自己資本のため、比率は資産によらず一定）：
+        <span className="font-600"> 現物購入 {fmtMoney(principal * SPOT_SHARE)}（{(SPOT_SHARE * 100).toFixed(0)}%）</span>
+        ＋
+        <span className="font-600"> perp証拠金 {fmtMoney(principal * MARGIN_SHARE)}（{(MARGIN_SHARE * 100).toFixed(0)}%）</span>
+        。下記の利回り・損益額は、この「投資家が実際に用意する総資金」に対する数値です。
+      </InfoNote>
 
       {/* 資産選択タブ */}
       <div className="flex gap-2">
@@ -454,10 +482,13 @@ function SimulationPanel({
         <ProfitProjectionChart
           series={
             simAsset === 'AVG'
-              ? [{ rows: btcRows, proj: btcProj, wStar: W_STAR.BTC }, { rows: ethRows, proj: ethProj, wStar: W_STAR.ETH }]
+              ? [
+                  { rows: btcRows, proj: btcProj, wStar: W_STAR.BTC, cashMultiplier: CASH_MULTIPLIER.BTC },
+                  { rows: ethRows, proj: ethProj, wStar: W_STAR.ETH, cashMultiplier: CASH_MULTIPLIER.ETH },
+                ]
               : simAsset === 'ETH'
-              ? [{ rows: ethRows, proj: ethProj, wStar: W_STAR.ETH }]
-              : [{ rows: btcRows, proj: btcProj, wStar: W_STAR.BTC }]
+              ? [{ rows: ethRows, proj: ethProj, wStar: W_STAR.ETH, cashMultiplier: CASH_MULTIPLIER.ETH }]
+              : [{ rows: btcRows, proj: btcProj, wStar: W_STAR.BTC, cashMultiplier: CASH_MULTIPLIER.BTC }]
           }
           principal={principal}
           color={view.color}
@@ -589,6 +620,9 @@ export const ForwardCalibrationScreen = () => {
           「スリーブ」とは、この戦略単体（現物ロング＋perpショートを同量保有し、価格変動の影響を打ち消す＝デルタニュートラル）が生み出す損益のことです。
           方向を当てにいかず、Funding金利差とベーシス（現物・先物の価格差）から生じる収益だけを積み上げます。
           グラフはライブ開始日（2026-07-04）を0%として、その後の累積収益率（%）の推移を示します。
+          <br /><br />
+          <span className="font-600">⚠ この%は「証拠金（配分資本）」に対する名目利回り</span>です。投資家が実際に用意する総資金（現物購入＋perp証拠金の合計）に対する利回りに換算すると、
+          {asset === 'BTC' ? `約1/${CASH_MULTIPLIER.BTC.toFixed(2)}` : `約1/${CASH_MULTIPLIER.ETH.toFixed(2)}`}に薄まります（下記「損益額シミュレーション」は総資金ベースで換算済みです）。
         </InfoNote>
         {liveRows.length > 0 ? (
           <>
@@ -616,6 +650,8 @@ export const ForwardCalibrationScreen = () => {
           <span className="font-600" style={{ color: asset === 'BTC' ? '#3B82F6' : '#14B8A6' }}> 点線</span>がP50予測の推移、
           帯（塗りつぶし部分）がP10〜P90の予測幅です。オレンジの縦線が「現在地点（Day{liveDays}）」を示します。
           日数が浅いうちは予測の信頼度が低く、Day30以降で徐々に精度が上がります。
+          <br /><br />
+          <span className="font-600">⚠ この%も「証拠金（配分資本）」に対する名目利回り</span>です（上の累積収益率グラフと同じ換算率が適用されます）。
         </InfoNote>
         {proj ? (
           <>
@@ -651,8 +687,11 @@ export const ForwardCalibrationScreen = () => {
       {/* 収益シミュレーション */}
       <SectionBox title="損益額シミュレーション">
         <InfoNote>
-          投資元本を入力すると、現在の実績収益率および90日後の予測（P10/P50/P90）が、実際の金額でいくらになるかを試算します。
-          「平均」はBTC・ETH両スリーブを均等に持った場合の想定値、「BTC」「ETH」は各資産単体の想定値です。
+          ここで入力する「投資元本」は、<span className="font-600">投資家が実際に用意する総資金</span>
+          （現物ロング購入費用＋perpショート証拠金の合計）を指します。上の「累積スリーブ収益率」「90日予測バンド」の%は
+          証拠金（配分資本）に対する名目利回りのため、このシミュレーションではperpレバレッジ{LEVERAGE}倍を踏まえて
+          総資金ベースの実効利回りに換算してから金額を試算しています。
+          「平均」はBTC・ETH両スリーブにそれぞれ同額の元本を投資した場合の想定値、「BTC」「ETH」は各資産単体の想定値です。
           下のチャートは、選択した元本に対する予測損益額が、経過日数に応じてどう変化していくかを示します。
         </InfoNote>
         <SimulationPanel
