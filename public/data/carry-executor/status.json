@@ -1,5 +1,5 @@
 {
-  "syncedAtUTC": "2026-07-12T10:00:51.695Z",
+  "syncedAtUTC": "2026-07-12T13:55:49.252Z",
   "signal": {
     "generatedAtUTC": "2026-07-12T03:45:25.166Z",
     "liveMode": false,
@@ -32,14 +32,14 @@
     }
   },
   "margin": {
-    "generatedAtUTC": "2026-07-12T09:55:00.624Z",
+    "generatedAtUTC": "2026-07-12T13:38:13.917Z",
     "positions": [
       {
         "symbol": "SPCXUSDT",
         "side": "long",
         "total": "3.44",
-        "marginRatioPct": 3.6434012165,
-        "unrealizedPL": -44.5136
+        "marginRatioPct": 3.6620686200000003,
+        "unrealizedPL": -44.9608
       }
     ],
     "hasCritical": false,
@@ -47,6 +47,14 @@
     "fetchError": null
   },
   "runs": [
+    {
+      "conclusion": "success",
+      "createdAt": "2026-07-12T13:38:05Z",
+      "databaseId": 29194757843,
+      "event": "schedule",
+      "name": "OBS000032 Margin Monitor",
+      "status": "completed"
+    },
     {
       "conclusion": "success",
       "createdAt": "2026-07-12T09:54:53Z",
@@ -117,14 +125,6 @@
       "databaseId": 29155080174,
       "event": "workflow_dispatch",
       "name": "OBS000032 Margin Monitor",
-      "status": "completed"
-    },
-    {
-      "conclusion": "success",
-      "createdAt": "2026-07-11T13:52:14Z",
-      "databaseId": 29155079078,
-      "event": "workflow_dispatch",
-      "name": "OBS000032 Daily Signal Check",
       "status": "completed"
     }
   ]
