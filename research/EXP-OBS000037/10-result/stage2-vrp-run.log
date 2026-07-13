@@ -1,0 +1,137 @@
+======================================================================
+=== vrp-pipeline-accounting.ts 実行 2026-07-13T00:15:15.142Z ===
+Git commit: 5e5fef29f7b1fe7c1fbce83b6272c8f90a1f1d71
+Node version: v22.22.2
+
+REPRODUCTION COMMAND:
+  node --experimental-strip-types scripts/vrp-pipeline-accounting.ts
+  ⚠ 代表満期・ATM選定・vega/gamma/delta/premium/spreadは実行時点のDeribitライブスナップショット依存
+  （spec §2-2で明示された限界。再実行すると異なる満期/strike/greeksを選ぶ可能性があり、
+   その場合C_options/C_hedge/C_real以降の数値も変わる。VRP系列自体・コスト変換式・CVaR/f/maxDD定義は不変）。
+
+EXECUTION LOG:
+[2026-07-13T00:15:15.161Z] === EXP-OBS000037 Stage 2: vrp-pipeline-accounting.ts ===
+[2026-07-13T00:15:15.161Z] 実行UTC時刻: 2026-07-13T00:15:15.142Z
+[2026-07-13T00:15:15.271Z] Git commit: 5e5fef29f7b1fe7c1fbce83b6272c8f90a1f1d71
+[2026-07-13T00:15:15.271Z] Node version: v22.22.2
+[2026-07-13T00:15:15.275Z] Stage1週次VRP系列読み込み: n=276 (2021-03-24〜2026-07-01)
+[2026-07-13T00:15:15.275Z] 
+>>> §2-2 代表満期・ATM選定（ライブ取得）
+[2026-07-13T00:15:15.878Z]   option instruments fetched: count=870
+[2026-07-13T00:15:15.879Z]   代表満期選定: expiry=2026-07-24T08:00:00.000Z residualDays=11.3227
+[2026-07-13T00:15:15.879Z]   代表満期のcall strikes: 50000,54000,55000,56000,57000,58000,59000,60000,61000,62000,63000,64000,65000,66000,67000,68000,70000,73000,75000
+[2026-07-13T00:15:24.617Z]   ATM選定: strike=64000 delta=0.54894 indexPrice=64310.36
+[2026-07-13T00:15:24.918Z] 
+>>> §2-3(a) C_options 構築
+[2026-07-13T00:15:24.919Z]   C_options = 2.292651 vol pt/週 (USD合計=205.7932 vegaTotal=89.7621)
+[2026-07-13T00:15:24.919Z] 
+>>> §2-3(b) C_hedge 構築（日次BTC-PERPETUAL価格系列取得）
+[2026-07-13T00:15:24.919Z]   GET https://www.deribit.com/api/v2/public/get_tradingview_chart_data?instrument_name=BTC-PERPETUAL&start_timestamp=1616544000000&end_timestamp=1783987200000&resolution=1D
+[2026-07-13T00:15:25.349Z]   BTC-PERPETUAL price: ticks=1938 rawTickHourUtc=8
+[2026-07-13T00:15:25.362Z]   C_hedge = 0.568603 vol pt/週 (std=0.539713 validWeeks=276 skipped=0)
+[2026-07-13T00:15:25.362Z]   C_real = C_options + C_hedge = 2.861255 vol pt/週（lab仮置き=1.8）
+[2026-07-13T00:15:25.362Z] 
+>>> §2-4 実コスト置換後ネット期待値（SC-1〜SC-3）
+[2026-07-13T00:15:25.362Z]   SC-1 meanFull=9.702914 meanConfirm=6.461139
+[2026-07-13T00:15:25.362Z]   SC-2 sharpeFull=2.988682 sharpeConfirm=2.376066
+[2026-07-13T00:15:25.362Z]   SC-3 mean2xFull=6.841659 mean2xConfirm=3.599885
+[2026-07-13T00:15:25.362Z] 
+>>> §3 CVaRサイジング
+[2026-07-13T00:15:25.362Z]   |CVaR_w|(下側5%ES)=49.791374 (esValue=-49.791374 tailCount=14/276)
+[2026-07-13T00:15:25.362Z]   vegaNotionalPct(f=0.5)=0.00020084 vegaNotionalPct(f=1.0参考)=0.00040168
+[2026-07-13T00:15:25.362Z]   RUIN-1: worstSingleWeeklyLoss=84.670078 × vegaNotionalPct = 0.017005 (資本比・閾値=0.25)
+[2026-07-13T00:15:25.363Z]   RUIN-2 T2: weeksInWindow=9 cumulativeNet=76.059331 worstCaseLoss=0.000000 ruin2Value=0.000000
+[2026-07-13T00:15:25.363Z]   RUIN-2 T3: weeksInWindow=8 cumulativeNet=236.539101 worstCaseLoss=0.000000 ruin2Value=0.000000
+[2026-07-13T00:15:25.363Z] 
+>>> §4 maxDD（vegaNotionalPct適用後の資本equity・global running peak）
+[2026-07-13T00:15:25.364Z]   full: compoundMaxDD=2.3307% simpleMaxDD=2.0085%
+[2026-07-13T00:15:25.364Z]   confirm: compoundMaxDD=2.0102% simpleMaxDD=1.3962%
+[2026-07-13T00:15:25.364Z]   T2: compoundMaxDD=1.4921% T3: compoundMaxDD=0.8715%
+[2026-07-13T00:15:25.364Z]   DD-SANITY: 複利maxDD(全期間)=2.3307% <= 40% -> true
+[2026-07-13T00:15:25.368Z] 
+>>> 保存: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000037\10-result\stage2-vrp-pipeline-accounting.json
+[2026-07-13T00:15:25.369Z] >>> 保存: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000037\10-result\stage2-vrp-pipeline-accounting-params.json
+======================================================================
+=== vrp-tail-correlation-pnl.ts 実行 2026-07-13T00:17:07.910Z ===
+Git commit: 5e5fef29f7b1fe7c1fbce83b6272c8f90a1f1d71
+Node version: v22.22.2
+
+REPRODUCTION COMMAND:
+  node --experimental-strip-types scripts/vrp-pipeline-accounting.ts  (先に実行・vegaNotionalPct供給元)
+  node --experimental-strip-types scripts/vrp-tail-correlation-pnl.ts
+
+EXECUTION LOG:
+[2026-07-13T00:17:07.915Z] === EXP-OBS000037 Stage 2: vrp-tail-correlation-pnl.ts ===
+[2026-07-13T00:17:07.915Z] 実行UTC時刻: 2026-07-13T00:17:07.910Z
+[2026-07-13T00:17:08.004Z] Git commit: 5e5fef29f7b1fe7c1fbce83b6272c8f90a1f1d71
+[2026-07-13T00:17:08.004Z] Node version: v22.22.2
+[2026-07-13T00:17:08.006Z] vegaNotionalPct(f=0.5, script1由来)=0.00020083800084379173
+[2026-07-13T00:17:08.006Z] 
+>>> DVOL BTC 日次取得
+[2026-07-13T00:17:08.459Z]   DVOL page#1: rowsReturned=1000 continuation=1697500800000
+[2026-07-13T00:17:09.158Z]   DVOL page#2: rowsReturned=938 continuation=null
+[2026-07-13T00:17:09.162Z]   DVOL総取得件数=1938
+[2026-07-13T00:17:09.162Z] 
+>>> 主系列価格取得（Deribit-tradingview BTC-PERPETUAL）
+[2026-07-13T00:17:09.162Z]   GET https://www.deribit.com/api/v2/public/get_tradingview_chart_data?instrument_name=BTC-PERPETUAL&start_timestamp=1616544000000&end_timestamp=1783987200000&resolution=1D
+[2026-07-13T00:17:09.604Z]   BTC-PERPETUAL price: ticks=1938 rawTickHourUtc=8
+[2026-07-13T00:17:09.604Z] 
+>>> VRP日次水準系列構築（Stage1 buildDailyVrpSeriesを流用）
+[2026-07-13T00:17:09.653Z]   VRP日次構築可能日数=1929（期間 2021-03-24〜2026-07-04）
+[2026-07-13T00:17:09.654Z]   pnl_vrp日次系列構築: n=1928（1階差分のため水準系列よりn-1）
+[2026-07-13T00:17:09.655Z] 
+>>> OBS000032キャリー日次（ヒストリカルL3）読み込み
+[2026-07-13T00:17:09.659Z]   キャリーL3行数=2493（期間 2019-09-08〜2026-07-05）
+[2026-07-13T00:17:09.659Z] 
+>>> ②モメンタム日次（simulatePortfolio本番構成）
+[2026-07-13T00:17:09.910Z]   ②: trades=222 equityCurvePoints=223
+[2026-07-13T00:17:09.915Z]   ②日次リターン行数=2222（期間 2020-06-01〜2026-07-01）
+[2026-07-13T00:17:09.918Z] 
+>>> 3系列共通突合日数=1925（2021-03-25〜2026-07-01）
+[2026-07-13T00:17:09.918Z]   pnl_vrp日付基準の片側欠損: carry非突合=0 momentum非突合=3
+[2026-07-13T00:17:09.918Z] 
+>>> G1-A1': 確認期間の平時相関（pnl_vrp）
+[2026-07-13T00:17:09.921Z]   確認期間(2023-07-01〜2026-07-01) n=1097
+[2026-07-13T00:17:09.921Z]   |corr(pnl_vrp,032キャリー)| full=0.0414 h1=0.0529 h2=0.0299
+[2026-07-13T00:17:09.921Z]   |corr(pnl_vrp,②)|        full=0.0488 h1=0.0588 h2=0.0334
+[2026-07-13T00:17:09.921Z] 
+>>> G1-A2'/G1-A3': テール窓別相関・同時DD（pnl_vrp）
+[2026-07-13T00:17:09.923Z]   T2(2022-05-01〜2022-06-30): matched=61/61 corr(pnlVrp,032carry)=0.0044 corr(pnlVrp,②)=0.0310 DD2sleeve=3.2525 DD3sleeve=3.2242
+[2026-07-13T00:17:09.923Z]   T3(2022-10-25〜2022-12-15): matched=52/52 corr(pnlVrp,032carry)=0.1224 corr(pnlVrp,②)=-0.2976 DD2sleeve=8.9153 DD3sleeve=6.2698
+[2026-07-13T00:17:09.931Z] 
+>>> 保存: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000037\10-result\stage2-vrp-tail-correlation-pnl.json
+======================================================================
+=== vrp-composite-3sleeve.ts 実行 2026-07-13T00:18:54.895Z ===
+Git commit: 5e5fef29f7b1fe7c1fbce83b6272c8f90a1f1d71
+Node version: v22.22.2
+
+REPRODUCTION COMMAND:
+  node --experimental-strip-types scripts/vrp-pipeline-accounting.ts       (1. vegaNotionalPct供給元)
+  node --experimental-strip-types scripts/vrp-tail-correlation-pnl.ts      (2. pnl_vrp日次系列供給元)
+  node --experimental-strip-types scripts/vrp-composite-3sleeve.ts         (3. 本スクリプト)
+
+EXECUTION LOG:
+[2026-07-13T00:18:54.899Z] === EXP-OBS000037 Stage 2: vrp-composite-3sleeve.ts ===
+[2026-07-13T00:18:54.899Z] 実行UTC時刻: 2026-07-13T00:18:54.895Z
+[2026-07-13T00:18:54.980Z] Git commit: 5e5fef29f7b1fe7c1fbce83b6272c8f90a1f1d71
+[2026-07-13T00:18:54.980Z] Node version: v22.22.2
+[2026-07-13T00:18:54.980Z] 
+>>> ②モメンタム単体（simulatePortfolio本番構成）
+[2026-07-13T00:18:55.240Z]   ②: trades=222 daily-rows=2222（期間 2020-06-01〜2026-07-01）
+[2026-07-13T00:18:55.240Z] 
+>>> OBS000032キャリースリーブ（3倍w*・ヒストリカルL3）
+[2026-07-13T00:18:55.244Z]   w*(L=3)=3.629203 daily-rows=2493（期間 2019-09-08〜2026-07-05）
+[2026-07-13T00:18:55.244Z] 
+>>> VRPスリーブ（Stage2 pnl_vrp再利用）
+[2026-07-13T00:18:55.247Z]   VRPスリーブ daily-rows=1928（期間 2021-03-25〜2026-07-04）
+[2026-07-13T00:18:55.250Z] 
+>>> 3系列(②,032キャリー,VRP)共通突合日数=1925（2021-03-25〜2026-07-01）
+[2026-07-13T00:18:55.252Z]   選定期間(2021-03-24~2023-06-30) n=828 std: ②=0.4654% 032キャリー=0.2525% VRP=0.271479%
+[2026-07-13T00:18:55.253Z]   2スリーブ凍結逆ボラウェイト: ②=0.3518 032キャリー=0.6482
+[2026-07-13T00:18:55.253Z]   3スリーブ凍結逆ボラウェイト: ②=0.2194 032キャリー=0.4044 VRP=0.3762
+[2026-07-13T00:18:55.254Z] 
+>>> G3': 確認期間相関 |corr(VRP,②)|=0.0488 |corr(VRP,032キャリー)|=0.0414
+[2026-07-13T00:18:55.257Z]   G4' frozen: sharpeDelta(3sleeve-2sleeve)=-0.4087 ddDelta_pt=-2.0012
+[2026-07-13T00:18:55.257Z]   G4' conditionA_met=false conditionB_met=false any=false
+[2026-07-13T00:18:55.259Z] 
+>>> 保存: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000037\10-result\stage2-vrp-composite-3sleeve.json

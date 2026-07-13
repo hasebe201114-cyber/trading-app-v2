@@ -1,0 +1,191 @@
+{
+  "experiment": "EXP-OBS000037",
+  "stage": "Stage 2",
+  "scriptPath": "scripts/vrp-composite-3sleeve.ts",
+  "specReference": "research/EXP-OBS000037/00-spec-stage2.md §6",
+  "executedBy": "B実装チーム (Quant Researcher)",
+  "runTimestampUTC": "2026-07-13T00:18:54.895Z",
+  "gitCommit": "5e5fef29f7b1fe7c1fbce83b6272c8f90a1f1d71",
+  "nodeVersion": "v22.22.2",
+  "scope": {
+    "assets": [
+      "BTC"
+    ],
+    "note": "ETH取得禁止（spec §8-2固定）"
+  },
+  "params": {
+    "selectionStart": "2021-03-24",
+    "selectionEnd": "2023-06-30",
+    "confirmStart": "2023-07-01",
+    "averageCorrelationThreshold_calm": 0.3,
+    "g4prime_conditionA": {
+      "sharpeDeltaMin": 0.15,
+      "ddDeltaMaxWorsenPt": 2
+    },
+    "g4prime_conditionB": {
+      "ddDeltaMaxImprovePt": -5,
+      "sharpeDeltaMinWorsen": -0.05
+    },
+    "momentumProductionConfig": {
+      "horizon": 10,
+      "k": 30,
+      "momentumLookback": 30,
+      "momentumConfidenceScale": 30,
+      "initialEquity": 1000000
+    },
+    "momentumBacktestStartDate": "2020-06-01",
+    "carryLeverage": 3
+  },
+  "inputSources": {
+    "momentumProduction": {
+      "config": {
+        "horizon": 10,
+        "k": 30,
+        "momentumLookback": 30,
+        "momentumConfidenceScale": 30,
+        "initialEquity": 1000000
+      },
+      "backtestStartDateUsed": "2020-06-01",
+      "tradeCount": 222,
+      "dailyRows": 2222
+    },
+    "carrySleeve": {
+      "path": "research/EXP-OBS000032/10-result/stage1-liquidation-daily-returns-btc-L3.json",
+      "wStar_L3": 3.629202614909055,
+      "dailyRows": 2493
+    },
+    "vrpSleeve": {
+      "path": "research/EXP-OBS000037/10-result/stage2-vrp-tail-correlation-pnl.json",
+      "field": "pnlVrpDailySeries",
+      "dailyRows": 1928,
+      "note": "pnl_vrpは資本比小数のため×100して%表記に変換（②・032キャリーと単位を揃える）。vegaNotionalPct(f=0.5)適用は§5のpnl_vrp算出時点で完了済み・本スクリプトで再計算しない。"
+    }
+  },
+  "alignedDates": {
+    "count": 1925,
+    "start": "2021-03-25",
+    "end": "2026-07-01"
+  },
+  "selectionPeriod": {
+    "start": "2021-03-24",
+    "end": "2023-06-30",
+    "n": 828,
+    "std_momentum_pct": 0.4653636007820916,
+    "std_carry_pct": 0.25253609712800196,
+    "std_vrp_pct": 0.271479387470891
+  },
+  "frozenWeights_2sleeve_inverseVol": {
+    "momentum": 0.35177072488422806,
+    "carry": 0.6482292751157719
+  },
+  "frozenWeights_2sleeve_naive": {
+    "momentum": 0.5,
+    "carry": 0.5
+  },
+  "frozenWeights_3sleeve_inverseVol": {
+    "momentum": 0.21944563627551542,
+    "carry": 0.40438579923617357,
+    "vrp": 0.376168564488311
+  },
+  "frozenWeights_3sleeve_naive": {
+    "momentum": 0.3333333333333333,
+    "carry": 0.3333333333333333,
+    "vrp": 0.3333333333333333
+  },
+  "confirmationPeriod": {
+    "start": "2023-07-01",
+    "end": "2026-07-01",
+    "n": 1097
+  },
+  "g3prime_correlation": {
+    "corr_vrp_momentum": {
+      "full": -0.048807621761599355,
+      "abs_full": 0.048807621761599355,
+      "h1": -0.05879305648814792,
+      "abs_h1": 0.05879305648814792,
+      "h2": -0.03337529484228543,
+      "abs_h2": 0.03337529484228543
+    },
+    "corr_vrp_carry": {
+      "full": -0.04143318194913745,
+      "abs_full": 0.04143318194913745,
+      "h1": -0.052874231778468714,
+      "abs_h1": 0.052874231778468714,
+      "h2": -0.029850723117687786,
+      "abs_h2": 0.029850723117687786
+    }
+  },
+  "sleeveMetrics_confirmationPeriod": {
+    "momentum": {
+      "n": 1097,
+      "mean_pct": 0.015519527767070716,
+      "std_pct": 0.3867589784270976,
+      "sharpe_annualized_sqrt365": 0.7666277402978173,
+      "maxDrawdown_pct": 9.737358010974633,
+      "cumReturn_pct": 17.593403825268172
+    },
+    "carry": {
+      "n": 1097,
+      "mean_pct": 0.04065399262867973,
+      "std_pct": 0.1803496960939562,
+      "sharpe_annualized_sqrt365": 4.306596880564498,
+      "maxDrawdown_pct": 9.306467055407996,
+      "cumReturn_pct": 55.90802558315979
+    },
+    "vrp": {
+      "n": 1097,
+      "mean_pct": 0.00010731183872252108,
+      "std_pct": 0.19219560729181323,
+      "sharpe_annualized_sqrt365": 0.010667204256087899,
+      "maxDrawdown_pct": 3.1247524474621806,
+      "cumReturn_pct": -0.08486286171515145
+    }
+  },
+  "composite2Sleeve_frozenWeight_confirmationPeriod": {
+    "n": 1097,
+    "mean_pct": 0.031812423704734374,
+    "std_pct": 0.18593337707465135,
+    "sharpe_annualized_sqrt365": 3.268781060498464,
+    "maxDrawdown_pct": 5.90467293899042,
+    "cumReturn_pct": 41.48639027361924
+  },
+  "composite2Sleeve_naiveWeight_confirmationPeriod": {
+    "n": 1097,
+    "mean_pct": 0.0280867601978752,
+    "std_pct": 0.21943524074678453,
+    "sharpe_annualized_sqrt365": 2.445353801486351,
+    "maxDrawdown_pct": 5.226008334444399,
+    "cumReturn_pct": 35.72142321937493
+  },
+  "composite3Sleeve_frozenWeight_confirmationPeriod": {
+    "n": 1097,
+    "mean_pct": 0.019885957287155386,
+    "std_pct": 0.13283453260785597,
+    "sharpe_annualized_sqrt365": 2.8601047714210024,
+    "maxDrawdown_pct": 3.90347172679141,
+    "cumReturn_pct": 24.254293559669993
+  },
+  "composite3Sleeve_naiveWeight_confirmationPeriod": {
+    "n": 1097,
+    "mean_pct": 0.018760277411490972,
+    "std_pct": 0.1561402616097639,
+    "sharpe_annualized_sqrt365": 2.295465583305411,
+    "maxDrawdown_pct": 3.678925038563164,
+    "cumReturn_pct": 22.684449604654745
+  },
+  "g4prime_marginalContribution": {
+    "formula_a": "(3スリーブ合成Sharpe − 2スリーブ合成Sharpe) ≥ +0.15 かつ (3スリーブ合成maxDD − 2スリーブ合成maxDD) ≤ +2pt",
+    "formula_b": "(3スリーブ合成maxDD − 2スリーブ合成maxDD) ≤ −5pt かつ (3スリーブ合成Sharpe − 2スリーブ合成Sharpe) ≥ −0.05",
+    "frozenWeight": {
+      "sharpeDelta": -0.4086762890774618,
+      "ddDelta_pt": -2.0012012121990104,
+      "conditionA_formulaResult": false,
+      "conditionB_formulaResult": false,
+      "anyCondition_formulaResult": false
+    },
+    "naiveWeight_reference": {
+      "sharpeDelta": -0.14988821818093978,
+      "ddDelta_pt": -1.5470832958812344
+    }
+  }
+}
