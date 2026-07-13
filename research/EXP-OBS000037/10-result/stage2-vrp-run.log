@@ -135,3 +135,56 @@ EXECUTION LOG:
 [2026-07-13T00:18:55.257Z]   G4' conditionA_met=false conditionB_met=false any=false
 [2026-07-13T00:18:55.259Z] 
 >>> 保存: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000037\10-result\stage2-vrp-composite-3sleeve.json
+======================================================================
+=== vrp-composite-3sleeve.ts 実行 2026-07-13T08:13:09.504Z（§6-0是正・週次頻度再実装） ===
+Git commit: 3a9affa38e5d53aa5c8f75c502f729290002f6d3
+Node version: v22.22.2
+
+REPRODUCTION COMMAND:
+  node --experimental-strip-types scripts/vrp-pipeline-accounting.ts       (1. vegaNotionalPct・equitySeries[].r 供給元・再実行不要)
+  node --experimental-strip-types scripts/vrp-tail-correlation-pnl.ts      (2. pnl_vrp日次系列供給元・G3'専用・再実行不要)
+  node --experimental-strip-types scripts/vrp-composite-3sleeve.ts         (3. 本スクリプト・週次頻度再実装)
+
+EXECUTION LOG:
+[2026-07-13T08:13:09.523Z] === EXP-OBS000037 Stage 2: vrp-composite-3sleeve.ts（§6-0是正・週次頻度再実装） ===
+[2026-07-13T08:13:09.523Z] 実行UTC時刻: 2026-07-13T08:13:09.504Z
+[2026-07-13T08:13:09.631Z] Git commit: 3a9affa38e5d53aa5c8f75c502f729290002f6d3
+[2026-07-13T08:13:09.631Z] Node version: v22.22.2
+[2026-07-13T08:13:09.631Z] 
+>>> ②モメンタム単体（simulatePortfolio本番構成・日次）
+[2026-07-13T08:13:09.884Z]   ②: trades=222 daily-rows=2222（期間 2020-06-01〜2026-07-01）
+[2026-07-13T08:13:09.884Z] 
+>>> OBS000032キャリースリーブ（3倍w*・ヒストリカルL3・日次）
+[2026-07-13T08:13:09.890Z]   w*(L=3)=3.629203 daily-rows=2493（期間 2019-09-08〜2026-07-05）
+[2026-07-13T08:13:09.890Z] 
+>>> VRPスリーブ日次 pnl_vrp（§5-1定義のまま・G3'相関測定専用）
+[2026-07-13T08:13:09.893Z]   pnl_vrp daily-rows=1928（期間 2021-03-25〜2026-07-04）
+[2026-07-13T08:13:09.893Z] 
+>>> VRPスリーブ週次リターン r_vrp_week_w（stage2-vrp-pipeline-accounting.json equitySeries[].r 再利用）
+[2026-07-13T08:13:09.896Z]   vrpWeeklyMap size=276
+[2026-07-13T08:13:09.899Z] 
+>>> 週次グリッド境界: weeklyPoints点数=277 → 週数(境界差分)=276
+[2026-07-13T08:13:09.914Z]   週次グリッド行数=276 欠損週数=0 採用週数=276
+[2026-07-13T08:13:09.914Z] 
+>>> 選定期間(2021-03-24~2023-06-30) 採用週数=119
+[2026-07-13T08:13:09.914Z] >>> 確認期間(2023-07-01~末尾) 採用週数=157
+[2026-07-13T08:13:09.914Z]   選定期間週次std: ②=1.2274% 032キャリー=1.2220% VRP=0.5428%
+[2026-07-13T08:13:09.914Z]   2スリーブ週次凍結逆ボラウェイト: ②=0.4989 032キャリー=0.5011
+[2026-07-13T08:13:09.914Z]   3スリーブ週次凍結逆ボラウェイト: ②=0.2344 032キャリー=0.2355 VRP=0.5301
+[2026-07-13T08:13:09.915Z] 
+>>> 確認期間 週次個別スリーブ Sharpe(√52): ②=0.7686 032=2.5826 VRP=2.3837
+[2026-07-13T08:13:09.915Z] 
+>>> 週次2スリーブ合成(frozen) Sharpe(√52)=1.9777 maxDD%=5.0860
+[2026-07-13T08:13:09.915Z] >>> 週次3スリーブ合成(frozen) Sharpe(√52)=2.8071 maxDD%=2.6180
+[2026-07-13T08:13:09.915Z] >>> 週次2スリーブ合成(naive) Sharpe(√52)=1.9749 maxDD%=5.0813
+[2026-07-13T08:13:09.915Z] >>> 週次3スリーブ合成(naive) Sharpe(√52)=2.4687 maxDD%=3.2001
+[2026-07-13T08:13:09.915Z] 
+>>> G4'(週次・frozen): sharpeDelta(3sleeve-2sleeve)=0.829394 ddDelta_pt=-2.468051
+[2026-07-13T08:13:09.915Z]   conditionA_formulaResult=true conditionB_formulaResult=false any=true
+[2026-07-13T08:13:09.915Z] >>> G4'(週次・naive): sharpeDelta=0.493744 ddDelta_pt=-1.881202
+[2026-07-13T08:13:09.915Z]   conditionA_formulaResult=true conditionB_formulaResult=false any=true
+[2026-07-13T08:13:09.917Z] 
+>>> G3'相関測定用 日次3系列(②,032キャリー,pnl_vrp)共通突合日数=1925（2021-03-25〜2026-07-01）
+[2026-07-13T08:13:09.922Z] >>> G3'(日次pnl_vrpベース・不変): 確認期間相関 |corr(pnl_vrp,②)|=0.0488 |corr(pnl_vrp,032キャリー)|=0.0414
+[2026-07-13T08:13:09.927Z] 
+>>> 保存: C:\Users\Atsushi Hasebe\Project\trading-app-v2\research\EXP-OBS000037\10-result\stage2-vrp-composite-3sleeve.json
