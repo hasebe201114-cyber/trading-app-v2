@@ -1,0 +1,280 @@
+# 実験仕様書（Spec） - EXP-OBS000037 / Stage 2（実測コスト会計＋CVaRサイジング＋テール相関の日次損益ベース再測定＋②/OBS000032 3スリーブ合成＋フォワード較正設計）
+
+> 担当: 設計チーム（strategy-architect）
+> 鉄則: **成功基準は「回す前」に数値で確定する**（HARKing防止）。結果を見てから 実測コスト変換の設計パラメータ・CVaR水準・リスク予算・fフラクション・maxDD定義・テール相関閾値・合成凍結ウェイト・block-bootstrap seed・選定/確認分割・F1〜F4基準 を後付けで変えない。
+> 前提: Stage 1（`00-spec-stage1.md`）が **C品質チーム再監査（2026-07-13）で採用可＝必須条件B達成（R1〜R6全帯内）・必須条件A達成（G1-A1〜A3維持）** を宣告（`20-verdict-stage1.md`「【再監査 2026-07-13】」章）。司令塔が「進めてください」＝Stage 2着手GO済み。テーマ＝SYS-001 BTC Variance Risk Premium（VRP）＝デルタニュートラル・ショートボラ。crypto-strategy-lab 第1系統（`crypto-strategy-lab/research/EXP-OBS000001/`）からの引き継ぎ。
+> 本specのスコープ＝**Stage 2（実測コストでの会計・CVaRサイジング・maxDD定義是正・テール相関の日次損益ベース再測定・②/OBS000032との3スリーブ合成の限界寄与・フォワード較正のF判定設計）**。本Stage 2は**バックテスト会計＋合成の採否候補ゲート**までを回す前に数値固定する。**本番反映（Deribit執行アダプタ＝別基盤）はフォワード較正合格＋C正式監査＋司令塔最終GOの3点必須（POCはペーパーのみ・実発注なし）＝本specの範囲外（§7で設計のみ固定）。**
+> 直系の前例（書式・粒度・CVaRサイジング/②合成G3・G4/フォワードF1〜F4の参照元）: `research/EXP-OBS000032/00-spec-stage1.md`（§5 CVaR基準サイジング・§6 Stage1-C ②合成G3C/G4C・§8 フォワード較正F1〜F4）／`research/EXP-OBS000032/00-spec-forward-calibration.md`。lab先行spec（無条件に信用せず参考程度・trading-app-v2側は独立に書き直す立場）: `crypto-strategy-lab/research/EXP-OBS000001/00-spec-stage2.md`（会計モデル・CVaRサイジングの設計思想）。
+
+## 対応OBS番号
+**OBS000037**（進行中・ACTIVE登録済み。採番はE進行チーム管理）。本Stage 2はStage 1（`20-verdict-stage1.md`＝採用可・Stage 2進行推薦）を通過した第3ゲート。
+
+---
+
+## 0. Stage 0/Stage 1 からの確定事項とC申し送り事項（本specが従う制約・回す前に固定済み）
+
+### 0-1. Stage 1 で確定・独立検算済みの主系列VRP会計（本Stage 2の入力・再測定しない）
+Stage 1 C再監査（Python別実装で全桁一致・`20-verdict-stage1.md`）で以下が確定した。**本Stage 2はこれらを所与の固定入力として使う**（VRP系列そのものを再構築しない・RV窓長/アンカー/√365等は不変）。
+- **主系列（Deribit-tradingview 08:00 UTC 由来RV・R判定系列）**: 全期間 平均VRP=**+12.564168** vol pt（n=276週）／選定=**+16.841131**／確認=**+9.322394**（block-bootstrap 全区間 p=0）。
+- **lab仮置きコスト（1.8 vol pt/週）後の週次ネットpayoff**: 平均=**+10.764168** vol pt／std=**23.411223**／年率Sharpe(√52)=**3.315569**／episode基準maxDD=**12.37%**（累積payoff peak比・lab同方式）。
+- 生データ入力: `research/EXP-OBS000037/10-result/stage1-vrp-prediction-unit.json`（`mainSeries.weeklyPoints`＝週次 date/dvol/rv_forward_pct/vrp／`mainSeries.periodStats`／`mainSeries.pipelineStats`）。**Stage 2はこの週次VRP系列と、後述§5用に日次VRP系列（`stage1-vrp-tail-correlation.json`）を再利用する（追加のVRP再構築はしない）。**
+
+### 0-2. Stage 0 で実測・確定した実コストデータ（本Stage 2の§2実測コスト統合の入力）
+`research/EXP-OBS000037/10-result/deribit-cost-model.json`（G0-3・C独立`curl`確認済み）の実測値を本Stage 2の実測コスト統合に使う。
+- **(a) オプション手数料**: maker/taker とも **0.0003**（＝原資産建て名目の0.03%/枚・API配信 `get_instruments kind=option`）。**プレミアム上限12.5%**（Deribit公式手数料表 `https://www.deribit.com/kb/fees`・HTTP200到達確認済み）。
+- **(b) perp デルタヘッジ**: `BTC-PERPETUAL` テイカー手数料 **0.0005**・メイカー **0**（API配信 `get_instruments kind=future`）。実スプレッド スナップショット **0.0784 bps**（bestBid/Ask 2026-07-12取得）。板厚スリッページ **±0.0392 bps**（想定名目$100k・depth=50実測）。
+- **(c) vega（vol pt換算の分母）**: ticker `greeks.vega` は取得済み（例: ATM近傍 `BTC-12JUL26-63500-C` の vega=**2.00781**）。**⚠ Stage 0 のスナップショット例は当日満期（0-DTE）でvegaが過小＝そのまま流用しない。§2でB実装が「代表満期（残存≥7日・ATM）」のvegaをライブ取得して使う。**「vega非取得」というStage 0コストJSONの注記は不正確（vegaは取得済み＝Stage 0 verdict条件D(ii)）＝本Stage 2で是正して使う。
+
+### 0-3. C品質チームの Stage 2 への申し送り事項（`20-verdict-stage1.md`・本specが必ず反映）
+| # | 申し送り（C判定書の該当箇所） | 本specでの反映箇所 |
+|---|---|---|
+| **(i) maxDD定義の是正** | R6のmaxDD%は加法vol pt累積和ゆえ基準額依存で不安定（episode基準12.37% vs 全期間max%定義24.2%の乖離＝2021序盤の小基準額アーティファクト）。**Stage 2はvega notional換算後の資本equityでDDを測るべき**（判定書§3「R6のmaxDD%定義感度」）。 | **§4（maxDD測定方法の是正＝資本equityベース・複利/単利両方・global running peak基準%で数値固定）**。 |
+| **(ii) テール相関ゲートの定義バイアス** | Stage 1のG1-A1〜A3はVRP**水準**の日次系列で相関を測ったため、水準系列は自己相関が強く日次リターンとの相関が構造的に低く出やすい（ゲートを通過しやすい方向のバイアス）。**Stage 2ではVRPスリーブの日次損益（VRPの日次変化 or CVaRサイジング後の実際の資本比リターン）で相関・テールDDを再測定すべき**（判定書「⚠ 必須条件Aの限界」）。 | **§5（テール相関の日次損益ベース再測定＝G1-A1'/A2'/A3'として数値固定・結論維持をゲート化）**。 |
+
+**⚠ 実コスト会計・CVaRサイジング・②合成をStage 2に置いた設計判断の根拠（Stage 1 §0-3から継続・Cが突く点）**:
+1. **lab自身がStage1=予測単位、Stage2=会計と分離**（`crypto-strategy-lab/.../00-spec-stage2.md`＝DVOL/RV系列を用いたバリアンススワップ近似payoff＋CVaRサイジング＋コスト会計）。この二分に倣い、Stage 1で独立再現した予測単位・lab仮置きコスト会計の上に、Stage 2で**実測コスト置換・CVaR実サイジング・maxDD是正・テール相関の日次損益再測定・3スリーブ合成**を積む。
+2. **⚠ 「予測単位だけ良くてパイプラインで死ぬ罠」（OBS000025/030型）を本Stage 2でも封じる**: Stage 1のパイプライン（R5/R6・lab仮置きコスト）は帯内だったが、**実測コストへの置換で崩れないか（SC-1〜SC-3）を本Stage 2で再度パイプラインとして測る**。§2の会計は「予測単位（Stage 1で確定済み）に依らず、実コスト置換後のネット期待値」を主戦場とする。＝両Stageとも予測単位＋パイプライン両測定（CLAUDE運営鉄則）。
+
+---
+
+## 1. 仮説（1文）
+
+**Stage 1で独立再現したBTC VRP（DVOL−forward7d RV・平均+12.56 vol pt・確認期+9.32・年率Sharpe3.32）は、Deribitの実測手数料（オプションtaker0.0003＋プレミアム上限12.5%・perp taker0.0005＋実スプレッド0.078bps＋スリッページ0.039bps・代表満期ATM vega）を実vega換算で統合した「実測週次コスト」に置換してもネット期待値がプラスに残り（年率Sharpe≥1.0・実コストx2でも平均ネット正）、下側5%ES（テール＋実コスト込み）基準のCVaRサイジングで持続可能なvega notionalが正に立ち、vega notional換算後の資本equityでの最大DDが破産域に達さず、かつVRPスリーブの日次損益（VRPの日次変化）で再測定しても②モメンタム・OBS000032キャリーと平時|ρ|<0.3・テール窓|ρ|<0.6を保ち、3スリーブ合成で②＋OBS000032の既存2スリーブに対し限界寄与（合成Sharpe+0.15 or maxDD−5pt）する、真に低相関な3本目のスリーブである。**
+
+---
+
+## 2. 実測コスト統合（Stage 0実測値の反映・lab仮置き1.8の置換・回す前に手順と基準を固定）
+
+**B実装チームが `scripts/vrp-pipeline-accounting.ts`（新規・lab `vrp-pipeline-accounting.ts` はコピペ禁止＝独立書き直し）を実装**し、lab仮置きコスト（往復1.5＋ヘッジ0.3＝**1.8 vol pt/週**）を、§0-2の実測値から構築した**実測週次コスト（vol pt/週）**に置換する。
+
+### 2-1. コストのvol pt/週換算の統一原則（固定）
+Stage 1・labの会計は payoff も cost も **vol pt 単位**で表現し `payoff_net = (VRP_t − cost_volpt) × vegaNotionalPct`（cost はvega notionalを掛ける前にVRPから直接差し引く）。実測コスト（USD建て手数料/スプレッド/スリッページ）を **vol pt に換算する分母は「代表満期ATMオプション1枚あたりのvega（USD/vol pt）」**とする。**per-contract の USDコスト ÷ per-contract vega ＝ vol pt 建てコスト**（ポジションサイズに依らない＝size不変量。手数料もvegaもcontract数＝vega notionalに比例するため比は不変）。この統一原則を meta に明記する。
+
+### 2-2. 代表満期・ATM定義の固定（HARKing防止・都合の良い満期/権利行使を選ばせない）
+- **代表満期＝そのweekly cycleの起点日から見て残存日数が7日以上で最も近いDeribit上場expiry**（VRPの7日先RVと整合。残存<7日の満期＝§0-2の0-DTE過小vegaは使わない）。
+- **ATM＝index価格に最も近いstrike（|delta|が0.5に最も近い・|delta|∈[0.35,0.65]の範囲でindex最近接strike）**。callとput各1枚のショート・ストラドル近似でオプションレッグを構成する。
+- **vega・プレミアムの取得**: 代表満期ATMのcall/put各1枚の `ticker.greeks.vega`（USD/vol pt）とmark premium（BTC建て→USD換算）をライブ取得（Deribit public・認証不要・APIキー/`.env.local`読まない）。**過去のvegaは取れない＝現時点スナップショットのvegaを代表値として全期間に適用する限界を meta に明記**（Stage 0 verdict のスプレッド現時点スナップショット限界と同型）。**⚠ vegaやstrike選択を「コストが安く出る方」に振らない**（|delta|0.5最近接に一意固定・振らない）。
+
+### 2-3. 実測週次コストの構築式（固定・B実装がこの式で数値化）
+週次1サイクル（エントリ＋イグジット＝2ラウンド、ストラドル＝call＋put）を前提に、実測週次コスト `C_real`（vol pt/週）＝ **`C_options` ＋ `C_hedge`**。
+
+- **(a) オプション往復コスト `C_options`（vol pt/週）**:
+  - オプション手数料/枚（USD）＝ `min(0.0003 × index_price, 0.125 × option_premium_USD)`（§0-2(a)・taker0.0003・プレミアム上限12.5%を両方適用しmin）。
+  - 実スプレッド・コスト/枚（USD）＝ `0.5 × (option_bestAsk − option_bestBid)_USD`（半スプレッド・テイカー往復のうち片side）。**⚠ Stage 0の0-DTEスナップショットはスプレッドが異常広（数千bps）ゆえ代表満期（残存≥7日）ATMのスプレッドをライブ取得して使う。代表満期でも流動性が薄くスプレッドが過大な場合は生値をそのまま記録し「代表満期スプレッド過大＝実測限界」と注記（都合よく除外しない）。**
+  - `C_options` ＝ `[ (手数料/枚＋半スプレッド/枚) × (call+put=2レッグ) × (entry+exit=2ラウンド) ] の合計USD ÷ 代表満期ATM vega(USD/vol pt)`。＝4オプション約定分のUSDコストをvegaで割ってvol pt化。
+- **(b) デルタヘッジコスト `C_hedge`（vol pt/週）**:
+  - perpヘッジ1回あたりコスト率（bps）＝ `perp_taker(0.0005=5bps) ＋ 実スプレッド(0.0784bps) ＋ 板スリッページ(0.0392bps)`（§0-2(b)・全て実測）。
+  - **ヘッジ頻度＝日次（1週7回リバランス・固定）**。各リバランスのヘッジ名目 ＝ ポジションのdelta変化に対応する名目。**実装**: Stage 1の主系列価格（Deribit-tradingview日足）でweekly cycle内の日次価格変化から、代表満期ATMストラドルのdelta（call delta＋put delta≈0近傍から±へ動く分＝gamma×価格変化×index）で日次ヘッジ名目を近似し、上記コスト率を掛けて週次合計USDを算出。**gamma・deltaは代表満期ATMの `ticker.greeks`（gamma/delta）ライブ値を使う**（現時点スナップショット限界を注記）。週次合計ヘッジUSD ÷ vega(USD/vol pt) ＝ `C_hedge`。
+  - **⚠ ヘッジ頻度（日次7回）を「コストが安く出る頻度」に振らない**（日次固定・別頻度はリスコープでなく別OBS）。
+- **出力（生数値・判定語なし）**: `C_options`・`C_hedge`・`C_real`（vol pt/週）を、lab仮置き（1.5＋0.3＝1.8）と**実数で並置**。使用したindex_price・代表満期・strike・vega・gamma・delta・premium・各USDコスト内訳を生ログに残す（再現可能に）。
+
+### 2-4. 実測コスト置換後のネット期待値（本Stage 2最大の検証点・SC-1〜SC-3・回す前に固定）
+`C_real` で週次ネットpayoff `= (VRP_t − C_real)` を再計算（Stage 1 §0-1の主系列週次VRP・n=276を入力）。**予測単位（VRP有意性＝Stage 1確定）に依らず、実コスト置換後のパイプラインを測る。**
+
+| ID | 成功基準（回す前に固定・**緩めない**） | 測定 |
+|---|---|---|
+| **SC-1（実コスト後ネット正）** | 実測週次コスト `C_real` 置換後、週次ネットpayoff平均 **> 0**（全期間 **かつ** 確認期間2023-07-01〜末尾） | 全期間・確認期間の meanWeeklyNetPayoff |
+| **SC-2（実コスト後Sharpe）** | 実コスト後 週次ネットpayoffの年率Sharpe(√52) **≥ 1.0**（**確認期間**＝OOSで≥1.0を必達・全期間も併記） | 確認期間Sharpe(√52)・全期間Sharpe(√52) |
+| **SC-3（コストx2頑健性）** | `2 × C_real` に置換しても週次ネットpayoff平均 **> 0**（全期間 **かつ** 確認期間） | 全期間・確認期間の mean（2×コスト版） |
+
+- **SC達成（実コスト置換後もエッジ生存）**: **SC-1・SC-2・SC-3 をすべて満たす**（判定はC品質チーム）。
+- **SC未達（いずれか1つでも未達）＝実コストでエッジ崩壊**: lab仮置き1.8での高Sharpe（3.32）が実コストで死ぬ罠（OBS000025/030型）が顕在化。**Stage 2で本テーマ不採用**（実コスト後にネット期待値が立たない＝POC最大の検証点で落ちる）。基準を緩めず事実をCへ委譲。
+- **⚠ 参考（回す前の見立て・基準ではない）**: Stage 1のlab仮置き後 mean=10.764・std=23.411。Sharpe(√52)=mean×0.3082。Sharpe1.0には mean≥3.25 vol pt/週が必要＝`C_real`が概ね9 vol pt/週未満なら生存する計算だが、**これは見立てであってSC基準ではない**（SC-2は確認期間Sharpeで判定・実測`C_real`で確定）。この見立てを理由にSC基準を緩めない。
+
+---
+
+## 3. CVaRベースのポジションサイジング設計（Sharpe基準Kelly禁止・回す前に数値固定）
+
+lab Stage 2方式（VRP系列の下側5%CVaR・週次リスク予算=資本2%・vega notional=リスク予算÷|CVaR|）を、**trading-app-v2側で独立に設計・数値固定**する。OBS000032が確立した「**Sharpe基準Kelly禁止・CVaR基準サイジング必須・破産確率サニティ必須**」を踏襲する。**B実装は `scripts/vrp-pipeline-accounting.ts` 内で実装**（lab コピペ禁止・独立書き直し）。
+
+### 3-1. CVaRの定義（固定）
+- **CVaR水準＝下側5%（週次ES95％＝最悪5%の週次ネットpayoffの条件付き期待値）**。**§2-4の実測コスト `C_real` 込み**の週次ネットpayoff分布（`VRP_t − C_real`・vol pt/週）から算出。**母集団＝テール窓T2(LUNA)/T3(FTX)を含む全期間（n=276）**（テール込みのCVaR）。`|CVaR_w|` を vol pt/週で出力。
+  - lab は「下側5パーセンタイル」、OBS000032は「97.5%ES＝最悪2.5%」。**本specは下側5%ES（最悪5%の平均）に一義固定**（labの5%を採り、単純パーセンタイル点でなく条件付き期待値＝ES＝OBS000032のES流儀と整合）。この定義を meta に明記し、結果を見て2.5%/5%を振らない。
+
+### 3-2. サイジングルール（固定・回す前に数値確定）
+- **週次リスク予算＝配分資本の 2.0%**（lab踏襲・OBS000032日次2%と整合）。
+- **フラクション f＝0.5**（OBS000032が確立した保守側＝CVaR中立水準の半分でサイズ。Sharpe基準Kelly禁止の担保）。
+- **vega notional比率 `vegaNotionalPct` ＝ f × (週次リスク予算 ÷ |CVaR_w|) ＝ 0.5 × (0.02 ÷ |CVaR_w|)**。
+- **参考並記**: f=1.0（lab生方式＝リスク予算÷|CVaR|）の `vegaNotionalPct` も併記（**採用判定には使わない**・情報開示）。
+- **⚠ 禁止**: Sharpe/ボラ基準のKelly・フラクショナルKelly、CVaR水準（5%ES）・リスク予算（2%）・f（0.5）を結果を見て変える行為。これらは**本specの固定値**。
+
+### 3-3. 破産確率サニティ（OBS000032踏襲・回す前に固定）
+- **RUIN-1（最悪週次損失）**: `最悪単一週次ネットpayoff損失(vol pt) × vegaNotionalPct ≤ 配分資本の 25%`。
+- **RUIN-2（最悪テール窓累積損失）**: T2・T3各窓の窓内累積ネット損失(vol pt) × vegaNotionalPct ≤ **配分資本の 40%**。
+- RUIN-1/RUIN-2 のいずれか違反＝**サイジングが破産域に触れる**＝Cへ事実報告（VRP減量 or 不採用の判断材料。f・リスク予算を勝手に緩めない）。
+- 出力: `vegaNotionalPct`（f=0.5主・f=1.0参考）・`|CVaR_w|`・最悪週次損失・T2/T3窓内累積損失・RUIN-1/RUIN-2の実数。
+
+### 3-4. サイジングの位置づけ
+CVaRサイジングはパイプライン統合の一部として測定。**net Sharpe（§2-4）はサイジングには使わない**（あくまでCVaR基準）。Sharpeはスケール不変ゆえ vegaNotionalPct に依らず§2-4の値と一致する（サイジングは資本equity・maxDD・破産サニティの絶対水準を決めるためのもの）。
+
+---
+
+## 4. maxDD測定方法の是正（C申し送り(i)・回す前に数値固定）
+
+Stage 1のR6は**加法vol pt累積和のepisode基準**（12.37%）で、別定義（全期間max%）だと24.2%になり基準額依存で不安定だとCが指摘。**Stage 2は§3のvega notional換算後の資本equityで、標準定義のDDを測る**。
+
+### 4-1. 資本equity系列の構築（固定）
+- **週次リターン（資本比）**: `r_t = vegaNotionalPct × (VRP_t − C_real)`（§2-4のネットpayoff × §3のvegaNotionalPct）。
+- **複利equity（主）**: `equity_t = equity_{t-1} × (1 + r_t)`、`equity_0 = 1.0`（配分資本を1に正規化）。
+- **単利equity（参考並記）**: `equity_t = 1.0 + Σ_{k≤t} r_k`。
+- **⚠ Stage 1の加法vol pt累積和（vegaNotionalPct未適用）は使わない**（基準額依存アーティファクトを排除）。resource equity は必ず vegaNotionalPct 適用後の資本比で構築する。
+
+### 4-2. maxDDの定義（固定・global running peak基準％）
+- **maxDD% ＝ max over t of ( peak_equity_t − equity_t ) / peak_equity_t × 100**、ここで `peak_equity_t = max_{k≤t} equity_k`（**global running peak**＝全期間の走行最高値。episode毎でも全期間max%でもない標準定義に一義固定＝Cが指摘した定義曖昧性を解消）。
+- 複利equity・単利equityの**両方**でmaxDD%を出力。DDピーク日・トラフ日・回復日も併記。
+- **測定範囲＝全期間・確認期間・T2/T3各窓**（レジーム別分解＝要）。
+- **DD-SANITY（回す前に固定・破産サニティと連動）**: 複利equityの全期間maxDD% **≤ 40%**（§3-3 RUIN-2と同水準）。超過＝サイジングが実運用で破産域＝Cへ事実報告（vegaNotionalPct過大の証拠・f/リスク予算を勝手に緩めない）。
+- **これは採否の主ゲートではない**（採否主軸は§2-4 SC＋§6合成）が、**vega notional換算後の資本equityでDDを測る**というC申し送りを数値で満たす必須測定＋破産サニティとする。
+
+---
+
+## 5. テール相関の日次損益ベース再測定（C申し送り(ii)・回す前に数値固定）
+
+Stage 1のG1-A1〜A3はVRP**水準**の日次系列で相関を測り、水準系列の強い自己相関ゆえ低相関に出やすいバイアスがあるとCが指摘。**Stage 2はVRPスリーブの日次損益（VRPの日次変化）で相関・テールDDを再測定**し、Stage 1のA結論（低相関・テール非収束）が維持されるかをゲート化する。**B実装は `scripts/vrp-tail-correlation-pnl.ts`（新規・Stage 1の `vrp-tail-correlation.ts` を流用してよいが日次損益定義に置換）を実装**。
+
+### 5-1. VRPスリーブ日次損益系列の定義（水準でなく日次損益＝Cバイアス是正・固定）
+- **VRPスリーブ日次損益 `pnl_vrp_t` ＝ vegaNotionalPct × (VRP_daily_t − VRP_daily_{t-1})** ＝ **VRPの日次変化（1階差分）に vega notional を掛けた資本比リターン**（ショートvegaポジションの日次mark-to-market一次近似＝VRP水準が上がると短ボラは含み損・下がると含み益の符号を保つよう `−ΔVRP` とするか `+ΔVRP` とするかは**「VRPスリーブ＝VRPを収穫するロング・プレミアム側」として `pnl_vrp_t = vegaNotionalPct × (VRP_daily_t − VRP_daily_{t-1})` に固定**し、符号定義を meta に明記）。
+  - `VRP_daily_t` ＝ Stage 1 `stage1-vrp-tail-correlation.json` の日次VRP水準系列（DVOL_daily − forward7d RV_daily）。**これを1階差分して日次損益化する**（水準そのものを相関に使わない＝Cバイアス是正）。
+  - **⚠ 相関はスケール不変ゆえ vegaNotionalPct 倍は相関値に影響しない**が、**同時DD（G1-A3'）は資本比の絶対量が効く**ため vegaNotionalPct を適用した資本比系列で測る（水準の恣意正規化に依らない）。相関測定用には各系列を自系列stdで規格化（Stage 1 §5-1と同じスケール非依存方式）。
+- **突合相手（Stage 1と同一・固定）**: ②モメンタム日次（`simulatePortfolio` 本番構成 `horizon:10, k:30, momentumLookback:30, momentumConfidenceScale:30, initialEquity:1_000_000`・equityCurve日次リターン）／OBS000032キャリー日次（**ヒストリカルL3** `research/EXP-OBS000032/10-result/stage1-liquidation-daily-returns-btc-L3.json`・フィールド`date`/`pnl_bps`・T2/T3欠損0%カバー）。**フォワードledger（live約7〜8日・テール非カバー）はテール測定に流用しない**（Stage 1 §5-1準拠）。ledgerキーはISO日付（`date`）でjoin・突合日数/片側欠損日数を各窓で生ログ出力。
+
+### 5-2. 再測定ゲートの数値基準（Stage 1 G1-A1〜A3 と同一閾値・日次損益版・回す前に固定）
+| ID | 基準（Stage 1と同一閾値・日次損益系列で再測定） | 判定 |
+|---|---|---|
+| **G1-A1'（平時低相関・日次損益）** | 確認期間(2023-07-01〜末尾)で `|corr(pnl_vrp, ②日次)| < 0.3` **かつ** `|corr(pnl_vrp, OBS000032キャリー日次)| < 0.3`（確認全体＋前半/後半別を出力） | C |
+| **G1-A2'（テール窓での相関非収束・日次損益）** | T2・T3各窓で `|corr_tail(pnl_vrp, OBS000032キャリー)| < 0.6` **かつ** `|corr_tail(pnl_vrp, ②)| < 0.6`（両窓） | C |
+| **G1-A3'（テール窓での同時DD非悪化・日次損益）** | T2・T3各窓で、既存 `{②＋OBS000032キャリー}`（等リスク＝各系列自窓std規格化・凍結）に `pnl_vrp` を1/3ウェイトで加えた3スリーブ合成の窓内maxDDが、既存2スリーブ合成の窓内maxDDを**上回らない** | C |
+
+### 5-3. 再測定の総合判定と扱い（回す前に固定）
+- **A結論維持（日次損益ベースでも低相関・テール非収束）**: **G1-A1'（平時低相関・両ペア）を満たし、G1-A2'・G1-A3' を両テール窓で満たす**。＝Cが指摘した「水準定義の低相関バイアス」を除いても分散価値が保たれる＝§6の3スリーブ合成に進める。
+- **G1-A1'未達（平時|ρ|≥0.3・日次損益で相関顕在化）＝Stage 1のA結論が水準定義バイアスの産物だった**: 低相関スリーブの前提が崩れる＝**§6の合成に進む価値なし**（本テーマの主目的＝3本目の低相関スリーブが消える）。S/司令塔に上申（VRPを合成でなく別用途で使うか、本テーマ停止か）。
+- **G1-A2'/G1-A3'未達（テール窓で|ρ|≥0.6 or 3スリーブ合成DDが2スリーブを悪化）＝テール分散価値なし**: **§6の合成サイジングでVRPのテール分散価値を楽観計上することを禁止**する制約として固定（合成ウェイトでVRP減量 or 単独スリーブ採算のみで評価）。＝prescreen「テール独立性が確認できて初めて分散価値を計上」を日次損益で担保。
+- **⚠ 閾値（0.3/0.6）・ウェイト（1/3）・窓（T2/T3）はStage 1と不変**（HARKing防止・日次損益への定義変更のみが今回の是正であって、閾値の緩和ではない）。
+
+---
+
+## 6. ②/OBS000032との3スリーブ合成（限界寄与・PJ000001 §5.4準拠・回す前に数値固定）
+
+OBS000032 Stage 1-C（②合成のG3C低相関・G4C限界寄与）の設計を参考に、VRPスリーブを加えた**3スリーブ合成**の限界寄与を測る。**B実装は `scripts/vrp-composite-3sleeve.ts`（新規・独立書き直し）を実装**。
+
+### 6-1. 合成対象スリーブ（固定）
+1. **②モメンタム単体**: `simulatePortfolio` 本番構成（§5-1と同一・④⑤⑥無改変）の確認期間日次リターン。
+2. **OBS000032キャリースリーブ**: 3倍`w*`サイズのヒストリカルL3日次リターン（`stage1-liquidation-daily-returns-btc-L3.json`・`pnl_bps`を資本比に正規化）。
+3. **VRPスリーブ**: §5-1の `pnl_vrp`（§3のvegaNotionalPct適用・資本比日次リターン）。
+- **既存2スリーブ合成＝{②＋OBS000032キャリー}**（OBS000032が確立した合成）。**新規3スリーブ合成＝{②＋OBS000032キャリー＋VRP}**。この2つを比較して**VRP追加の限界寄与**を測る（PJ000001 5.4＝スリーブ採否は限界寄与主軸）。
+
+### 6-2. 合成ウェイト（回す前に固定・HARKing防止）
+- **選定期間（2023-07-01より前＝Stage 1選定期2021-03-24〜2023-06-30）の各スリーブ日次リターンstdから逆ボラ（リスクパリティ）ウェイトを算出し凍結**。確認期間（2023-07-01〜末尾）ではこの凍結ウェイトのみ適用（確認データでウェイト最適化しない）。素朴等ウェイト（1/3ずつ・2スリーブは1/2ずつ）も併記。
+  - **⚠ VRPスリーブの選定期間データはテール窓T2(LUNA)/T3(FTX)を含む**（逆ボラウェイト算出にテール窓を外さない＝OBS000032がテール窓を選定に含めた前例に倣う）。
+- **⚠ §5-3でG1-A2'/A3'未達（テール分散価値なし）と判定された場合**: 3スリーブ合成のVRPウェイトを**テールで楽観計上しない制約**（VRP減量 or テール保険別途要求）を反映（§5-3の制約をここで適用）。
+
+### 6-3. 合成の限界寄与ゲート（OBS000032 G3C/G4C を3スリーブ版に・回す前に固定）
+| ID | 基準（確認期間・回す前に固定） | 判定 |
+|---|---|---|
+| **G3'（低相関維持＝存在意義・5.4基準1）** | 確認期間で `|corr(pnl_vrp, ②)| < 0.3` **かつ** `|corr(pnl_vrp, OBS000032キャリー)| < 0.3`（§5-2 G1-A1'と同一・確認全体＋前半後半）。**VRPスリーブが既存2スリーブと直交** | C |
+| **G4'（合成の上乗せ・5.4基準2・下記いずれか）** | (a) **合成Sharpe改善**: 3スリーブ凍結ウェイト合成の確認期間Sharpe − 既存2スリーブ合成Sharpe **≥ +0.15**、かつ最大DDが2スリーブ合成比 **+2pt を超えて悪化しない**。**または** (b) **合成DD削減**: 3スリーブ合成の確認期間maxDD − 2スリーブ合成maxDD **≤ −5pt**、かつSharpeが2スリーブ合成比 **−0.05 を下回って悪化しない** | C |
+
+- **出力（生数値・判定語なし）**: 確認期間の corr（全体＋前半後半）・凍結逆ボラウェイト値・素朴等ウェイト・2スリーブ合成Sharpe/maxDD・3スリーブ合成Sharpe/maxDD・G4'差分(a)(b)。
+
+---
+
+## 7. フォワード較正の設計（本番反映の前提条件・回す前に基準固定・本specでは設計のみ）
+
+**位置づけ（Stage 0 verdict条件A）**: 本テーマの生死＝2020-03コロナ級テールがDVOL 2021起点で構造的に窓外＝バックテストで最大級テール被害幅を測れない。**改竄不能な前向き蓄積（フォワード較正）でテール込み挙動を積む**設計が必須（OBS000032と同型）。`scripts/deribit-vrp-forward-paper.ts`（Stage 0で実装済み・現在 warmup7日＋live1日）を**日次実行しライブ≥90暦日蓄積**する運用に入る。**⚠ back-fillで90日を一括生成しない（ライブ性厳守）。F1〜F4の正式判定はライブ≥90暦日到達後・C正式監査＋司令塔GOが本番反映の前提。**
+
+### 7-1. フォワードF1〜F4の数値固定（OBS000032 F1〜F4を参考にVRP向けに・回す前に固定）
+| ID | 基準（回す前に固定・両立で初めてF成立） | 測定 |
+|---|---|---|
+| **F1（実現VRP整合）** | Bitget…でなくDeribitフォワードledgerの累積ネットVRP（§2実測コスト適用）が**符号プラス**、かつライブ週次ネット平均が**バックテスト確認期間レートの片側90%区間（block-bootstrap・ブロック長4週・N5000・seed20260713）下側境界以上**（バックテスト水準から下方乖離しない） | ライブ累積ネット・週次平均 vs 確認期間90%下側境界 |
+| **F2（VRP符号整合＝プレミアム存在の再検証）** | ライブ観測期間で、各weekly cycleの実現 `DVOL_t − 事後実現7d RV_t` が**プラスの週の比率 ≥ 60%**（VRPプレミアムがライブでも構造的にプラス side に出る＝Stage 1の平均+12.56の存在をライブで再確認。負転の常態化＝プレミアム消失の検出） | 実現VRP>0週比率 |
+| **F3（テール被害がCVaRサイジング内）** | ライブ期間で、単一週次実現損失が**§3のCVaRサイジング破産サニティ（RUIN-1＝資本25%）を超える週が0件**（サイジングが実運用で保守的に効いているか。超過即警告） | 週次実現損失 vs RUIN-1閾値・超過件数 |
+| **F4（DVOLスパイク時のテール挙動＝コロナ級窓外の前向き補完）** | ライブ期間の `dvol_spike_marker`（前日比+5 vol pt超・Stage 0 ledger実装済み）が立った日を含む窓で、VRPスリーブ日次損益と②・OBS000032キャリーの相関が**|ρ|<0.6を保つ**（テール時に同族が相関1へ収束しない前向き確認＝§5 G1-A2'のライブ版）。同時DDが3スリーブ合成で2スリーブ合成を悪化させない | スパイク窓の|ρ|・同時DD |
+| **総合** | **F1〜F4をすべて満たす**（判定はC正式監査）。未達＝本番採用の前提未成立＝S/司令塔に上申（フォワード延長 or 不採用）。**フォワード単独ではコロナ級テールを観測できない旨も明記**（テール頑健性はバックテストのT2/T3＋前向きスパイク蓄積に依存） | C |
+
+### 7-2. フォワード運用の設計（固定）
+- **日次冪等追記**: `deribit-vrp-forward-paper.ts` を日次実行（`anchor=today-1`・当日部分足排除）。同日2回実行で追記0件＝冪等（Stage 0で自己検証済み）。
+- **中間チェックポイント**: 清算相当（RUIN-1超過）即時警告／VRP実現符号<60%（30日ローリング・最小サンプルガード付き＝OBS000032のC-2軽微是正教訓を反映しday1スプリアスalert防止）／DVOLスパイク窓相関≥0.6 早期警告／30日・60日・90日スナップショット。
+- **本specでは設計固定のみ**（`deribit-vrp-forward-paper.ts` の会計を§2実測コスト・§3 vegaNotionalPctへ更新する実装は、Stage 2バックテスト（§2〜§6）通過＋司令塔GO後にB実装が着手）。
+
+---
+
+## 8. 選定/確認プロトコル・測定範囲（回す前に固定）
+
+### 8-1. 選定/確認プロトコル（Stage 1踏襲・BTC限定継続）
+- **設計判断（A設計官）**: 本Stage 2はパラメータ探索をしない（コスト変換式・CVaR水準・f・maxDD定義・相関閾値・合成ウェイトを§2〜§6でハードコード）。ゆえにStage 1の選定/確認分割を**そのまま踏襲**。
+- **選定期間（in-sample）**: **2021-03-24 〜 2023-06-30**（§6合成の凍結逆ボラウェイト算出のみ。コスト/CVaR/f/閾値の調整には一切使わない）。
+- **確認期間（未見・本判定＝OOS）**: **2023-07-01 〜 データ末尾（≈2026-07 UTC）**。SC-2のSharpe・§5 G1-A1'平時相関・§6 G3'/G4'はこの確認期間で判定。
+- **テール窓T2(2022-05)/T3(2022-11)**: 選定期間内だが、テール相関・同時DD・CVaR母集団・maxDDは**選定/確認に依らず全テール窓で回す**（テール被害検証にT2/T3を外さない＝Stage 1・OBS000032踏襲）。
+- **真に未見の確認＝フォワードledger**: §7（≥90暦日ライブ・back-fill水増し禁止）が最強の過学習炙り出し（本番反映の前提）。
+
+### 8-2. 測定範囲
+- **資産**: **BTC 1銘柄のみ**（`SYS-001-ETH`分離・ETH取得禁止・Stage 0/1継続）。
+- **期間**: 2021-03-24〜データ末尾の週次（会計・CVaR・maxDD）／日次（テール相関・合成）。
+- **レジーム別分解＝要**（全期間・確認期間・T2/T3テール窓・確認前半/後半）。
+- **予測単位（Stage 1で確定・本Stage 2は再構築せず入力として使う）とパイプライン統合（§2実コスト会計・§3 CVaRサイジング・§4 maxDD・§6合成）の両方を測定**（片方だけ禁止・§0-3-2の罠封じ）。
+
+---
+
+## 9. 使用スクリプト / 再現方法（想定）
+
+### 前提データ（新規fetch要否）
+- **週次/日次VRP系列**: Stage 1成果 `research/EXP-OBS000037/10-result/stage1-vrp-prediction-unit.json`（週次）・`stage1-vrp-tail-correlation.json`（日次VRP水準）を**再利用**（VRP再構築はしない）。
+- **実コストのライブ取得**: §2の代表満期ATMオプションのvega/gamma/delta/premium/spread・perp板を Deribit public からライブ取得（`probe-deribit-cost-model.ts` の取得作法流用可・認証不要・APIキー/`.env.local`読まない）。Stage 0 `deribit-cost-model.json` の手数料率（0.0003/0.0005）・スプレッド・スリッページは固定入力。
+- **OBS000032キャリー日次**: `research/EXP-OBS000032/10-result/stage1-liquidation-daily-returns-btc-L3.json`（既存・流用・フォワード非流用）。
+- **②単体**: `btc-daily-binance-2017-2026.csv` ＋ `simulatePortfolio` 本番構成（④⑤⑥無改変）。
+
+### 1. 実測コスト会計＋CVaRサイジング＋maxDD是正: 新規 `scripts/vrp-pipeline-accounting.ts`
+- §2（`C_options`・`C_hedge`・`C_real` の実vega換算構築・lab仮置き1.8と並置・SC-1〜SC-3＝実コスト後mean/Sharpe/2×コスト版）＋§3（下側5%ES CVaR・リスク予算2%・f=0.5の`vegaNotionalPct`・f=1.0参考・RUIN-1/RUIN-2）＋§4（複利/単利資本equity・global running peak maxDD%・DD-SANITY）を**生数値で出力**。lab `vrp-pipeline-accounting.ts` はコピペ禁止・独立書き直し。
+- 出力: `research/EXP-OBS000037/10-result/stage2-vrp-pipeline-accounting.json`（生数値・判定語なし）＋ `stage2-vrp-pipeline-accounting-params.json`（固定パラメータ）。
+- 実行: `node --experimental-strip-types scripts/vrp-pipeline-accounting.ts`
+
+### 2. テール相関の日次損益ベース再測定: 新規 `scripts/vrp-tail-correlation-pnl.ts`
+- §5（`pnl_vrp = vegaNotionalPct × ΔVRP_daily` の日次損益系列・G1-A1'/A2'/A3'・②/OBS000032キャリーL3突合・突合日数明記）を**生数値で出力**。Stage 1 `vrp-tail-correlation.ts` を流用してよいが**日次損益定義（1階差分）に置換**。
+- 出力: `research/EXP-OBS000037/10-result/stage2-vrp-tail-correlation-pnl.json`（生数値・判定語なし）。
+- 実行: `node --experimental-strip-types scripts/vrp-tail-correlation-pnl.ts`
+
+### 3. ②/OBS000032との3スリーブ合成: 新規 `scripts/vrp-composite-3sleeve.ts`
+- §6（②単体・OBS000032キャリー・VRPスリーブの3系列／選定期凍結逆ボラウェイト→確認期適用／G3'低相関・G4'限界寄与(a)(b)／2スリーブ vs 3スリーブ比較）を**生数値で出力**。
+- 出力: `research/EXP-OBS000037/10-result/stage2-vrp-composite-3sleeve.json`（生数値・判定語なし）。
+- 実行: `node --experimental-strip-types scripts/vrp-composite-3sleeve.ts`
+
+### 4.（Stage 2バックテスト通過＋司令塔GO後に実装/運用）フォワード較正: 既存 `scripts/deribit-vrp-forward-paper.ts`
+- §7のF1〜F4・中間チェックポイント・日次冪等追記。会計を§2実測コスト・§3 vegaNotionalPctへ更新。**本specでは設計固定のみ（実装更新/日次運用はStage 2バックテスト通過＋司令塔GO後）。**
+
+---
+
+## 10. 総合判定（採用/不採用・回す前に確定・判定はC品質チーム）
+
+- **採用（候補・バックテスト条件付き）**: **SC-1・SC-2・SC-3（§2-4 実コスト後ネット正・Sharpe≥1.0・コストx2で正）を満たし、§3 RUIN-1/RUIN-2 サニティ違反なし、§4 DD-SANITY（複利maxDD≤40%）を満たし、§5 G1-A1'/A2'/A3'（日次損益ベースでA結論維持）を満たし、§6 G3'（低相関維持）かつ G4'（合成Sharpe+0.15 or maxDD−5pt）を満たす**。
+  - **⚠ 採用（候補）＝バックテスト条件付きであって本番GOではない**: **本番反映（Deribit執行アダプタ＝別基盤）は §7フォワード較正F1〜F4合格（ライブ≥90暦日）＋C正式監査＋司令塔最終GO の3点必須**（PJ000002鉄則・POCはペーパーのみ・実発注なし）。
+- **不採用**:
+  - **SC未達（§2-4）** → 実コスト置換後にネット期待値/Sharpeが立たない or コストx2で負転＝lab仮置き高Sharpeが実コストで死ぬ罠＝本テーマ不採用（POC最大の検証点で落ちる）。
+  - **G1-A1'未達（§5-3）** → 日次損益ベースで平時相関が顕在化＝Stage 1のA結論が水準定義バイアスの産物＝3本目の低相関スリーブの前提喪失＝上申。
+  - **G3'未達** → 確認期間で②/OBS000032と直交しない＝分散価値なし（5.4基準1）。
+  - **G4'未達** → 合成しても改善もDD削減もしない＝上乗せ価値なし（5.4基準2）。
+- **制約付き前進（不採用ではないが楽観計上禁止）**: **G1-A2'/A3'未達（テール窓で相関収束 or 3スリーブ合成DDが2スリーブを悪化）** → テール分散価値なしを§6合成サイジング制約に固定（VRP減量 or 単独採算のみで評価）。RUIN違反/DD-SANITY超過 → vegaNotionalPct過大の証拠としてCへ報告（f/リスク予算を勝手に緩めない）。
+
+### kill基準（チューニング逃避・HARKingの禁止）
+本specの事前登録（実コスト変換式§2・下側5%ES/リスク予算2%/f=0.5§3・global peak maxDD§4・相関閾値0.3/0.6§5・凍結逆ボラウェイト/G3'/G4'§6・F1〜F4§7・選定確認分割§8・block-bootstrap seed20260713）の下で未達なら**仮説を棄却して不採用で停止**する。結果を見てから 代表満期/strike/ヘッジ頻度/vega・CVaR水準/リスク予算/f・maxDD定義・相関閾値・合成ウェイト・F基準・seed・選定確認分割を**調整して再測定してはならない**。別案は本実験のリスコープでなく別OBSの新規起票でのみ許可。
+
+---
+
+## 11. B実装チームへの指示（実装・実行・生データ出力のみ。解釈・判定・チューニング禁止）
+
+1. **実装**: `scripts/vrp-pipeline-accounting.ts` / `scripts/vrp-tail-correlation-pnl.ts` / `scripts/vrp-composite-3sleeve.ts` を新規作成。実コスト率（オプションtaker0.0003/上限12.5%・perp taker0.0005・スプレッド0.0784bps・スリッページ0.0392bps）／代表満期（残存≥7日・最近接expiry）・ATM（|delta|0.5最近接・[0.35,0.65]）／ヘッジ頻度日次7回／下側5%ES CVaR・リスク予算2%・f=0.5／global running peak maxDD／相関閾値0.3(平時)/0.6(テール)／逆ボラ凍結ウェイト（選定2021-03-24〜2023-06-30）／block-bootstrap（ブロック長4週・N5000・seed20260713）／テール窓T2 2022-05-01〜06-30・T3 2022-10-25〜12-15 を**本specの値でハードコード**（可変にしない・グリッド探索禁止）。②単体は本番構成で `simulatePortfolio` をそのまま利用。VRP系列はStage 1成果JSONを再利用（VRP再構築禁止）。
+2. **lab コピペ禁止（Stage 1精神の継続）**: `crypto-strategy-lab/.../vrp-pipeline-accounting.ts` は**参考のみ・コードをコピペしない**（独立に書き直す＝labのバグごと輸入回避）。Stage 0/1の `probe-deribit-cost-model.ts`・`vrp-tail-correlation.ts` の取得/突合作法は流用してよい。
+3. **実測コストのvol pt換算（§2）**: 代表満期ATMのvega/gamma/delta/premium/spreadをライブ取得し、per-contract USDコスト÷per-contract vega でvol pt化。**vega/strike/満期/ヘッジ頻度を「コストが安く出る方」に振らない**（一意固定）。現時点スナップショットvegaを全期間適用する限界を meta に明記。**「vega非取得」のような不正確記述をしない**（vegaは取得済み＝Stage 0 verdict条件D(ii)是正）。代表満期でもスプレッドが過大な場合は生値をそのまま記録し「実測限界」と注記（都合よく除外しない）。
+4. **maxDD（§4）**: 加法vol pt累積和でなく **vegaNotionalPct適用後の資本equity**（複利主・単利参考）の **global running peak基準%** で測る（Cが指摘した定義曖昧性を解消・episode基準/全期間max%どちらの独自定義も使わない）。
+5. **テール相関（§5）**: VRP**水準**でなく **日次損益（1階差分 `ΔVRP_daily` × vegaNotionalPct）**で相関・テールDDを測る（Cバイアス是正）。閾値（0.3/0.6）・ウェイト（1/3）・窓は不変。OBS000032キャリーは**ヒストリカルL3**使用（フォワード非流用）。ledgerキー`date`でjoin・突合日数/片側欠損日数を各窓で出力（片側欠損を暗黙ゼロ埋めしない）。
+6. **block-bootstrap power0非再発**: リサンプリングが平均を動かす方式であることを `max|Δmean|` を生ログに記録し自己点検（030/031で名指し警告の平均不変シャッフル＝power0を使わない）。
+7. **報告**: §9の成果物を `research/EXP-OBS000037/10-result/` に生データで出力。**完了報告の前に、生成した成果物ファイル（JSON/log）が実在し中身が空でない（NaN/Infinity/null埋めでない）ことを自分で確認してから報告**（031で3回連続発生した「実行完了を自己確認せず完了報告」＝空JSONを成功報告、を再発させない）。
+8. **禁止事項**:
+   - 判定語（採用/不採用・達成/未達・改善/悪化・有意/十分/割に合う 等の**評価・結論**）を使わない。事実（「C_real=4.32 vol pt/週」「実コスト後 確認期Sharpe(√52)=1.47」「2×コスト後 全期mean=+3.9 vol pt/週」「vegaNotionalPct=0.0018」「複利maxDD=21.4%」「確認期corr(pnl_vrp,032キャリー)=0.08」「T2窓corr=0.31」等）のみ。**SC-1〜3・RUIN・DD-SANITY・G1-A1'〜A3'・G3'・G4'の当てはめと採用/不採用の宣告はC品質チームが行う。**
+   - **実コスト変換式・代表満期/strike/ヘッジ頻度・CVaR水準/リスク予算/f・maxDD定義・相関閾値・合成ウェイト・F基準・seed・選定確認分割を結果を見て振らない**（HARKing・多重検定）。未達でも勝手にパラメータを振って"通るまで再測定"しない＝基準を緩めず事実をCへ委譲。
+   - **ETH取得禁止**（`SYS-001-ETH`分離）。**VRP系列の再構築（RV窓長/アンカー/√365の再走）をしない**（Stage 1成果を入力として使う）。**Sharpe/ボラ基準のKelly禁止**（サイジングは§3 CVaR基準のみ）。**フォワード較正の実装更新/日次運用はStage 2バックテスト通過＋司令塔GO後**（本specでは設計のみ・先走らない）。
+9. **上申**: 実測の結果、本specの前提（例: 実コスト`C_real`がSC基準を満たさずデバッグ後も乖離／代表満期ATMのvegaがライブで取得できない／OBS000032キャリーL3系列が確認期・T2/T3で突合できない／②単体のsimulatePortfolioが回らない等）が崩れる場合は、**基準を自分で緩めず**、事実を明記してA設計官・Sに差し戻す。
+
+---
+
+## 変更履歴
+- 2026-07-13: 初版作成（A設計チーム）。EXP-OBS000037 Stage 2（実測コスト会計＋CVaRサイジング＋maxDD定義是正＋テール相関の日次損益ベース再測定＋②/OBS000032 3スリーブ合成＋フォワード較正設計）spec確定。Stage 1（C再監査2026-07-13＝採用可・必須条件B/A達成）＋司令塔Stage 2着手GOを受け、C品質チームのStage 2申し送り2点を反映した確定版。**(1)実測コスト統合**＝Stage 0 `deribit-cost-model.json`実測値（オプションtaker0.0003/上限12.5%・perp taker0.0005・スプレッド0.0784bps・スリッページ0.0392bps・代表満期ATM vega）をper-contract USDコスト÷per-contract vegaでvol pt化しlab仮置き1.8を置換（`C_options`往復＋`C_hedge`日次7回・代表満期残存≥7日/ATM|delta|0.5最近接に一意固定・vega/strike/頻度を安く出る方に振らない）。**成功基準（回す前に固定）＝SC-1(実コスト後ネット平均>0・全期＋確認)/SC-2(確認期Sharpe√52≥1.0)/SC-3(コストx2で正・全期＋確認)**、未達＝lab仮置き高Sharpeが実コストで死ぬ罠として本テーマ不採用。**(2)CVaRサイジング**＝下側5%ES（テール＋実コスト込み・T2/T3含む全期母集団）|CVaR_w|・週次リスク予算資本2%・f=0.5・vegaNotionalPct=0.5×(0.02/|CVaR_w|)（f=1.0 lab生方式は参考並記・採用判定に不使用）・Sharpe基準Kelly禁止・破産サニティRUIN-1(最悪週次損失×notional≤資本25%)/RUIN-2(最悪テール窓累積≤資本40%)。**(3)maxDD是正（C申し送りi）**＝加法vol pt累積和のepisode/全期間max%曖昧性を排除しvegaNotionalPct適用後の資本equity（複利主/単利参考）のglobal running peak基準%に一義固定・DD-SANITY複利maxDD≤40%。**(4)テール相関の日次損益再測定（C申し送りii）**＝VRP水準（自己相関で低相関に出やすいバイアス）でなくpnl_vrp=vegaNotionalPct×ΔVRP_daily（1階差分の日次損益）でG1-A1'(確認期平時|ρ(pnl_vrp,②)|<0.3 かつ |ρ(pnl_vrp,032キャリー)|<0.3)/G1-A2'(T2/T3各窓|ρ|<0.6)/G1-A3'(T2/T3で3スリーブ合成DD≤2スリーブ合成DD)を再測定しStage 1のA結論維持をゲート化（閾値0.3/0.6・ウェイト1/3・窓は不変＝定義是正であって閾値緩和でない）。G1-A1'未達＝A結論が水準バイアスの産物で低相関前提崩壊→上申／G1-A2'/A3'未達＝テール分散価値なしを§6合成制約に固定。**(5)②/OBS000032 3スリーブ合成（PJ000001 5.4）**＝②単体×OBS000032キャリーL3(3倍w*)×VRPスリーブ(pnl_vrp)を選定期凍結逆ボラウェイト→確認期適用しG3'(低相関維持|ρ|<0.3)/G4'(3スリーブ合成Sharpe−2スリーブ合成≥+0.15 or maxDD−2スリーブ合成≤−5pt)。**(6)フォワード較正設計**＝`deribit-vrp-forward-paper.ts`日次冪等追記でライブ≥90暦日蓄積（back-fill水増し禁止）・F1(累積ネット>0かつ確認期90%下側境界以上)/F2(実現DVOL−事後RV>0週比率≥60%)/F3(週次実現損失がRUIN-1超過0件)/F4(DVOLスパイク窓で|ρ|<0.6維持＝コロナ級窓外の前向き補完)・本番反映はF1〜F4合格＋C正式監査＋司令塔最終GOの3点必須（Deribit執行アダプタ別基盤・POCペーパーのみ）。選定/確認＝Stage 1踏襲（選定2021-03-24〜2023-06-30は合成凍結ウェイトのみ・確認2023-07-01〜末尾でSC-2/G1-A1'/G3'/G4'判定・テール窓T2/T3は選定確認横断で全窓）。測定範囲＝BTCのみ（ETH取得禁止）・予測単位（Stage 1確定・再構築せず入力）＋パイプライン（実コスト会計/CVaR/maxDD/合成）両測定。使用スクリプト＝新規 vrp-pipeline-accounting.ts / vrp-tail-correlation-pnl.ts / vrp-composite-3sleeve.ts（lab コピペ禁止）、フォワードは既存 deribit-vrp-forward-paper.ts（会計を実コスト/vegaNotionalPctへ更新・実装はStage 2通過＋司令塔GO後）。B実装官に判定語禁止・生データのみ・lab コピペ禁止・実コスト変換/CVaR/f/maxDD/閾値/ウェイト/F基準/seed/分割をチューニングしない・block-bootstrap power0非再発・ETH取得禁止・VRP再構築禁止・Kelly禁止・vega非取得のような不正確記述禁止・OBS000032ヒストリカルL3使用(フォワード非流用)・成果物実在確認後の完了報告を指示。担当を**B実装チーム（Stage 2実装・生データ出力待ち）**に更新（A設計チーム）。
