@@ -71,5 +71,10 @@ jobs:
           else
             git add public/data/carry-executor/
             git commit -m "chore(carry-executor): sync status $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            if ! git pull --rebase origin main; then
+              git rebase --abort || true
+              echo "::warning::git pull --rebase failed. Aborted — will retry on next scheduled run."
+              exit 1
+            fi
             git push origin main
           fi
