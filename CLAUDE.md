@@ -132,3 +132,264 @@ btc-strategy（既存の本番運用アプリ）の基本ルール・技術構�
 - btc-strategyは本番運用中のため、本プロジェクトの都合でbtc-strategy側のコードに手を入れない
 - 認証まわり（Googleログイン・許可メールアドレス制御）など再利用性の高い基盤コードはbtc-strategyを参考に移植している
 - 将来的に両プロジェクトでロジックを共有する必要が生じた場合は、その時点で共通パッケージ化を検討する
+
+---
+
+## 技術スタック
+
+### フロントエンド
+- **言語・フレームワーク**: TypeScript + React 19 + React Router 7
+- **ビルドツール**: Vite 7
+- **状態管理**: TanStack React Query 5（サーバ状態）
+- **UI・スタイル**: Tailwind CSS 3 + Lucide React（アイコン）
+- **チャート**: Recharts 2（データ可視化）
+- **バックエンド連携**: Firebase 12 + Claude API (`@anthropic-ai/sdk`)
+
+### バックエンド・インフラ
+- **認証**: Google Firebase Authentication
+- **リアルタイムDB**: Firebase Realtime Database
+- **クラウド関数**: Firebase Cloud Functions
+- **推論エンジン**: Claude API（パターン認識・シグナル判定）
+
+### 開発環境
+- **Node.js**: ES Module対応
+- **パッケージ管理**: npm
+- **型チェック**: TypeScript strict mode
+- **コード品質**: ESLint推奨（`.claude/settings.json` で許可制御）
+
+---
+
+## プロジェクト構造
+
+```
+trading-app-v2/
+├── .claude/                        # Claude Code設定
+│   ├── agents/                     # マルチエージェント指示書（6体）
+│   │   ├── chief-strategist.md     # S: 戦略チーム
+│   │   ├── strategy-architect.md   # A: 設計チーム
+│   │   ├── quant-researcher.md     # B: 実装チーム
+│   │   ├── adversarial-reviewer.md # C: 品質チーム
+│   │   ├── integration-deploy.md   # D: デプロイチーム
+│   │   └── archivist-pm.md         # E: 進行チーム
+│   └── settings.json               # Claude Code環境設定
+├── .github/                        # GitHub Actions
+│   └── workflows/                  # 自動ビルド・デプロイ
+├── docs/                           # ユーザ・開発者向けドキュメント
+│   ├── 000-目次.md
+│   ├── A-利用者導入編/
+│   ├── B-トレーダ向けアプリ活用編/
+│   ├── C-トレーディング仕様解説編/
+│   └── D-開発者向けシステム仕様編/
+├── functions/                      # Firebase Cloud Functions（バックエンド）
+├── obs/                            # 永続記録（プロジェクト方針・引き継ぎ書）
+│   └── trading_app/
+│       ├── 00プロジェクト方針/     # PJ000001～PJ000003
+│       ├── 01開発アイデア/
+│       ├── 02対応検討中/
+│       ├── 70対応待ち/
+│       ├── 80実装中/
+│       ├── 90解決済/
+│       ├── 85レビュー/
+│       └── 引き継ぎ/                # セッション間引き継ぎ書
+├── research/                       # 実験作業場（揮発可）
+│   ├── ACTIVE.md                   # E管理：進行状況信号機
+│   ├── STRATEGY-BRIEF.md           # S管理：作戦ブリーフ
+│   ├── portfolio-ledger.md         # S管理：採用/不採用台帳
+│   ├── _templates/                 # 実験成果物の雛形
+│   └── EXP-OBSxxxxx/               # 実験ごとのフォルダ
+│       ├── 00-prescreen.md         # S: 目利きゲート
+│       ├── 00-spec.md              # A: 実験仕様
+│       ├── 10-result/              # B: 生データのみ
+│       ├── 20-review.md            # C: 採用/不採用判定
+│       └── 30-decision.md          # D/E: 反映決定・記録
+├── scripts/                        # 検証・バックテストスクリプト
+├── src/                            # 本番実装コード
+│   ├── App.tsx                     # ルートコンポーネント
+│   ├── main.tsx                    # エントリーポイント
+│   ├── components/                 # UI コンポーネント
+│   │   ├── screens/                # ページレベルコンポーネント
+│   │   ├── shell/                  # アプリケーションシェル
+│   │   └── [その他UI要素]/
+│   ├── hooks/                      # React カスタムフック
+│   │   └── useAuth.tsx             # Google認証フック
+│   ├── types/                      # TypeScript型定義
+│   ├── utils/                      # ユーティリティ関数
+│   ├── lib/                        # 外部API連携（Firebase、Claude等）
+│   ├── decision-layer/             # トレード判定レイヤー
+│   ├── execution-layer/            # 発注実行レイヤー
+│   ├── llm-layer/                  # Claude API連携層
+│   ├── pattern-engine/             # パターン認識エンジン
+│   ├── pipeline/                   # バックテストパイプライン
+│   ├── risk-layer/                 # リスク管理レイヤー
+│   ├── data/                       # 静的データ・定数
+│   ├── shared/                     # 共有ユーティリティ
+│   ├── ui/                         # 共有UI要素
+│   └── index.css                   # グローバルスタイル
+├── public/                         # 静的アセット
+├── package.json                    # 依存関係
+├── tsconfig.json                   # TypeScript設定
+├── vite.config.ts                  # Vite設定
+└── CLAUDE.md                       # このファイル
+
+```
+
+### src/内の主要モジュール
+- **components/screens/**: ページコンポーネント（ホーム、パターン分析、シグナル、評価、フォワード較正等）
+- **hooks/useAuth.tsx**: Google Firebase認証フック（許可メールアドレス制御含む）
+- **decision-layer/**: トレード判定ロジック（エントリー・エグジット条件）
+- **pattern-engine/**: パターン認識・フィルタリング
+- **pipeline/**: バックテストの並列処理・集計
+- **llm-layer/**: Claude API呼び出し（パターン相談・判定補助）
+- **risk-layer/**: ポジションサイズ・損切り・利確ロジック
+
+---
+
+## 開発フロー
+
+### ローカル開発
+```bash
+# 環境構築
+npm install
+
+# 開発サーバ起動（ホットリロード）
+npm run dev
+
+# 本番ビルド
+npm run build
+
+# ビルド確認
+npm run preview
+```
+
+### コード修正の進め方
+1. **影響範囲確認**: ファイル構造・型定義・パイプライン統合を確認
+2. **修正前提示**: 要件があいまいな場合は仕様を確認
+3. **実装**: TypeScript strict mode を遵守、型安全を保証
+4. **テスト**: 関連機能（バックテスト・パターン分析等）で動作確認
+5. **コミット**: 変更内容を簡潔に説明し、関連OBS件名をリンク
+
+### ビルド・デプロイ
+- **ビルド**: `npm run build` 後、バイナリをGitHub Actionsで自動テスト
+- **デプロイ**: 本番反映は**D デプロイチーム (integration-deploy.md)** が担当
+  - 既存バックテスト回帰確認は必須
+  - Firebase設定・環境変数は `functions/` で一元管理
+  - デプロイ完了後は新バージョンをトップページに表示
+
+---
+
+## キー設計原則
+
+### 検証フロー
+- **予測単位**（パターン単位のシグナル精度）と **パイプライン水準**（ポートフォリオレベルのバックテスト結果）の両方を測定
+- 各実験の **生データを独立に保存** し、C品質チームが原データから再判定可能に
+- 品質チーム（C）は実装チーム（B）と別エージェント → 自分の実装を甘く採点しない
+
+### セキュリティ
+- **APIキー・認証トークン**: `.env.local` は読まない。環境変数はGitHub Secretsで管理
+- **許可メールアドレス**: Firebase認証後、`useAuth` フックで制御
+- **コード公開**: このリポジトリは公開（秘密情報は入れない）
+
+### 日本語対応
+- コードコメント・ドキュメント・エラーメッセージは日本語を基本
+- 技術用語は英語のまま（React、Firebase、Claude等）
+
+---
+
+## デバッグ・ログ管理
+
+### アプリ固有のログ機能
+- ブラウザコンソール確認ではなく、アプリ側でログパネルを拡張
+- バックテスト・パターン分析の中間結果をアプリに表示
+- ユーザがスマホで指示することが多いため、UI操作で確認・エクスポート可能に
+
+### 本番デバッグ
+- `import.meta.env.VITE_*` で埋め込まれたバージョン情報
+  - `VITE_APP_VERSION`: package.json のバージョン
+  - `VITE_GIT_COMMIT`: ビルド時のgit短縮コミットハッシュ
+  - `VITE_DEPLOY_TIME`: ビルド時刻（日本時刻）
+
+---
+
+## テスト・検証
+
+### バックテスト検証
+- `scripts/` フォルダに検証スクリプトを配置
+- 各実験ごとに **生データのみ** を `research/EXP-OBS*/10-result/` に出力
+- パイプライン統合後、本番反映前に **既存バックテスト回帰テスト** を実施（D デプロイチームが担当）
+
+### 型チェック・ビルド確認
+```bash
+npm run build  # TypeScript型チェック + Viteバンドル
+```
+
+---
+
+## ドキュメント管理ルール
+
+### ドキュメント体系（docs/）
+- **A-利用者導入編**: セットアップ、初期設定、トラブルシューティング
+- **B-トレーダ向けアプリ活用編**: UIガイド、シグナル見方、ポジション管理
+- **C-トレーディング仕様解説編**: 戦略ルール、パターン定義、リスク管理
+- **D-開発者向けシステム仕様編**: システムアーキテクチャ、API仕様、拡張ガイド
+
+### ファイル命名
+- `A001-ファイル名.md`, `B002-ファイル名.md` ... (章立てごとに通番)
+- 更新履歴をヘッダーに記載
+- リンク切れを防ぐため、ファイル移動時は派生・関連リンクを張り直し
+
+### 更新周期
+- 標準: 1週間に1回（金曜日推奨）
+- トリガー: ユーザ依頼があった場合は即座に対応
+
+---
+
+## IDE・エディタ設定
+
+### VSCode推奨拡張機能
+- **ES7+ React/Redux/React-Native snippets**: React開発補助
+- **TypeScript Vue Plugin**: TypeScript型チェック
+- **Tailwind CSS IntelliSense**: Tailwindクラス補完
+- **Firebase Explorer**: Firebase設定確認
+
+### フォーマット・リント
+- Prettier: コード自動整形（`.prettierrc` 推奨）
+- ESLint: コード品質チェック
+- TypeScript: strict mode で型安全を保証
+
+---
+
+## 進行状況の把握
+
+### 必読ドキュメント（セッション開始時）
+1. **`research/ACTIVE.md`**: 進行中の実験状況（誰が何をしているか）
+2. **`research/STRATEGY-BRIEF.md`**: S 戦略チームの作戦提案（どこへ向かうか）
+3. **`obs/trading_app/00プロジェクト方針/PJ000003-プロジェクト進捗サマリ.md`**: 全体KPI・課題・次アクション
+4. **`obs/trading_app/引き継ぎ/01未完了/YYYYMMDD-引き継ぎ.md`**: 前セッションの到達点
+
+### 定期更新タイミング
+- **週次**: PJ000003 を金曜夕方に更新
+- **イベント駆動**: 実験終了・品質チーム宣告・フォワード較正マイルストーン到達時
+
+---
+
+## FAQ & トラブルシューティング
+
+### ビルドエラー
+- `npm install` を実行し、`node_modules` を再構築
+- `npm run build` で詳細なコンパイルエラーを確認
+- `package.json` 依存関係が一致しているか確認
+
+### Firebase接続エラー
+- `src/lib/` の Firebase初期化ファイルで認証情報を確認
+- Google Cloud Console で API 有効化状況を確認
+- `.env.local` 等の秘密情報は使わない（GitHub Secrets推奨）
+
+### パターン分析が遅い
+- Claude API の トークン使用量・レート制限を確認
+- バックテスト期間を短縮して検証
+- `llm-layer/` の キャッシング機構を活用
+
+### テスト環境とのデータ不一致
+- `scripts/` で backtest data と forward calibration data を分離
+- 予測単位とパイプライン両方の結果を確認
+- 乖離があれば `research/EXP-OBS*/` に記録して品質チームへ報告
