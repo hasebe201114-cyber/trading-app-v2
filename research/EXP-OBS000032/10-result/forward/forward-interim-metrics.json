@@ -1,8 +1,8 @@
 {
-  "generatedAtUTC": "2026-07-13T04:29:43.487Z",
+  "generatedAtUTC": "2026-07-14T03:56:28.640Z",
   "liveDaysCount": {
-    "BTC": 9,
-    "ETH": 9
+    "BTC": 10,
+    "ETH": 10
   },
   "warmupDaysCount": {
     "BTC": 30,
@@ -12,13 +12,13 @@
   "f1234": {
     "BTC": {
       "f1": {
-        "liveDaysCount": 9,
+        "liveDaysCount": 10,
         "sufficientSampleFor90dGate": false,
-        "cumulativeLivePnlBps": 4.85575426608603,
+        "cumulativeLivePnlBps": 5.434531590325099,
         "f1a_cumulativePositive": true,
-        "liveDailyMeanBps": 0.5395282517873367,
-        "f1bLowerBoundBps": 1.2390311113694175,
-        "f1bBootstrapNote": "block-bootstrap: calm系列n=181日, blockLen=7, N=5000, seed=20260705, targetLength(=ライブ日数)=9, 第10パーセンタイル",
+        "liveDailyMeanBps": 0.5434531590325099,
+        "f1bLowerBoundBps": 1.6901915590115926,
+        "f1bBootstrapNote": "block-bootstrap: calm系列n=181日, blockLen=7, N=5000, seed=20260705, targetLength(=ライブ日数)=10, 第10パーセンタイル",
         "f1b_liveMeanGteLowerBound": false,
         "backtestReference": {
           "calmMeanDailyNetCarryBps": 11.624505211935004,
@@ -27,31 +27,31 @@
         "note": "F1a/F1bともにliveDaysCount<90の間は試験値（формула動作確認用）。90日到達後にforward-f1f4-verdict-inputs.jsonへ正式出力。"
       },
       "f2": {
-        "liveDaysCount": 9,
-        "eventPairsCount": 28,
-        "eventSignAgreementPct": 82.14285714285714,
+        "liveDaysCount": 10,
+        "eventPairsCount": 31,
+        "eventSignAgreementPct": 83.87096774193549,
         "f2_gte80pct": true,
         "g02BaselineReferencePct": 64.68,
         "note": "8hイベント単位(Bitget vs Binance funding符号)の一致率。spec §4-F2「粒度をG0-2と統一」。算出元の全ペア生データは forward-f2-event-pairs-{asset}.{csv,json}（8hイベント単位全ペア）に永続化。日次ledgerの f2_pair_sign_match 列（日次合算）はF2ゲート算出には使わない参考値。ライブ日数<90は試験値。ローリング警告(70%以下)は中間チェックポイント側(§6)に別掲。"
       },
       "f3": {
-        "liveDaysCount": 9,
+        "liveDaysCount": 10,
         "liquidationCount": 0,
         "marginCallCount": 0,
         "f3_zeroLiquidationAndMarginCall": true,
         "note": "ライブ日数<90は試験値。清算・追証は発生時点で即警告（§6）も別途発火。"
       },
       "f4": {
-        "liveDaysCount": 9,
-        "liveBasisDailyDeltaStdBps": 1.6775461817005337,
+        "liveDaysCount": 10,
+        "liveBasisDailyDeltaStdBps": 1.7229237851509682,
         "t1ThresholdBps": 12.137769741412779,
         "f4_lteT1Threshold": true,
         "calmReferenceBps": 5.0751820750473895,
         "note": "RMS(|Δbasis_bps|)方式（g0-1-tail-reachability.jsonと同一算式）。ライブ日数<90は試験値。basis_bpsはperp_last基準（バックテスト参照値との算式整合のため。mark基準ではない）。"
       },
       "projection90d": {
-        "basedOnLiveDays": 9,
-        "reliabilityNote": "day9は試験値・day30以降で信頼度向上",
+        "basedOnLiveDays": 10,
+        "reliabilityNote": "day10は試験値・day30以降で信頼度向上",
         "p10_cumBps": 699.2,
         "p50_cumBps": 1047.2,
         "p90_cumBps": 1409.5,
@@ -62,13 +62,13 @@
     },
     "ETH": {
       "f1": {
-        "liveDaysCount": 9,
+        "liveDaysCount": 10,
         "sufficientSampleFor90dGate": false,
-        "cumulativeLivePnlBps": 5.495375441190247,
+        "cumulativeLivePnlBps": 6.129632348283421,
         "f1a_cumulativePositive": true,
-        "liveDailyMeanBps": 0.6105972712433608,
-        "f1bLowerBoundBps": 1.7944269882102892,
-        "f1bBootstrapNote": "block-bootstrap: calm系列n=181日, blockLen=7, N=5000, seed=20260705, targetLength(=ライブ日数)=9, 第10パーセンタイル",
+        "liveDailyMeanBps": 0.612963234828342,
+        "f1bLowerBoundBps": 2.168448328737875,
+        "f1bBootstrapNote": "block-bootstrap: calm系列n=181日, blockLen=7, N=5000, seed=20260705, targetLength(=ライブ日数)=10, 第10パーセンタイル",
         "f1b_liveMeanGteLowerBound": false,
         "backtestReference": {
           "calmMeanDailyNetCarryBps": 14.397660815926988,
@@ -77,31 +77,31 @@
         "note": "F1a/F1bともにliveDaysCount<90の間は試験値（формула動作確認用）。90日到達後にforward-f1f4-verdict-inputs.jsonへ正式出力。"
       },
       "f2": {
-        "liveDaysCount": 9,
-        "eventPairsCount": 28,
-        "eventSignAgreementPct": 89.28571428571429,
+        "liveDaysCount": 10,
+        "eventPairsCount": 31,
+        "eventSignAgreementPct": 90.32258064516128,
         "f2_gte80pct": true,
         "g02BaselineReferencePct": 71.75,
         "note": "8hイベント単位(Bitget vs Binance funding符号)の一致率。spec §4-F2「粒度をG0-2と統一」。算出元の全ペア生データは forward-f2-event-pairs-{asset}.{csv,json}（8hイベント単位全ペア）に永続化。日次ledgerの f2_pair_sign_match 列（日次合算）はF2ゲート算出には使わない参考値。ライブ日数<90は試験値。ローリング警告(70%以下)は中間チェックポイント側(§6)に別掲。"
       },
       "f3": {
-        "liveDaysCount": 9,
+        "liveDaysCount": 10,
         "liquidationCount": 0,
         "marginCallCount": 0,
         "f3_zeroLiquidationAndMarginCall": true,
         "note": "ライブ日数<90は試験値。清算・追証は発生時点で即警告（§6）も別途発火。"
       },
       "f4": {
-        "liveDaysCount": 9,
-        "liveBasisDailyDeltaStdBps": 1.4551215446146386,
+        "liveDaysCount": 10,
+        "liveBasisDailyDeltaStdBps": 1.3769710852671708,
         "t1ThresholdBps": 19.466313052751875,
         "f4_lteT1Threshold": true,
         "calmReferenceBps": 8.696701924612116,
         "note": "RMS(|Δbasis_bps|)方式（g0-1-tail-reachability.jsonと同一算式）。ライブ日数<90は試験値。basis_bpsはperp_last基準（バックテスト参照値との算式整合のため。mark基準ではない）。"
       },
       "projection90d": {
-        "basedOnLiveDays": 9,
-        "reliabilityNote": "day9は試験値・day30以降で信頼度向上",
+        "basedOnLiveDays": 10,
+        "reliabilityNote": "day10は試験値・day30以降で信頼度向上",
         "p10_cumBps": 889.8,
         "p50_cumBps": 1312.3,
         "p90_cumBps": 1742.1,
@@ -113,8 +113,8 @@
   },
   "projection90d": {
     "BTC": {
-      "basedOnLiveDays": 9,
-      "reliabilityNote": "day9は試験値・day30以降で信頼度向上",
+      "basedOnLiveDays": 10,
+      "reliabilityNote": "day10は試験値・day30以降で信頼度向上",
       "p10_cumBps": 699.2,
       "p50_cumBps": 1047.2,
       "p90_cumBps": 1409.5,
@@ -123,8 +123,8 @@
       "bootstrapNote": "block-bootstrap: calm系列n=181日, blockLen=7, N=5000, seed=20260705, targetLength=90日, P10/P50/P90"
     },
     "ETH": {
-      "basedOnLiveDays": 9,
-      "reliabilityNote": "day9は試験値・day30以降で信頼度向上",
+      "basedOnLiveDays": 10,
+      "reliabilityNote": "day10は試験値・day30以降で信頼度向上",
       "p10_cumBps": 889.8,
       "p50_cumBps": 1312.3,
       "p90_cumBps": 1742.1,
@@ -141,17 +141,17 @@
         "dates": []
       },
       "signAgreementRolling30": {
-        "pairsAvailable": 28,
-        "agreementPct": null,
-        "below70": null
+        "pairsAvailable": 30,
+        "agreementPct": 86.66666666666667,
+        "below70": false
       },
       "carryPersistentNegative": {
         "cumulativeNegative": false,
-        "last10AllNegative": null,
+        "last10AllNegative": false,
         "triggered": false
       },
       "basisSpikeExceedsT1": {
-        "rolling30DeltaStdBps": 1.1307823572588895,
+        "rolling30DeltaStdBps": 1.1930163682362118,
         "exceeds": false
       },
       "dataGapConsecutive": {
@@ -165,17 +165,17 @@
         "dates": []
       },
       "signAgreementRolling30": {
-        "pairsAvailable": 28,
-        "agreementPct": null,
-        "below70": null
+        "pairsAvailable": 30,
+        "agreementPct": 90,
+        "below70": false
       },
       "carryPersistentNegative": {
         "cumulativeNegative": false,
-        "last10AllNegative": null,
+        "last10AllNegative": false,
         "triggered": false
       },
       "basisSpikeExceedsT1": {
-        "rolling30DeltaStdBps": 1.0979846001121902,
+        "rolling30DeltaStdBps": 1.0154227355119785,
         "exceeds": false
       },
       "dataGapConsecutive": {
