@@ -371,6 +371,12 @@ function SimulationPanel({
   const ethActualPct = ethActualPctAlloc / CASH_MULTIPLIER.ETH;
   const avgActualPct = (btcActualPct + ethActualPct) / 2;
 
+  // 年率換算ヘルパー（単純な複利換算: (1 + r)^(365/days) - 1）
+  const liveDays = Math.max(1, Math.min(btcLive.length, ethLive.length));
+  const toAnnualized = (pct: number, days: number): number =>
+    days > 0 ? (Math.pow(1 + pct / 100, 365 / days) - 1) * 100 : 0;
+  const fmtAnn = (pct: number) => `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`;
+
   // 90日予測（P10/P50/P90 sleeve return %・配分資本ベース→総資金ベースに換算）
   const toSleeveRet = (proj: Projection90d | undefined, ws: number, cashMultiplier: number) => {
     if (!proj?.p10_cumBps) return null;
@@ -437,12 +443,15 @@ function SimulationPanel({
       {/* 結果グリッド */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="border border-fg-3 rounded p-3">
-          <p className="text-[11px] text-fg-3 mb-1">現在の実績収益</p>
+          <p className="text-[11px] text-fg-3 mb-1">現在の実績収益（{liveDays}日間）</p>
           <p className={`text-xl font-700 font-mono tabular-nums ${view.actualPct >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
             {fmt1(view.actualPct, '%')}
           </p>
           <p className={`text-sm font-mono ${view.actualPct >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
             {fmtMoney(principal * view.actualPct / 100)}
+          </p>
+          <p className="text-[10px] text-fg-3 mt-1 font-mono tabular-nums">
+            年率換算 約{fmtAnn(toAnnualized(view.actualPct, liveDays))}
           </p>
         </div>
         <div className="border border-fg-3 rounded p-3 opacity-60">
@@ -453,6 +462,9 @@ function SimulationPanel({
           <p className="text-sm font-mono text-red-400">
             {view.p10 != null ? fmtMoney(principal * view.p10 / 100) : '—'}
           </p>
+          <p className="text-[10px] text-fg-3 mt-1 font-mono tabular-nums">
+            {view.p10 != null ? `年率換算 約${fmtAnn(toAnnualized(view.p10, 90))}` : ''}
+          </p>
         </div>
         <div className="border border-blue-400 dark:border-blue-600 rounded p-3 bg-blue-50 dark:bg-blue-950/20">
           <p className="text-[11px] text-blue-600 dark:text-blue-400 mb-1">90日予測 P50（中央値）</p>
@@ -462,6 +474,9 @@ function SimulationPanel({
           <p className="text-sm font-mono text-blue-600 dark:text-blue-400">
             {view.p50 != null ? fmtMoney(principal * view.p50 / 100) : '—'}
           </p>
+          <p className="text-[10px] text-fg-3 mt-1 font-mono tabular-nums">
+            {view.p50 != null ? `年率換算 約${fmtAnn(toAnnualized(view.p50, 90))}` : ''}
+          </p>
         </div>
         <div className="border border-fg-3 rounded p-3 opacity-60">
           <p className="text-[11px] text-fg-3 mb-1">90日予測 P90（楽観）</p>
@@ -470,6 +485,9 @@ function SimulationPanel({
           </p>
           <p className="text-sm font-mono text-emerald-500">
             {view.p90 != null ? fmtMoney(principal * view.p90 / 100) : '—'}
+          </p>
+          <p className="text-[10px] text-fg-3 mt-1 font-mono tabular-nums">
+            {view.p90 != null ? `年率換算 約${fmtAnn(toAnnualized(view.p90, 90))}` : ''}
           </p>
         </div>
       </div>
