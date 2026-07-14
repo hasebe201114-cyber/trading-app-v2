@@ -8,14 +8,15 @@
  * spec §7-2の指示に従い§2実測コスト（C_real=2.8613 vol pt/週）＋§3 vegaNotionalPct（f=0.5=0.00020084）
  * に置換する。
  *
- * net_pnl_pct の新会計式（日次）:
- *   daily_cost = C_REAL_WEEKLY_COST_VOL_PT / 7
- *   net_vol_pt = vrp - daily_cost   (vrp = dvol - rv_forward_7d)
- *   net_pnl_pct = net_vol_pt × VEGA_NOTIONAL_PCT × 100  (資本比%)
+ * net_pnl_pct の新会計式（日次観測値・週次コホート方式）:
+ *   vrp = dvol - rv_forward_7d              (フル週次VRP水準の日次観測)
+ *   net_pnl_pct = (vrp - C_real) × VEGA_NOTIONAL_PCT × 100  (資本比% ≈ §4-1週次payoff)
  *
- * vrp（vol pt）は変わらず日次観測（DVOL_t - rv_forward_7d_t）。C_real/7で日割りコストを差引き、
- * vegaNotionalPctで資本比に換算する。週次payoff = vegaNotionalPct × (VRP_w - C_real)（§4-1）の
- * 日次近似として機能する（週内に概ね整合・back-fill水増しなし）。
+ * vrp = DVOL_t − rv_forward_7d_t はそれ自体フル週次VRP（重複コホート）の日次観測値。
+ * C_realも週次フルコストをそのまま差し引く（C_real/7の日割りにしない）。
+ * これにより各日のnet_pnl_pctが§4-1の r_t = vegaNotionalPct × (VRP_w − C_real) と同軸になり、
+ * F判定時は go-live日から7日ごとの**非重複サンプリング**で週次系列を構築する（7日分合算しない）。
+ * RUIN-1（単一週次損失基準）も単一ポジション前提と整合する。
  *
  * OBS000032の scripts/bitget-carry-forward-paper.ts を「雛形」として参照し、日付アンカー
  * （today-1）・warmup/live設計・冪等追記・ページング作法（空応答/continuationなし終了）の
@@ -246,9 +247,9 @@ function writeLedger(rows: LedgerRow[]): void {
 function computeAccounting(dvol: number | null, rv7: number | null): { vrp: number | null; netPnlPct: number | null; sleeveReturn: number | null } {
   if (dvol === null || rv7 === null) return { vrp: null, netPnlPct: null, sleeveReturn: null };
   const vrp = dvol - rv7;
-  const dailyCostVolPt = C_REAL_WEEKLY_COST_VOL_PT / 7;
-  const netVolPt = vrp - dailyCostVolPt;
-  // §4-1週次payoff日次近似: net_pnl_pct = netVolPt × vegaNotionalPct × 100（資本比%）
+  // 週次コホート方式: C_realは週次フルコストをそのまま引く（C_real/7の日割りにしない）
+  // §4-1: r_t = vegaNotionalPct × (VRP_w - C_real)。F判定時は7日ごとの非重複サンプリングで週次系列を構築。
+  const netVolPt = vrp - C_REAL_WEEKLY_COST_VOL_PT;
   const netPnlPct = netVolPt * VEGA_NOTIONAL_PCT * 100;
   return { vrp, netPnlPct, sleeveReturn: netPnlPct };
 }
@@ -407,10 +408,11 @@ async function main(): Promise<void> {
       cRealWeeklyCostVolPt: C_REAL_WEEKLY_COST_VOL_PT,
       vegaNotionalPct: VEGA_NOTIONAL_PCT,
       accountingNote:
-        '【2026-07-14 Stage 2 会計更新】Stage 2バックテスト（§2〜§6）通過＋採用可（C品質チーム宣告 2026-07-13）を受け、' +
+        '【2026-07-14 Stage 2 会計更新・週次コホート方式】Stage 2バックテスト（§2〜§6）通過＋採用可（C品質チーム宣告 2026-07-13）を受け、' +
         'Stage 0プレースホルダ会計（1.8 vol pt/週・1:1変換）を§2実測コスト（C_real=2.8613 vol pt/週）＋§3 vegaNotionalPct（f=0.5）に置換済み。' +
-        '会計式: net_pnl_pct = (vrp - C_real/7) × vegaNotionalPct × 100（資本比%）。' +
-        '§4-1週次payoff（vegaNotionalPct × (VRP_w - C_real)）の日次近似として機能する。',
+        '会計式: net_pnl_pct = (vrp - C_real) × vegaNotionalPct × 100（§4-1 r_t と同軸・週次コホート方式）。' +
+        'vrpはフル週次VRP水準の日次観測値（C_realも週次フルコストをそのまま差引き）。' +
+        'F1/F3判定時はgo-live日から7日ごとの非重複サンプリングで週次系列を構築する（7日分合算しない）。',
     },
     endpoints: {
       dvol: `${BASE}/public/get_volatility_index_data?currency=BTC&start_timestamp={ms}&end_timestamp={ms}&resolution=86400`,
