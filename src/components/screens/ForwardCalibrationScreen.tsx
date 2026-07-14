@@ -224,6 +224,89 @@ function DailyPnlChart({ rows }: { rows: LedgerRow[] }) {
   );
 }
 
+// ── ファンディングレートメーター ──────────────────────────────
+function FundingRateMeter({
+  latestBps,
+  liveAvgBps,
+  calmNetBps,
+  asset,
+}: {
+  latestBps: number | null;
+  liveAvgBps: number | null;
+  calmNetBps: number;
+  asset: 'BTC' | 'ETH';
+}) {
+  const assetColor = asset === 'BTC' ? '#3B82F6' : '#14B8A6';
+  const MIN = -5;
+  const MAX = Math.ceil((calmNetBps * 1.5) / 5) * 5;
+  const cx = 100, cy = 105, r = 75, SW = 13;
+
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const pt = (deg: number, radius: number) => ({
+    x: +(cx + radius * Math.cos(toRad(deg))).toFixed(2),
+    y: +(cy - radius * Math.sin(toRad(deg))).toFixed(2),
+  });
+  const valToAngle = (v: number) =>
+    180 * (1 - (Math.max(MIN, Math.min(MAX, v)) - MIN) / (MAX - MIN));
+  const arc = (a1: number, a2: number): string | null => {
+    if (a1 - a2 < 0.5) return null;
+    const s = pt(a1, r), e = pt(a2, r);
+    return `M ${s.x} ${s.y} A ${r} ${r} 0 ${a1 - a2 >= 180 ? 1 : 0} 1 ${e.x} ${e.y}`;
+  };
+
+  const aZero = valToAngle(0);
+  const aLow = valToAngle(3);
+  const aCalm = valToAngle(calmNetBps);
+  const aN = latestBps != null ? valToAngle(latestBps) : null;
+
+  const nLen = r - SW / 2 - 6;
+  const nTip = aN != null ? pt(aN, nLen) : null;
+  const ti = pt(aCalm, r - SW / 2 - 3);
+  const to_ = pt(aCalm, r + SW / 2 + 4);
+  const tl = pt(aCalm, r + SW / 2 + 14);
+
+  const vc =
+    latestBps == null ? 'text-fg-3'
+    : latestBps < 0 ? 'text-red-500'
+    : latestBps < 3 ? 'text-amber-500'
+    : 'text-emerald-500';
+
+  const ps = {
+    bg: arc(180, 0),
+    red: arc(180, aZero),
+    amb: arc(aZero, aLow),
+    grn: arc(aLow, aCalm),
+    blu: arc(aCalm, 0),
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-0.5">
+      <p className="text-xs font-700" style={{ color: assetColor }}>{asset}</p>
+      <svg viewBox="0 0 200 114" className="w-full max-w-[220px]">
+        {ps.bg && <path d={ps.bg} fill="none" stroke="var(--fg-4)" strokeWidth={SW} strokeLinecap="butt" />}
+        {ps.red && <path d={ps.red} fill="none" stroke="#EF4444" strokeWidth={SW} strokeLinecap="butt" />}
+        {ps.amb && <path d={ps.amb} fill="none" stroke="#F59E0B" strokeWidth={SW} strokeLinecap="butt" />}
+        {ps.grn && <path d={ps.grn} fill="none" stroke="#10B981" strokeWidth={SW} strokeLinecap="butt" />}
+        {ps.blu && <path d={ps.blu} fill="none" stroke={assetColor} strokeWidth={SW} strokeLinecap="butt" opacity={0.55} />}
+        <line x1={ti.x} y1={ti.y} x2={to_.x} y2={to_.y} stroke="var(--fg-2)" strokeWidth={2} />
+        <text x={tl.x} y={+(+tl.y + 3).toFixed(2)} fontSize={8} textAnchor="middle" fill="var(--fg-3)">calm</text>
+        {nTip && <line x1={cx} y1={cy} x2={nTip.x} y2={nTip.y} stroke="var(--fg-1)" strokeWidth={2.5} strokeLinecap="round" />}
+        <circle cx={cx} cy={cy} r={5} fill="var(--fg-1)" />
+        <text x={20} y={113} fontSize={9} fill="var(--fg-3)" textAnchor="middle">{MIN}</text>
+        <text x={180} y={113} fontSize={9} fill="var(--fg-3)" textAnchor="middle">{MAX}</text>
+      </svg>
+      <p className={`text-xl font-700 font-mono tabular-nums leading-none ${vc}`}>
+        {latestBps != null ? `${latestBps >= 0 ? '+' : ''}${latestBps.toFixed(2)}` : '—'}
+        <span className="text-[11px] font-400 text-fg-3 ml-0.5">bps</span>
+      </p>
+      <div className="text-[10px] text-fg-3 text-center mt-0.5 space-y-0.5">
+        <p>ライブ平均 <span className="font-mono text-fg-2">{liveAvgBps != null ? `${liveAvgBps >= 0 ? '+' : ''}${liveAvgBps.toFixed(2)} bps` : '—'}</span></p>
+        <p>calm参考 <span className="font-mono text-fg-2">{calmNetBps.toFixed(2)} bps</span></p>
+      </div>
+    </div>
+  );
+}
+
 // ── F1-F4ゲートセクション ──────────────────────────────────
 function GateSection({ metrics, asset }: { metrics: AssetGateMetrics; asset: 'BTC' | 'ETH' }) {
   const { f1, f2, f3, f4 } = metrics;
@@ -552,6 +635,14 @@ export const ForwardCalibrationScreen = () => {
   // ライブ開始基準の現在累積収益率
   const liveCumPct = (liveRows[liveRows.length - 1]?.sleeve_cumulative_return_pct ?? liveOffset) - liveOffset;
 
+  // ファンディングレートメーター用（両資産、タブ非依存）
+  const btcLiveAll = btcLedger.filter(r => r.phase === 'live');
+  const ethLiveAll = ethLedger.filter(r => r.phase === 'live');
+  const btcLatestFunding = btcLiveAll.length > 0 ? (btcLiveAll[btcLiveAll.length - 1]?.funding_rate_daily_bps ?? null) : null;
+  const ethLatestFunding = ethLiveAll.length > 0 ? (ethLiveAll[ethLiveAll.length - 1]?.funding_rate_daily_bps ?? null) : null;
+  const btcAvgFunding = btcLiveAll.length > 0 ? btcLiveAll.reduce((s, r) => s + r.funding_rate_daily_bps, 0) / btcLiveAll.length : null;
+  const ethAvgFunding = ethLiveAll.length > 0 ? ethLiveAll.reduce((s, r) => s + r.funding_rate_daily_bps, 0) / ethLiveAll.length : null;
+
   return (
     <div className="p-4 sm:p-6 space-y-5">
       {/* ヘッダー */}
@@ -605,6 +696,38 @@ export const ForwardCalibrationScreen = () => {
         金利や利回りのようなごく小さな変化率を扱う際に使われ、例えば「10bps」は「0.1%」を意味します。
         下記の各セクションで頻出するので、迷ったらここに戻ってきてください。
       </InfoNote>
+
+      {/* ファンディングレートゲージ */}
+      <SectionBox title="ファンディングレート現況">
+        <InfoNote>
+          Bitgetの直近日次ファンディングレート（1日あたり bps）を示します。
+          <span className="font-600 text-red-500"> 赤</span>＝マイナス（逆キャリー）、
+          <span className="font-600 text-amber-500"> 黄</span>＝低位（0〜3 bps）、
+          <span className="font-600 text-emerald-500"> 緑</span>＝収益圏（3 bps超）。
+          縦線「calm」はバックテスト平時の参照ネットキャリー水準です。
+          各値は毎日10:00 JSTに更新されます。
+        </InfoNote>
+        <div className="grid grid-cols-2 gap-2 mt-3">
+          <FundingRateMeter
+            latestBps={btcLatestFunding}
+            liveAvgBps={btcAvgFunding}
+            calmNetBps={metrics.f1234.BTC.f1.backtestReference.calmMeanDailyNetCarryBps}
+            asset="BTC"
+          />
+          <FundingRateMeter
+            latestBps={ethLatestFunding}
+            liveAvgBps={ethAvgFunding}
+            calmNetBps={metrics.f1234.ETH.f1.backtestReference.calmMeanDailyNetCarryBps}
+            asset="ETH"
+          />
+        </div>
+        <div className="flex justify-center gap-4 mt-3 text-[10px] text-fg-3 flex-wrap">
+          <span><span className="inline-block w-3 h-2 rounded-sm bg-red-500 mr-1 align-middle" />マイナス</span>
+          <span><span className="inline-block w-3 h-2 rounded-sm bg-amber-500 mr-1 align-middle" />低位(0-3)</span>
+          <span><span className="inline-block w-3 h-2 rounded-sm bg-emerald-500 mr-1 align-middle" />収益圏</span>
+          <span><span className="inline-block w-3 h-2 rounded-sm bg-blue-500 mr-1 align-middle" />calm超</span>
+        </div>
+      </SectionBox>
 
       {/* 資産タブ */}
       <div className="flex gap-2">
