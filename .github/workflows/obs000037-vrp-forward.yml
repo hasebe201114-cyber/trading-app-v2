@@ -1,0 +1,76 @@
+name: OBS000037 VRP Forward Calibration (Daily)
+
+on:
+  schedule:
+    # ⚠ GitHub Actions の schedule はデフォルトブランチ（main）でのみ発火する仕様。
+    # このワークフローが feature branch のみに存在する間は日次スケジュールは起動しない。
+    # Dデプロイチームによる main マージ後に初めて有効化される。
+    # 毎日 02:00 UTC に実行（Deribit DVOL 日次解像度は 00:00 UTC アンカー確定後2時間のマージン）
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Set to 'true' to run without committing results"
+        required: false
+        default: "false"
+
+jobs:
+  vrp-forward:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: write   # 結果をコミット・push するために必要
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run VRP forward calibration script
+        run: |
+          node --experimental-strip-types scripts/deribit-vrp-forward-paper.ts
+
+      - name: Commit and push results
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet research/EXP-OBS000037/10-result/forward/; then
+            echo "No changes to VRP forward results — skipping commit"
+          else
+            git add research/EXP-OBS000037/10-result/forward/
+            LIVE_DAYS=$(node -e "
+              const fs = require('fs');
+              const path = 'research/EXP-OBS000037/10-result/forward/deribit-vrp-forward-meta.json';
+              if (fs.existsSync(path)) {
+                const d = JSON.parse(fs.readFileSync(path, 'utf-8'));
+                console.log(d.currentLiveDaysCount ?? 0);
+              } else { console.log(0); }
+            " 2>/dev/null || echo "?")
+            git commit -m "chore(obs000037): VRP forward calibration daily update — live day ${LIVE_DAYS}/90"
+
+            # push前に git pull --rebase で競合を回避（複数同時実行対策）
+            if ! git pull --rebase origin main; then
+              git rebase --abort || true
+              echo "::warning::git pull --rebase failed (conflict). Aborted rebase. Will retry on next scheduled run."
+              exit 1
+            fi
+            git push origin main
+            echo "Committed and pushed VRP forward calibration results (live day ${LIVE_DAYS}/90)"
+          fi
+
+      - name: Upload results as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: obs000037-vrp-forward-${{ github.run_id }}
+          path: research/EXP-OBS000037/10-result/forward/
+          retention-days: 30
