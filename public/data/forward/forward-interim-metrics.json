@@ -52,12 +52,14 @@
       "projection90d": {
         "basedOnLiveDays": 11,
         "reliabilityNote": "day11は試験値・day30以降で信頼度向上",
-        "p10_cumBps": 699.2,
-        "p50_cumBps": 1047.2,
-        "p90_cumBps": 1409.5,
-        "p50_annualReturnPct": 154.1,
-        "vsBacktestFullPeriodPct": 734,
-        "bootstrapNote": "block-bootstrap: calm系列n=181日, blockLen=7, N=5000, seed=20260705, targetLength=90日, P10/P50/P90"
+        "p10_cumBps": -22.1,
+        "p50_cumBps": 128.7,
+        "p90_cumBps": 334.7,
+        "p50_annualReturnPct": 18.9,
+        "bootstrapNote": "block-bootstrap: FULL期間n=2493日, blockLen=7, N=5000, seed=20260705, targetLength=90日, P10/P50/P90",
+        "calm_p50_cumBps": 1039.5,
+        "calm_p50_annualReturnPct": 153.0,
+        "calm_bootstrapNote": "block-bootstrap: calm期間n=181日(2021H1高funding期・反実仮想参考値), blockLen=7, N=5000, seed=20260706"
       }
     },
     "ETH": {
@@ -102,12 +104,14 @@
       "projection90d": {
         "basedOnLiveDays": 11,
         "reliabilityNote": "day11は試験値・day30以降で信頼度向上",
-        "p10_cumBps": 889.8,
-        "p50_cumBps": 1312.3,
-        "p90_cumBps": 1742.1,
-        "p50_annualReturnPct": 201.7,
-        "vsBacktestFullPeriodPct": 616,
-        "bootstrapNote": "block-bootstrap: calm系列n=181日, blockLen=7, N=5000, seed=20260705, targetLength=90日, P10/P50/P90"
+        "p10_cumBps": 15.6,
+        "p50_cumBps": 188.9,
+        "p90_cumBps": 442.3,
+        "p50_annualReturnPct": 29.0,
+        "bootstrapNote": "block-bootstrap: FULL期間n=2413日, blockLen=7, N=5000, seed=20260705, targetLength=90日, P10/P50/P90",
+        "calm_p50_cumBps": 1303.9,
+        "calm_p50_annualReturnPct": 200.4,
+        "calm_bootstrapNote": "block-bootstrap: calm期間n=181日(2021H1高funding期・反実仮想参考値), blockLen=7, N=5000, seed=20260706"
       }
     }
   },
@@ -115,22 +119,26 @@
     "BTC": {
       "basedOnLiveDays": 11,
       "reliabilityNote": "day11は試験値・day30以降で信頼度向上",
-      "p10_cumBps": 699.2,
-      "p50_cumBps": 1047.2,
-      "p90_cumBps": 1409.5,
-      "p50_annualReturnPct": 154.1,
-      "vsBacktestFullPeriodPct": 734,
-      "bootstrapNote": "block-bootstrap: calm系列n=181日, blockLen=7, N=5000, seed=20260705, targetLength=90日, P10/P50/P90"
+      "p10_cumBps": -22.1,
+      "p50_cumBps": 128.7,
+      "p90_cumBps": 334.7,
+      "p50_annualReturnPct": 18.9,
+      "bootstrapNote": "block-bootstrap: FULL期間n=2493日, blockLen=7, N=5000, seed=20260705, targetLength=90日, P10/P50/P90",
+      "calm_p50_cumBps": 1039.5,
+      "calm_p50_annualReturnPct": 153.0,
+      "calm_bootstrapNote": "block-bootstrap: calm期間n=181日(2021H1高funding期・反実仮想参考値), blockLen=7, N=5000, seed=20260706"
     },
     "ETH": {
       "basedOnLiveDays": 11,
       "reliabilityNote": "day11は試験値・day30以降で信頼度向上",
-      "p10_cumBps": 889.8,
-      "p50_cumBps": 1312.3,
-      "p90_cumBps": 1742.1,
-      "p50_annualReturnPct": 201.7,
-      "vsBacktestFullPeriodPct": 616,
-      "bootstrapNote": "block-bootstrap: calm系列n=181日, blockLen=7, N=5000, seed=20260705, targetLength=90日, P10/P50/P90"
+      "p10_cumBps": 15.6,
+      "p50_cumBps": 188.9,
+      "p90_cumBps": 442.3,
+      "p50_annualReturnPct": 29.0,
+      "bootstrapNote": "block-bootstrap: FULL期間n=2413日, blockLen=7, N=5000, seed=20260705, targetLength=90日, P10/P50/P90",
+      "calm_p50_cumBps": 1303.9,
+      "calm_p50_annualReturnPct": 200.4,
+      "calm_bootstrapNote": "block-bootstrap: calm期間n=181日(2021H1高funding期・反実仮想参考値), blockLen=7, N=5000, seed=20260706"
     }
   },
   "overall_allFourBothAssets": false,

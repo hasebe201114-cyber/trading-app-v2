@@ -18,12 +18,16 @@ export interface LedgerRow {
 export interface Projection90d {
   basedOnLiveDays: number;
   reliabilityNote: string;
+  // FULL期間ベース（保守シナリオ・主表示）
   p10_cumBps: number | null;
   p50_cumBps: number | null;
   p90_cumBps: number | null;
   p50_annualReturnPct: number | null;
-  vsBacktestFullPeriodPct: number | null;
   bootstrapNote: string;
+  // calm期間参照（反実仮想・2021H1高funding継続時の楽観シナリオ）
+  calm_p50_cumBps?: number | null;
+  calm_p50_annualReturnPct?: number | null;
+  calm_bootstrapNote?: string;
 }
 
 export interface AssetGateMetrics {

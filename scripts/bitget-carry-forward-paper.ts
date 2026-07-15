@@ -573,6 +573,14 @@ function loadCalmDailySeries(assetLower: string): number[] {
   return content.data.filter(d => d.date >= CALM_WINDOW.start && d.date <= CALM_WINDOW.end).map(d => d.pnl_bps);
 }
 
+// FULL期間（バックテスト全期間）の日次系列を返す。
+// projection90dの主計算はcalm（高funding異常期）ではなくFULL期間を使うべきとのC品質チーム是正に対応。
+function loadFullDailySeries(assetLower: string): number[] {
+  const p = join(__dirname, '..', 'research', 'EXP-OBS000032', '10-result', `stage1-carry-daily-returns-${assetLower}.json`);
+  const content = JSON.parse(readFileSync(p, 'utf-8')) as { data: { date: string; pnl_bps: number }[] };
+  return content.data.map(d => d.pnl_bps);
+}
+
 function blockBootstrapLowerBound(
   calmSeries: number[],
   targetLength: number,
@@ -607,34 +615,31 @@ function blockBootstrapLowerBound(
 
 // ============================================================
 // 90日予測収益試算（projection90d）
-// 同じcalm系列・同じblock-bootstrapパラメータでtargetLength=90固定で回し、
-// P10/P50/P90累積キャリーbpsと年率換算を返す。ライブday30未満は試験値。
+// C品質チーム是正対応（2026-07-15）:
+//   主計算はFULL期間（全バックテスト期間・n≒2493日）を使用。
+//   calm期間（2021H1・高funding異常期）はF4比較用参照窓として定義されたものであり、
+//   収益予測の母集団に転用することはカテゴリ錯誤との指摘を受け是正。
+//   calm期間の計算値は反実仮想（楽観シナリオ参考値）として別フィールドに保持する。
 // ============================================================
 interface Projection90dResult {
   basedOnLiveDays: number;
   reliabilityNote: string;
+  // FULL期間ベース（保守シナリオ・主表示）
   p10_cumBps: number | null;
   p50_cumBps: number | null;
   p90_cumBps: number | null;
   p50_annualReturnPct: number | null;
-  vsBacktestFullPeriodPct: number | null;
   bootstrapNote: string;
+  // calm期間参照（反実仮想・2021H1高funding継続時の楽観シナリオ・参考値のみ）
+  calm_p50_cumBps: number | null;
+  calm_p50_annualReturnPct: number | null;
+  calm_bootstrapNote: string;
 }
 
-function computeProjection90d(
-  calmSeries: number[],
-  liveDaysCount: number,
-  wStar: number,
-  fullMeanDailyNetCarryBps: number,
-): Projection90dResult {
-  if (calmSeries.length === 0) {
-    const note = 'calm系列が空のため算出不可';
-    return { basedOnLiveDays: liveDaysCount, reliabilityNote: note, p10_cumBps: null, p50_cumBps: null, p90_cumBps: null, p50_annualReturnPct: null, vsBacktestFullPeriodPct: null, bootstrapNote: note };
-  }
-
-  const { blockLengthDays, resamplingCount, seed } = BOOTSTRAP_CONFIG;
+function runBlockBootstrap(series: number[], seed: number): { p10: number; p50: number; p90: number; n: number; effectiveBlockLen: number } {
+  const { blockLengthDays, resamplingCount } = BOOTSTRAP_CONFIG;
   const rng = mulberry32(seed);
-  const n = calmSeries.length;
+  const n = series.length;
   const effectiveBlockLen = Math.min(blockLengthDays, n);
   const maxStart = Math.max(0, n - effectiveBlockLen);
 
@@ -643,7 +648,7 @@ function computeProjection90d(
     const resample: number[] = [];
     while (resample.length < PROJECTION_TARGET_DAYS) {
       const start = maxStart > 0 ? Math.floor(rng() * (maxStart + 1)) : 0;
-      const block = calmSeries.slice(start, start + effectiveBlockLen);
+      const block = series.slice(start, start + effectiveBlockLen);
       resample.push(...block);
     }
     const trimmed = resample.slice(0, PROJECTION_TARGET_DAYS);
@@ -651,9 +656,22 @@ function computeProjection90d(
   }
   dailyMeans.sort((a, b) => a - b);
 
-  const p10Mean = dailyMeans[Math.max(0, Math.ceil(0.10 * resamplingCount) - 1)];
-  const p50Mean = dailyMeans[Math.max(0, Math.ceil(0.50 * resamplingCount) - 1)];
-  const p90Mean = dailyMeans[Math.max(0, Math.ceil(0.90 * resamplingCount) - 1)];
+  return {
+    p10: dailyMeans[Math.max(0, Math.ceil(0.10 * resamplingCount) - 1)],
+    p50: dailyMeans[Math.max(0, Math.ceil(0.50 * resamplingCount) - 1)],
+    p90: dailyMeans[Math.max(0, Math.ceil(0.90 * resamplingCount) - 1)],
+    n,
+    effectiveBlockLen,
+  };
+}
+
+function computeProjection90d(
+  fullSeries: number[],
+  calmSeries: number[],
+  liveDaysCount: number,
+  wStar: number,
+): Projection90dResult {
+  const { seed, resamplingCount } = BOOTSTRAP_CONFIG;
 
   const reliabilityNote = liveDaysCount < 30
     ? `day${liveDaysCount}は試験値・day30以降で信頼度向上`
@@ -661,17 +679,28 @@ function computeProjection90d(
     ? `day${liveDaysCount}（中程度信頼度・day60以降でさらに向上）`
     : `day${liveDaysCount}（高信頼度帯）`;
 
+  if (fullSeries.length === 0) {
+    const note = 'FULL系列が空のため算出不可';
+    return { basedOnLiveDays: liveDaysCount, reliabilityNote: note, p10_cumBps: null, p50_cumBps: null, p90_cumBps: null, p50_annualReturnPct: null, bootstrapNote: note, calm_p50_cumBps: null, calm_p50_annualReturnPct: null, calm_bootstrapNote: note };
+  }
+
+  // FULL期間ブートストラップ（主計算）
+  const full = runBlockBootstrap(fullSeries, seed);
+
+  // calm期間ブートストラップ（参考値。同じseedで実行すると乱数列が独立しないため seed+1 で別系列）
+  const calm = calmSeries.length > 0 ? runBlockBootstrap(calmSeries, seed + 1) : null;
+
   return {
     basedOnLiveDays: liveDaysCount,
     reliabilityNote,
-    p10_cumBps: parseFloat((p10Mean * PROJECTION_TARGET_DAYS).toFixed(1)),
-    p50_cumBps: parseFloat((p50Mean * PROJECTION_TARGET_DAYS).toFixed(1)),
-    p90_cumBps: parseFloat((p90Mean * PROJECTION_TARGET_DAYS).toFixed(1)),
-    p50_annualReturnPct: parseFloat(((p50Mean / 10000) * wStar * 100 * 365).toFixed(1)),
-    vsBacktestFullPeriodPct: fullMeanDailyNetCarryBps !== 0
-      ? parseFloat(((p50Mean / fullMeanDailyNetCarryBps) * 100).toFixed(0))
-      : null,
-    bootstrapNote: `block-bootstrap: calm系列n=${n}日, blockLen=${effectiveBlockLen}, N=${resamplingCount}, seed=${seed}, targetLength=${PROJECTION_TARGET_DAYS}日, P10/P50/P90`,
+    p10_cumBps: parseFloat((full.p10 * PROJECTION_TARGET_DAYS).toFixed(1)),
+    p50_cumBps: parseFloat((full.p50 * PROJECTION_TARGET_DAYS).toFixed(1)),
+    p90_cumBps: parseFloat((full.p90 * PROJECTION_TARGET_DAYS).toFixed(1)),
+    p50_annualReturnPct: parseFloat(((full.p50 / 10000) * wStar * 100 * 365).toFixed(1)),
+    bootstrapNote: `block-bootstrap: FULL期間n=${full.n}日, blockLen=${full.effectiveBlockLen}, N=${resamplingCount}, seed=${seed}, targetLength=${PROJECTION_TARGET_DAYS}日, P10/P50/P90`,
+    calm_p50_cumBps: calm ? parseFloat((calm.p50 * PROJECTION_TARGET_DAYS).toFixed(1)) : null,
+    calm_p50_annualReturnPct: calm ? parseFloat(((calm.p50 / 10000) * wStar * 100 * 365).toFixed(1)) : null,
+    calm_bootstrapNote: calm ? `block-bootstrap: calm期間n=${calm.n}日(2021H1高funding期・反実仮想参考値), blockLen=${calm.effectiveBlockLen}, N=${resamplingCount}, seed=${seed + 1}` : '算出不可',
   };
 }
 
@@ -687,8 +716,9 @@ function computeInterimMetricsForAsset(assetCode: 'BTC' | 'ETH', assetLower: str
   const cumulativeLivePnlBps = liveDailyPnl.reduce((a, b) => a + b, 0);
   const liveDailyMeanBps = liveDailyPnl.length > 0 ? cumulativeLivePnlBps / liveDailyPnl.length : null;
   const calmSeries = loadCalmDailySeries(assetLower);
+  const fullSeries = loadFullDailySeries(assetLower);
   const bootstrap = blockBootstrapLowerBound(calmSeries, liveRows.length);
-  const projection90d = computeProjection90d(calmSeries, liveRows.length, W_STAR[assetCode], ref.fullMeanDailyNetCarryBps);
+  const projection90d = computeProjection90d(fullSeries, calmSeries, liveRows.length, W_STAR[assetCode]);
   const f1 = {
     liveDaysCount: liveRows.length,
     sufficientSampleFor90dGate: liveRows.length >= LIVE_DAYS_REQUIRED,

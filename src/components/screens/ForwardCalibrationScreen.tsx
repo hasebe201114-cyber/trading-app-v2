@@ -598,9 +598,15 @@ function SimulationPanel({
 
       {(btcProj?.reliabilityNote || ethProj?.reliabilityNote) && (
         <p className="text-[11px] text-amber-600 dark:text-amber-400">
-          ⚠ {btcProj?.reliabilityNote ?? ethProj?.reliabilityNote} — calm期間基準のため楽観バイアスあり
+          ⚠ {btcProj?.reliabilityNote ?? ethProj?.reliabilityNote}
         </p>
       )}
+      <InfoNote>
+        予測値はバックテスト全期間（2019年〜現在）の長期平均に基づく保守的な試算です。
+        BTC P50: 約{btcProj?.p50_annualReturnPct?.toFixed(1) ?? '—'}% / ETH P50: 約{ethProj?.p50_annualReturnPct?.toFixed(1) ?? '—'}%（年率sleeve換算）。
+        2021年前半の高funding環境が継続した場合の楽観シナリオ参考値（BTC 約153% / ETH 約200%）は
+        実際の長期市場環境を代表しないため、上記予測値に反映していません。
+      </InfoNote>
     </div>
   );
 }
@@ -787,7 +793,7 @@ export const ForwardCalibrationScreen = () => {
       {/* 90日予測バンド */}
       <SectionBox title={`90日予測バンド（P10/P50/P90）— ${asset}`}>
         <InfoNote>
-          バックテストの平時（calm）相場データを使い、統計的な再抽出手法（ブロック・ブートストラップ法・5,000回試行）で「90日後にどのくらいの収益になりそうか」の分布を推定したものです。
+          バックテスト全期間（2019年〜現在・約2,500日）のデータを使い、統計的な再抽出手法（ブロック・ブートストラップ法・5,000回試行）で「90日後にどのくらいの収益になりそうか」の分布を推定したものです。
           <br /><br />
           <span className="font-600 text-red-400">P10</span>＝下位10%点（悲観的な下振れシナリオ）、
           <span className="font-600 text-blue-500"> P50</span>＝中央値（最も可能性が高いシナリオ）、
@@ -796,9 +802,8 @@ export const ForwardCalibrationScreen = () => {
           チャートの見方：<span className="text-emerald-500 font-600">緑の実線</span>が実績の累積収益率、
           <span className="font-600" style={{ color: asset === 'BTC' ? '#3B82F6' : '#14B8A6' }}> 点線</span>がP50予測の推移、
           帯（塗りつぶし部分）がP10〜P90の予測幅です。オレンジの縦線が「現在地点（Day{liveDays}）」を示します。
-          日数が浅いうちは予測の信頼度が低く、Day30以降で徐々に精度が上がります。
           <br /><br />
-          <span className="font-600">⚠ この%も「証拠金（配分資本）」に対する名目利回り</span>です（上の累積収益率グラフと同じ換算率が適用されます）。
+          <span className="font-600">⚠ この%も「証拠金（配分資本）」に対する名目利回り</span>です（上の累積収益率グラフと同じ換算率が適用されます）。日数が浅いうちは信頼度が低く、Day30以降で徐々に精度が上がります。
         </InfoNote>
         {proj ? (
           <>
@@ -814,9 +819,19 @@ export const ForwardCalibrationScreen = () => {
               </div>
             </div>
             <ProjectionBandChart rows={ledger} proj={proj} asset={asset} />
-            <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-2">
-              ⚠ {proj.reliabilityNote}
-            </p>
+            <div className="mt-2 space-y-1">
+              <p className="text-[11px] text-amber-600 dark:text-amber-400">
+                ⚠ {proj.reliabilityNote}
+              </p>
+              {proj.calm_p50_cumBps != null && (
+                <p className="text-[11px] text-fg-3">
+                  【楽観参照・反実仮想】2021年前半（高funding期）が継続した場合のP50：
+                  {(proj.calm_p50_cumBps * W_STAR[asset] / 10000 * 100).toFixed(2)}%
+                  （年率 約{proj.calm_p50_annualReturnPct?.toFixed(1)}% sleeve）—
+                  実際の市場環境とは異なるため投資判断の根拠には使用しないこと
+                </p>
+              )}
+            </div>
           </>
         ) : (
           <div className="text-fg-3 text-sm py-4">
