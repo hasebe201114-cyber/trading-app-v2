@@ -4,6 +4,18 @@ on:
   push:
     branches:
       - main
+  # GitHub Actions が GITHUB_TOKEN で push した場合は push イベントが発火しない仕様のため、
+  # データ更新ワークフロー（forward-calibration・obs000037・carry-executor-sync）の完了を
+  # workflow_run で捕捉してデプロイをトリガーする。
+  workflow_run:
+    workflows:
+      - "OBS000032 Forward Calibration (Daily)"
+      - "OBS000037 VRP Forward Calibration (Daily)"
+      - "Carry Executor Status Sync"
+    types:
+      - completed
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
