@@ -2,6 +2,9 @@ name: OBS000037 VRP Forward Calibration (Daily)
 
 on:
   schedule:
+    # ⚠ GitHub Actions の schedule はデフォルトブランチ（main）でのみ発火する仕様。
+    # このワークフローが feature branch のみに存在する間は日次スケジュールは起動しない。
+    # Dデプロイチームによる main マージ後に初めて有効化される。
     # 毎日 02:00 UTC に実行（Deribit DVOL 日次解像度は 00:00 UTC アンカー確定後2時間のマージン）
     - cron: "0 2 * * *"
   workflow_dispatch:

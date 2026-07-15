@@ -2,11 +2,24 @@
  * EXP-OBS000037 Stage 2 会計更新: Deribit VRP フォワード較正ハーネス 日次冪等追記
  * spec: research/EXP-OBS000037/00-spec-stage2.md §7（フォワード較正設計）
  *
- * 【2026-07-14 Stage 2 accounting update】
+ * 【2026-07-14 Stage 2 会計更新】
  * Stage 2バックテスト（§2〜§6）通過＋Stage 2採用可（C品質チーム宣告 2026-07-13）を受け、
  * Stage 0のプレースホルダ会計（lab仮置き1.8 vol pt/週・PLACEHOLDER_CAPITAL_SCALING=1.0）を
  * spec §7-2の指示に従い§2実測コスト（C_real=2.8613 vol pt/週）＋§3 vegaNotionalPct（f=0.5=0.00020084）
  * に置換する。
+ *
+ * 【2026-07-15 C品質チーム再監査是正 C2/C3/C4】
+ * C3 検算値訂正: B実装チーム独立検算記録（dvol=25.99／net=0.1998%／確認期平均0.1872%）は
+ *   実ledger（dvol=39.18）から再現不能（C再監査 2026-07-15 指摘）。訂正値:
+ *   実ledger 2026-07-04: dvol=39.18, rv7=13.181, vrp=25.999 → net_pnl_pct=0.4647%/週
+ *   §4-1確認期平均: meanNetPayoff_confirm(6.4611) × VEGA × 100 = 0.1298%/週
+ *   §4-1全期間平均: meanNetPayoff_full(9.7029)   × VEGA × 100 = 0.1949%/週
+ *   （参照: research/EXP-OBS000037/10-result/stage2-vrp-pipeline-accounting.json）
+ * C2 コホート境界フィールド追加: LedgerRowに cohort_week_index / is_cohort_anchor を追加。
+ *   F判定コードが Σ全日次行で約7倍過大計上する罠を封じる。
+ *   is_cohort_anchor=1 行のみを週次系列として非重複サンプリングすること（7日分合算厳禁）。
+ * C4 sleeveReturnJoinNote 更新: sleeve_return（週次コホート値）と §5-1 日次ΔVRP pnl の
+ *   別定義を明記。
  *
  * net_pnl_pct の新会計式（日次観測値・週次コホート方式）:
  *   vrp = dvol - rv_forward_7d              (フル週次VRP水準の日次観測)
@@ -27,7 +40,8 @@
  *
  * 記録項目:
  *   date / phase / dvol / dvol_daily_change_vol_pts / dvol_spike_marker /
- *   rv_forward_7d / vrp / net_pnl_pct / sleeve_return / price_source
+ *   rv_forward_7d / vrp / net_pnl_pct / sleeve_return /
+ *   cohort_week_index / is_cohort_anchor / price_source
  *
  * 実行: node --experimental-strip-types scripts/deribit-vrp-forward-paper.ts
  * 引数なし・冪等（同一UTC日に複数回実行しても新規行の二重追記はしない）。
@@ -218,12 +232,18 @@ interface LedgerRow {
   vrp: number | null;
   net_pnl_pct: number | null;
   sleeve_return: number | null;
+  // C2: 週次コホート境界フィールド。F判定コードが Σ全行で約7倍過大計上する罠を防ぐ。
+  // F判定は is_cohort_anchor=1 行のみを7日ごと非重複サンプリングして週次系列を構築する。
+  cohort_week_index: number | null; // 0-based週インデックス（go-live起点）。warmupはnull。
+  is_cohort_anchor: 0 | 1;          // 1=その週コホートの起点日（daysDiff % 7 === 0）
   price_source: 'deribit-tradingview' | 'binance-csv-fallback' | null;
 }
 
 const LEDGER_COLUMNS = [
   'date', 'phase', 'dvol', 'dvol_daily_change_vol_pts', 'dvol_spike_marker',
-  'rv_forward_7d', 'vrp', 'net_pnl_pct', 'sleeve_return', 'price_source',
+  'rv_forward_7d', 'vrp', 'net_pnl_pct', 'sleeve_return',
+  'cohort_week_index', 'is_cohort_anchor',
+  'price_source',
 ] as const;
 
 function ledgerPaths(): { csv: string; json: string } {
@@ -254,6 +274,18 @@ function computeAccounting(dvol: number | null, rv7: number | null): { vrp: numb
   return { vrp, netPnlPct, sleeveReturn: netPnlPct };
 }
 
+// C2: コホート境界フィールド計算。go-live日を起点に7日単位のコホートインデックスを付与。
+// daysDiff % 7 === 0 の日が is_cohort_anchor=1（非重複サンプリングの抽出対象行）。
+function computeCohortFields(date: string, goLiveDate: string | null): { cohortWeekIndex: number | null; isCohortAnchor: 0 | 1 } {
+  if (goLiveDate === null || date < goLiveDate) {
+    return { cohortWeekIndex: null, isCohortAnchor: 0 };
+  }
+  const daysDiff = Math.round((keyToMs(date) - keyToMs(goLiveDate)) / 86400000);
+  const cohortWeekIndex = Math.floor(daysDiff / 7);
+  const isCohortAnchor: 0 | 1 = daysDiff % 7 === 0 ? 1 : 0;
+  return { cohortWeekIndex, isCohortAnchor };
+}
+
 // ============================================================
 // main
 // ============================================================
@@ -276,28 +308,20 @@ async function main(): Promise<void> {
   const rowCountBefore = existingRows.length;
   log(`既存ledger行数: ${rowCountBefore}`);
 
-  // Stage 2 会計マイグレーション: Stage 0プレースホルダ会計で記録された既存行を再計算
-  // dvol/rv_forward_7d が揃っている行のみ。nullの行は変更なし。
-  let accountingMigrateCount = 0;
-  const existingRowsMigrated = existingRows.map(row => {
-    if (row.dvol === null || row.rv_forward_7d === null) return row;
-    const { vrp, netPnlPct, sleeveReturn } = computeAccounting(row.dvol, row.rv_forward_7d);
-    accountingMigrateCount++;
-    return { ...row, vrp, net_pnl_pct: netPnlPct, sleeve_return: sleeveReturn };
-  });
-  if (accountingMigrateCount > 0) {
-    log(`Stage 2 会計マイグレーション: ${accountingMigrateCount}行を再計算（旧Stage 0プレースホルダ → §2実測コスト・§3 vegaNotionalPct）`);
-  }
-
+  // モード決定と go-live date の確定（マイグレーションより先に実行する必要あり）
   let mode: 'initial' | 'append' | 'noop';
   let datesToAppend: string[] = [];
+  let goLiveDate: string | null = null;
+
   if (existingRows.length === 0) {
     mode = 'initial';
     const liveStart = anchor;
+    goLiveDate = liveStart;
     const warmupStart = addDaysKey(liveStart, -WARMUP_DAYS);
     datesToAppend = dateRangeKeys(warmupStart, liveStart);
     log(`初回セットアップ: warmup=${warmupStart}..${addDaysKey(liveStart, -1)}（${WARMUP_DAYS}日）, go-live=${liveStart}`);
   } else {
+    goLiveDate = existingRows.find(r => r.phase === 'live')?.date ?? null;
     const lastDate = existingRows[existingRows.length - 1].date;
     if (lastDate >= anchor) {
       mode = 'noop';
@@ -307,6 +331,28 @@ async function main(): Promise<void> {
       datesToAppend = dateRangeKeys(addDaysKey(lastDate, 1), anchor);
       log(`追記モード: 既存最終日=${lastDate}, 追記対象=${datesToAppend.join(',')}`);
     }
+  }
+  log(`go-live date: ${goLiveDate}`);
+
+  // Stage 2 会計マイグレーション + C2コホート境界フィールド付与
+  // dvol/rv_forward_7d が揃っている行のみ会計再計算。コホートフィールドは全行に付与（冪等）。
+  let accountingMigrateCount = 0;
+  const existingRowsMigrated = existingRows.map(row => {
+    let updated: LedgerRow = { ...row };
+    if (row.dvol !== null && row.rv_forward_7d !== null) {
+      const { vrp, netPnlPct, sleeveReturn } = computeAccounting(row.dvol, row.rv_forward_7d);
+      updated = { ...updated, vrp, net_pnl_pct: netPnlPct, sleeve_return: sleeveReturn };
+      accountingMigrateCount++;
+    }
+    // C2: コホート境界フィールドを付与（旧行には未存在のため常に再計算・冪等）
+    const { cohortWeekIndex, isCohortAnchor } = computeCohortFields(row.date, goLiveDate);
+    return { ...updated, cohort_week_index: cohortWeekIndex, is_cohort_anchor: isCohortAnchor };
+  });
+  if (accountingMigrateCount > 0) {
+    log(`Stage 2 会計マイグレーション: ${accountingMigrateCount}行を再計算（旧Stage 0プレースホルダ → §2実測コスト・§3 vegaNotionalPct）`);
+  }
+  if (existingRows.length > 0) {
+    log(`C2 コホート境界フィールド付与: ${existingRows.length}行に cohort_week_index/is_cohort_anchor を追記`);
   }
 
   // フェッチ窓の決定: 新規追記日＋既存ledgerでrv_forward_7d未確定の行、双方をカバーする最小窓
@@ -337,6 +383,7 @@ async function main(): Promise<void> {
     const spikeMarker: 0 | 1 = dvolDailyChange !== null && dvolDailyChange >= DVOL_SPIKE_THRESHOLD_VOL_PTS ? 1 : 0;
     const rv7 = computeRvForward7d(date, priceResult.map);
     const { vrp, netPnlPct, sleeveReturn } = computeAccounting(dvol, rv7);
+    const { cohortWeekIndex, isCohortAnchor } = computeCohortFields(date, goLiveDate);
     newRows.push({
       date,
       phase,
@@ -347,9 +394,11 @@ async function main(): Promise<void> {
       vrp,
       net_pnl_pct: netPnlPct,
       sleeve_return: sleeveReturn,
+      cohort_week_index: cohortWeekIndex,
+      is_cohort_anchor: isCohortAnchor,
       price_source: dvol !== null ? priceResult.source : null,
     });
-    log(`  ${date} [${phase}] dvol=${dvol} rv7=${rv7} vrp=${vrp} spike=${spikeMarker}`);
+    log(`  ${date} [${phase}] dvol=${dvol} rv7=${rv7} vrp=${vrp} spike=${spikeMarker} cohort_week=${cohortWeekIndex} anchor=${isCohortAnchor}`);
   }
 
   let allRows = [...existingRowsMigrated, ...newRows];
@@ -397,7 +446,7 @@ async function main(): Promise<void> {
     scriptPath: 'scripts/deribit-vrp-forward-paper.ts',
     specReference: 'research/EXP-OBS000037/00-spec-stage2.md',
     executedBy: 'B実装チーム (Quant Researcher)',
-    goLiveDateUTC: mode === 'initial' ? anchor : (existingRows.find(r => r.phase === 'live')?.date ?? null),
+    goLiveDateUTC: goLiveDate,
     warmupDays: WARMUP_DAYS,
     rvForwardDays: RV_FORWARD_DAYS,
     liveDaysRequiredForGate: 90,
@@ -412,7 +461,8 @@ async function main(): Promise<void> {
         'Stage 0プレースホルダ会計（1.8 vol pt/週・1:1変換）を§2実測コスト（C_real=2.8613 vol pt/週）＋§3 vegaNotionalPct（f=0.5）に置換済み。' +
         '会計式: net_pnl_pct = (vrp - C_real) × vegaNotionalPct × 100（§4-1 r_t と同軸・週次コホート方式）。' +
         'vrpはフル週次VRP水準の日次観測値（C_realも週次フルコストをそのまま差引き）。' +
-        'F1/F3判定時はgo-live日から7日ごとの非重複サンプリングで週次系列を構築する（7日分合算しない）。',
+        'F1/F3判定時はgo-live日から7日ごとの非重複サンプリングで週次系列を構築する（7日分合算しない）。' +
+        '非重複サンプリングのアンカーはledger列 is_cohort_anchor=1 の行（cohort_week_index が週単位インデックス）。',
     },
     endpoints: {
       dvol: `${BASE}/public/get_volatility_index_data?currency=BTC&start_timestamp={ms}&end_timestamp={ms}&resolution=86400`,
@@ -420,8 +470,12 @@ async function main(): Promise<void> {
     },
     dateAnchorDesignNote: '日次実行は「今日」でなく「最終完全経過UTC日（anchor=today-1）」を対象とする（OBS000032と同型設計）。',
     sleeveReturnJoinNote:
-      'sleeve_return は日次VRPスリーブ収益（資本比%）。OBS000032フォワードledger（research/EXP-OBS000032/10-result/forward/forward-paper-ledger-btc.json）と' +
-      'date（UTC日）キーで突合可能な形式（spec §8必須条件A）。テール窓・同時ドローダウンの算出・判定はStage 1で行う（本Stage 0では形式準備のみ）。',
+      '⚠ sleeve_return = net_pnl_pct（週次コホートVRP純益の日次観測値・資本比%）。' +
+      '定義注意: 各日のsleeve_returnはフル週次VRP水準（vrp = DVOL_t − rv_forward_7d_t）からの純益であり、' +
+      '§5-1テール相関用の日次スリーブ損益（vegaNotionalPct × ΔVRP_daily = dvol_daily_change_vol_pts × VEGA）とは別定義。' +
+      '§5-1突合はΔVRPを別途計算すること（dvol_daily_change_vol_pts × VEGA_NOTIONAL_PCT × 100）。' +
+      'OBS000032フォワードledgerとの突合はdate（UTC日）キーで可能だが、スリーブ損益の定義を揃えた上で行うこと。' +
+      'F1/F3判定用の累積損益計算は is_cohort_anchor=1 行のみを7日ごとに非重複サンプリングして週次系列を構築する（Σ全行は約7倍の過大計上になるため厳禁）。',
     runHistory,
   };
   writeFileSync(metaPath, JSON.stringify(meta, null, 2));
