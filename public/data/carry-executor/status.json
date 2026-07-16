@@ -1,5 +1,5 @@
 {
-  "syncedAtUTC": "2026-07-16T03:36:09.706Z",
+  "syncedAtUTC": "2026-07-16T06:31:05.537Z",
   "signal": {
     "generatedAtUTC": "2026-07-16T03:28:10.166Z",
     "liveMode": false,
@@ -32,14 +32,14 @@
     }
   },
   "margin": {
-    "generatedAtUTC": "2026-07-16T02:57:32.225Z",
+    "generatedAtUTC": "2026-07-16T06:23:07.389Z",
     "positions": [
       {
         "symbol": "SPCXUSDT",
         "side": "long",
         "total": "3.44",
-        "marginRatioPct": 6.570377923900001,
-        "unrealizedPL": -79.5672
+        "marginRatioPct": 6.2017505047000006,
+        "unrealizedPL": -77.056
       }
     ],
     "hasCritical": false,
@@ -47,6 +47,14 @@
     "fetchError": null
   },
   "runs": [
+    {
+      "conclusion": "success",
+      "createdAt": "2026-07-16T06:23:01Z",
+      "databaseId": 29476543113,
+      "event": "schedule",
+      "name": "OBS000032 Margin Monitor",
+      "status": "completed"
+    },
     {
       "conclusion": "success",
       "createdAt": "2026-07-16T03:28:03Z",
@@ -115,14 +123,6 @@
       "conclusion": "success",
       "createdAt": "2026-07-15T02:50:32Z",
       "databaseId": 29385064044,
-      "event": "schedule",
-      "name": "OBS000032 Margin Monitor",
-      "status": "completed"
-    },
-    {
-      "conclusion": "success",
-      "createdAt": "2026-07-14T21:04:19Z",
-      "databaseId": 29368159722,
       "event": "schedule",
       "name": "OBS000032 Margin Monitor",
       "status": "completed"
