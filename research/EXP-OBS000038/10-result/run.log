@@ -1,0 +1,51 @@
+=== EXP-OBS000038 Stage 1 実行ログ ===
+実行日時(UTC): 2026-07-22T11:41:15.112878Z
+spec参照: research/EXP-OBS000038/01-spec-stage1.md
+
+--- 再現コマンド ---
+python3 /home/user/trading-app-v2/scripts/obs000038-stage1-ensemble-tail-gate.py
+
+--- 使用ファイル ---
+VRP:    research/EXP-OBS000037/10-result/stage1-vrp-prediction-unit.json
+Carry:  research/EXP-OBS000032/10-result/{btc,eth}usdt-{spot,perp-last}-daily.csv
+        research/EXP-OBS000032/10-result/{btc,eth}usdt-funding.csv
+Spot:   research/EXP-OBS000032/10-result/{btc,eth}usdt-spot-daily.csv
+VRP forward: research/EXP-OBS000037/10-result/forward/deribit-vrp-forward-ledger-btc.csv
+
+--- 凍結パラメータ ---
+C_real             = 2.8612547352068765
+vegaNotionalPct    = 0.00020083800084379173
+a_overlay          = 0.420084
+vol_target_annual  = 0.1
+exec_cost_pct      = 0.001
+bootstrap_seed     = 42
+bootstrap_N        = 5000
+bootstrap_block_len= 7
+
+--- 結果サマリ ---
+共通窓: 2021-12-29 〜 2026-06-24 (n=235週)
+stress週数: 20
+
+maxDD(book0): -4.55%
+maxDD(book1): -4.84%
+CVaR95(book0): -1.65%
+CVaR95(book1): -2.09%
+maxDD改善率:   -6.2%
+CVaR95改善率:  -26.7%
+
+ρ(overlay_vol10, VRP) [stress]:   -0.156
+ρ(overlay_vol10, carry) [stress]:  -0.277
+
+bootstrap carry: point_est=-0.277, frac_le0=0.990, CI=[-0.481,-0.047]
+
++1週シフト: maxDD=-5.73%, CVaR95=-1.93%
+-1週シフト: maxDD=-5.39%, CVaR95=-1.59%
+
+VRP整合: n_matched=1, max_diff=0.00000000%
+
+--- 出力ファイル ---
+research/EXP-OBS000038/10-result/stage1-raw.json
+research/EXP-OBS000038/10-result/stage1-weekly-series.csv
+research/EXP-OBS000038/10-result/params.json
+research/EXP-OBS000038/10-result/stage1-run-meta.json
+research/EXP-OBS000038/10-result/run.log

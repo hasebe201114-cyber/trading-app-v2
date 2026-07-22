@@ -1,0 +1,20 @@
+{
+  "experiment": "EXP-OBS000038",
+  "script": "scripts/obs000038-stage1-ensemble-tail-gate.py",
+  "run_timestamp_utc": "2026-07-22T11:41:15.112878Z",
+  "spec_reference": "research/EXP-OBS000038/01-spec-stage1.md",
+  "data_sources": [
+    "deribit-api (indirect via OBS000037 stage1-vrp-prediction-unit.json)",
+    "obs000032-daily-pnl reconstructed from btcusdt/ethusdt-spot/perp/funding csv",
+    "binance-s3 (indirect via obs000032 btcusdt/ethusdt-spot-daily.csv)"
+  ],
+  "external_api_access": "deribit.com/data.binance.vision blocked by proxy policy; using pre-existing data in repository",
+  "known_limitations": [
+    "速いV字gapは非ヘッジ（FTX/SVB型）",
+    "carry脚テール独立のbootstrap CI：stress週数少なく検出力に限界",
+    "VRP/carry長期系列はバックテスト再構成。フォワード整合は重複期間のみ",
+    "Deribit APIおよびBinance S3にプロキシブロックのため、VRP系列はOBS000037 stage1 weeklyPointsを使用（Deribit/Binanceデータ由来の既存値）",
+    "carry total_pnl_bps = funding_pnl_bps + basis_pnl_bps のみ（資本コスト・反転コスト・方向シグナルを除く）。T1/T2/T3/calm CSVのtotal_pnl_bps定義に準拠",
+    "TSMOM overlayのsigma推定は暦日ベース60日ウィンドウ末尾を60営業日相当として近似"
+  ]
+}
