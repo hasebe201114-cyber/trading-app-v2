@@ -1,5 +1,5 @@
 {
-  "syncedAtUTC": "2026-07-23T03:44:13.507Z",
+  "syncedAtUTC": "2026-07-23T06:39:58.776Z",
   "signal": {
     "generatedAtUTC": "2026-07-23T03:36:56.051Z",
     "liveMode": false,
@@ -32,13 +32,21 @@
     }
   },
   "margin": {
-    "generatedAtUTC": "2026-07-23T03:22:23.110Z",
+    "generatedAtUTC": "2026-07-23T06:34:20.918Z",
     "positions": [],
     "hasCritical": false,
     "hasWarn": false,
     "fetchError": null
   },
   "runs": [
+    {
+      "conclusion": "success",
+      "createdAt": "2026-07-23T06:34:14Z",
+      "databaseId": 29985453491,
+      "event": "schedule",
+      "name": "OBS000032 Margin Monitor",
+      "status": "completed"
+    },
     {
       "conclusion": "success",
       "createdAt": "2026-07-23T03:36:49Z",
@@ -107,14 +115,6 @@
       "conclusion": "success",
       "createdAt": "2026-07-22T03:15:25Z",
       "databaseId": 29887978421,
-      "event": "schedule",
-      "name": "OBS000032 Margin Monitor",
-      "status": "completed"
-    },
-    {
-      "conclusion": "success",
-      "createdAt": "2026-07-21T21:15:30Z",
-      "databaseId": 29869230693,
       "event": "schedule",
       "name": "OBS000032 Margin Monitor",
       "status": "completed"
