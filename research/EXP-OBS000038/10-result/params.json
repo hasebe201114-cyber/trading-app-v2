@@ -1,0 +1,23 @@
+{
+  "C_real": 2.8612547352068765,
+  "vegaNotionalPct": 0.00020083800084379173,
+  "a_overlay": 0.42008402520840293,
+  "vol_target_annual": 0.1,
+  "exec_cost_pct_one_side": 0.001,
+  "tsmom_lookbacks_calendar_days": [
+    30,
+    60,
+    90
+  ],
+  "sigma_window_daily": 60,
+  "rolling_weeks_for_vol_scaling": 52,
+  "bootstrap_block_len": 7,
+  "bootstrap_N": 5000,
+  "bootstrap_seed": 42,
+  "stress_threshold_btc_weekly_return": -0.08,
+  "carry_equal_weight": "btc 50% + eth 50%",
+  "overlay_equal_weight": "btc 50% + eth 50%",
+  "book0_internal_weight": "inverse_vol_rolling52w (shift\u6e08\u307f)",
+  "book0_vol_scaling": "10pct_annual_rolling52w (shift\u6e08\u307f)",
+  "overlay_vol_scaling": "10pct_annual_rolling52w (shift\u6e08\u307f)"
+}

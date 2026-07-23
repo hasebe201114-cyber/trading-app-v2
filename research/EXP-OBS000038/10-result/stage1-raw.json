@@ -1,0 +1,75 @@
+{
+  "common_window": {
+    "start": "2021-12-29",
+    "end": "2026-06-24",
+    "n_weeks": 235,
+    "stress_weeks": 20
+  },
+  "book0": {
+    "maxDD": -0.04554852646062868,
+    "cvar95": -0.016486450324159102
+  },
+  "book1": {
+    "maxDD": -0.048361803108429746,
+    "cvar95": -0.020880466051904703
+  },
+  "improvement": {
+    "maxDD_pct": -0.061764383316171845,
+    "cvar95_pct": -0.26652285005867205
+  },
+  "vrp_alignment_check": {
+    "n_matched": 1,
+    "max_diff": 4.163336342344337e-17,
+    "details": [
+      {
+        "date": "2026-07-11",
+        "expected": -0.0735104297211764,
+        "recomputed": -0.07351042972117644,
+        "diff": 4.163336342344337e-17
+      }
+    ]
+  },
+  "conditional_corr_stress": {
+    "rho_overlay_vrp": -0.1557319318235136,
+    "rho_overlay_carry_basisMTM": -0.27721619095948824,
+    "stress_weeks": 20,
+    "btc_eth_decomposition": {
+      "rho_btc_overlay_vrp": 0.00181558535192932,
+      "rho_eth_overlay_vrp": -0.264824498737566,
+      "rho_btc_overlay_carry": -0.37255200197587474,
+      "rho_eth_overlay_carry": -0.10777658217073226
+    }
+  },
+  "bootstrap_carry": {
+    "frac_le0": 0.9898,
+    "ci_lo": -0.4811646902791491,
+    "ci_hi": -0.047006252468563645,
+    "point_est": -0.27721619095948824
+  },
+  "sensitivity_plus1w": {
+    "maxDD": -0.05731492557094664,
+    "cvar95": -0.019297014636518946
+  },
+  "sensitivity_minus1w": {
+    "maxDD": -0.053887938535815416,
+    "cvar95": -0.01588331827162767
+  },
+  "book0_composition": {
+    "w_vrp_mean": 0.26719024201821817,
+    "w_carry_mean": 0.7328097579817817,
+    "realized_rc_overlay": 0.13180377875501423
+  },
+  "params_used": {
+    "C_real": 2.8612547352068765,
+    "vegaNotionalPct": 0.00020083800084379173,
+    "a": 0.42008402520840293,
+    "vol_target": 0.1,
+    "exec_cost_pct": 0.001
+  },
+  "data_notes": {
+    "vrp_source": "OBS000037 stage1-vrp-prediction-unit.json weeklyPoints (n=277, 2021-03-24~2026-07-01, Deribit DVOL由来)",
+    "carry_source": "raw spot/perp/funding CSV → total_pnl_bps = funding_pnl_bps + basis_pnl_bps (no capital cost, no reversal cost, no signal flip)",
+    "overlay_source": "btcusdt/ethusdt-spot-daily.csv (Binance S3由来)",
+    "alignment_note": "VRPアンカーtの carry = [t+1, t+7]の7日間複利集計"
+  }
+}
