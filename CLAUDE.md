@@ -23,6 +23,7 @@ btc-strategy（既存の本番運用アプリ）の基本ルール・技術構�
   - C 品質チーム(adversarial-reviewer): 好結果を壊しにいく偽陽性の最終防波堤。採用/不採用を宣告
   - D デプロイチーム(integration-deploy): 採用＋司令塔GOのものだけ本番反映
   - E 進行チーム(archivist-pm): OBS移動・リンク修正・引き継ぎ・ACTIVE更新
+- **利用モデル**: S・C=`fable`／A=`opus`／B・D=`sonnet`／E=`haiku`（エイリアス指定で常に最新世代へ自動追従。割り当て方針はPJ000002の2.1参照）
 - **作業場**: `research/`（EXP-OBSxxxxx/＝実験1件=OBS1件のバケツリレー。ACTIVE.md=進行信号機、STRATEGY-BRIEF.md=作戦ブリーフ、portfolio-ledger.md=採用/不採用台帳、_templates/=雛形）。`research/`は揮発、`obs/`が記録の正。
 - **鉄則**:
   - B(実装)とC(判定)は必ず別エージェントとし、自分の実装を甘く採点させない
