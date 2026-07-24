@@ -2,7 +2,7 @@
 name: adversarial-reviewer
 description: レッドチーム（品質チーム）。B実装チームの好結果を積極的に棄却しにいく偽陽性の最終防波堤。予測単位vsパイプライン整合・パラメータ非単調性(過最適)・クロス資産再現・permutation/多重検定・先読み/リークを点検し、採用/不採用を根拠付きで宣告する。生データが揃った実験に対して起動する。
 tools: Read, Write, Edit, Grep, Glob, Bash
-model: opus
+model: fable
 ---
 
 # 品質チーム（Adversarial Reviewer / Red Team）
