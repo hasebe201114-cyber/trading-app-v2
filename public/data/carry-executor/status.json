@@ -1,7 +1,7 @@
 {
-  "syncedAtUTC": "2026-07-23T21:21:14.870Z",
+  "syncedAtUTC": "2026-07-24T03:43:17.797Z",
   "signal": {
-    "generatedAtUTC": "2026-07-23T03:36:56.051Z",
+    "generatedAtUTC": "2026-07-24T03:34:14.208Z",
     "liveMode": false,
     "capitalUsdt": 500,
     "aborted": false,
@@ -9,9 +9,9 @@
     "assets": {
       "btc": {
         "asset": "btc",
-        "signal": "close",
-        "sma_bps": -0.04,
-        "need_open": false,
+        "signal": "open",
+        "sma_bps": 0.38,
+        "need_open": true,
         "need_close": false,
         "has_perp_short": false,
         "short_size": 0,
@@ -21,7 +21,7 @@
       "eth": {
         "asset": "eth",
         "signal": "open",
-        "sma_bps": 0.26,
+        "sma_bps": 0.18,
         "need_open": true,
         "need_close": false,
         "has_perp_short": false,
@@ -32,13 +32,29 @@
     }
   },
   "margin": {
-    "generatedAtUTC": "2026-07-23T21:09:48.874Z",
+    "generatedAtUTC": "2026-07-24T03:16:38.708Z",
     "positions": [],
     "hasCritical": false,
     "hasWarn": false,
     "fetchError": null
   },
   "runs": [
+    {
+      "conclusion": "success",
+      "createdAt": "2026-07-24T03:34:07Z",
+      "databaseId": 30064551781,
+      "event": "schedule",
+      "name": "OBS000032 Daily Signal Check",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "createdAt": "2026-07-24T03:16:28Z",
+      "databaseId": 30063810365,
+      "event": "schedule",
+      "name": "OBS000032 Margin Monitor",
+      "status": "completed"
+    },
     {
       "conclusion": "success",
       "createdAt": "2026-07-23T21:09:43Z",
@@ -99,22 +115,6 @@
       "conclusion": "success",
       "createdAt": "2026-07-22T21:14:16Z",
       "databaseId": 29958409609,
-      "event": "schedule",
-      "name": "OBS000032 Margin Monitor",
-      "status": "completed"
-    },
-    {
-      "conclusion": "success",
-      "createdAt": "2026-07-22T17:24:56Z",
-      "databaseId": 29942228062,
-      "event": "schedule",
-      "name": "OBS000032 Margin Monitor",
-      "status": "completed"
-    },
-    {
-      "conclusion": "success",
-      "createdAt": "2026-07-22T14:07:32Z",
-      "databaseId": 29927066440,
       "event": "schedule",
       "name": "OBS000032 Margin Monitor",
       "status": "completed"
