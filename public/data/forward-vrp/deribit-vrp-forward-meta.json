@@ -1,0 +1,47 @@
+{
+  "experiment": "EXP-OBS000037",
+  "stage": "Stage 2 forward calibration",
+  "gate": "F1-F4（90日蓄積後にC正式監査）",
+  "scriptPath": "scripts/deribit-vrp-forward-paper.ts",
+  "specReference": "research/EXP-OBS000037/00-spec-stage2.md",
+  "executedBy": "B実装チーム (Quant Researcher)",
+  "goLiveDateUTC": "2026-07-11",
+  "warmupDays": 7,
+  "rvForwardDays": 7,
+  "liveDaysRequiredForGate": 90,
+  "currentLiveDaysCount": 13,
+  "currentWarmupDaysCount": 7,
+  "fixedParams": {
+    "dvolSpikeThresholdVolPts": 5,
+    "cRealWeeklyCostVolPt": 2.8612547352068765,
+    "vegaNotionalPct": 0.00020083800084379173,
+    "accountingNote": "【2026-07-14 Stage 2 会計更新・週次コホート方式】Stage 2バックテスト（§2〜§6）通過＋採用可（C品質チーム宣告 2026-07-13）を受け、Stage 0プレースホルダ会計（1.8 vol pt/週・1:1変換）を§2実測コスト（C_real=2.8613 vol pt/週）＋§3 vegaNotionalPct（f=0.5）に置換済み。会計式: net_pnl_pct = (vrp - C_real) × vegaNotionalPct × 100（§4-1 r_t と同軸・週次コホート方式）。vrpはフル週次VRP水準の日次観測値（C_realも週次フルコストをそのまま差引き）。F1/F3判定時はgo-live日から7日ごとの非重複サンプリングで週次系列を構築する（7日分合算しない）。非重複サンプリングのアンカーはledger列 is_cohort_anchor=1 の行（cohort_week_index が週単位インデックス）。"
+  },
+  "endpoints": {
+    "dvol": "https://www.deribit.com/api/v2/public/get_volatility_index_data?currency=BTC&start_timestamp={ms}&end_timestamp={ms}&resolution=86400",
+    "perpPrice": "https://www.deribit.com/api/v2/public/get_tradingview_chart_data?instrument_name=BTC-PERPETUAL&start_timestamp={ms}&end_timestamp={ms}&resolution=1D"
+  },
+  "dateAnchorDesignNote": "日次実行は「今日」でなく「最終完全経過UTC日（anchor=today-1）」を対象とする（OBS000032と同型設計）。",
+  "sleeveReturnJoinNote": "⚠ sleeve_return = net_pnl_pct（週次コホートVRP純益の日次観測値・資本比%）。定義注意: 各日のsleeve_returnはフル週次VRP水準（vrp = DVOL_t − rv_forward_7d_t）からの純益であり、§5-1テール相関用の日次スリーブ損益（vegaNotionalPct × ΔVRP_daily = dvol_daily_change_vol_pts × VEGA）とは別定義。§5-1突合はΔVRPを別途計算すること（dvol_daily_change_vol_pts × VEGA_NOTIONAL_PCT × 100）。OBS000032フォワードledgerとの突合はdate（UTC日）キーで可能だが、スリーブ損益の定義を揃えた上で行うこと。F1/F3判定用の累積損益計算は is_cohort_anchor=1 行のみを7日ごとに非重複サンプリングして週次系列を構築する（Σ全行は約7倍の過大計上になるため厳禁）。",
+  "runHistory": [
+    {
+      "runTimestampUTC": "2026-07-24T05:22:26.018Z",
+      "anchorDateKey": "2026-07-23",
+      "gitCommit": "db1cf899e39b1a59794760b0d3dfff748281301b",
+      "nodeVersion": "v22.23.1",
+      "mode": "append",
+      "newRowsAppended": 1,
+      "backfillCount": 1,
+      "rowCountBefore": 19,
+      "rowCountAfter": 20,
+      "dvolFetchWindow": {
+        "start": "2026-07-15",
+        "end": "2026-07-23"
+      },
+      "dvolRowsFetched": 10,
+      "priceSource": "deribit-tradingview",
+      "priceRowsFetched": 10
+    }
+  ],
+  "runHistoryTruncatedNote": "Web配信用に runHistory を直近1件へ切り詰めたコピー。全履歴は research/EXP-OBS000037/10-result/forward/deribit-vrp-forward-meta.json を正とする。"
+}

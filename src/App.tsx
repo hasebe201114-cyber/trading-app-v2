@@ -6,7 +6,7 @@ import { HomeScreen } from './components/screens/HomeScreen';
 import { PatternAnalysisScreen } from './components/screens/PatternAnalysisScreen';
 import { SignalsScreen } from './components/screens/SignalsScreen';
 import { EvaluationScreen } from './components/screens/EvaluationScreen';
-import { ForwardCalibrationScreen } from './components/screens/ForwardCalibrationScreen';
+import { ForwardHubScreen } from './components/screens/ForwardHubScreen';
 import { CarryExecutorScreen } from './components/screens/CarryExecutorScreen';
 import { SettingsScreen } from './components/screens/SettingsScreen';
 
@@ -47,7 +47,7 @@ function App() {
             <Route path="/patterns" element={<PatternAnalysisScreen />} />
             <Route path="/signals" element={<SignalsScreen />} />
             <Route path="/evaluation" element={<EvaluationScreen />} />
-            <Route path="/forward" element={<ForwardCalibrationScreen />} />
+            <Route path="/forward" element={<ForwardHubScreen />} />
             <Route path="/carry-executor" element={<CarryExecutorScreen />} />
             <Route path="/settings" element={<SettingsScreen />} />
           </Route>

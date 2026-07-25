@@ -37,16 +37,33 @@ jobs:
         run: |
           node --experimental-strip-types scripts/deribit-vrp-forward-paper.ts
 
+      - name: Sync VRP forward data to public folder (web app)
+        run: |
+          mkdir -p public/data/forward-vrp
+          cp research/EXP-OBS000037/10-result/forward/deribit-vrp-forward-ledger-btc.json public/data/forward-vrp/
+          # meta.json は runHistory が日次で伸び続けるため、Web配信用は直近1件へ切り詰めて軽量化する。
+          # 全履歴は research/ 側を正とする（Webコピーは表示専用の派生物）。
+          node -e "
+            const fs = require('fs');
+            const src = 'research/EXP-OBS000037/10-result/forward/deribit-vrp-forward-meta.json';
+            const m = JSON.parse(fs.readFileSync(src, 'utf-8'));
+            const h = Array.isArray(m.runHistory) ? m.runHistory : [];
+            m.runHistory = h.slice(-1);
+            m.runHistoryTruncatedNote = 'Web配信用に runHistory を直近1件へ切り詰めたコピー。全履歴は research/EXP-OBS000037/10-result/forward/deribit-vrp-forward-meta.json を正とする。';
+            fs.writeFileSync('public/data/forward-vrp/deribit-vrp-forward-meta.json', JSON.stringify(m, null, 2) + '\n');
+          "
+
       - name: Commit and push results
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          if git diff --quiet research/EXP-OBS000037/10-result/forward/; then
+          # research/ と public/data/forward-vrp/ 両方を対象に変更チェック
+          if git diff --quiet research/EXP-OBS000037/10-result/forward/ public/data/forward-vrp/; then
             echo "No changes to VRP forward results — skipping commit"
           else
-            git add research/EXP-OBS000037/10-result/forward/
+            git add research/EXP-OBS000037/10-result/forward/ public/data/forward-vrp/
             LIVE_DAYS=$(node -e "
               const fs = require('fs');
               const path = 'research/EXP-OBS000037/10-result/forward/deribit-vrp-forward-meta.json';
