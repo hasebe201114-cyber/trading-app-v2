@@ -2,7 +2,7 @@ import {
   ComposedChart, BarChart, Area, Bar, Cell, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine, ResponsiveContainer,
 } from 'recharts';
-import { AlertTriangle, CheckCircle, Clock, Activity } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Clock, Activity, ExternalLink } from 'lucide-react';
 import { useVrpForwardData, type VrpLedgerRow, type VrpForwardMeta } from '../../hooks/useVrpForwardData';
 import {
   deriveVrpGateSnapshot, addDaysUTC, latestRunTimestamp,
@@ -380,6 +380,24 @@ export const VrpForwardScreen = () => {
               pending="相関そのものはC正式監査で算出（UI未算出）。ここではスパイク発生の前向き蓄積のみ表示" />
           </div>
         </div>
+      </SectionBox>
+
+      {/* バックテストデータへの導線 */}
+      <SectionBox title="バックテストデータ">
+        <InfoNote>
+          いま見ているのは<span className="font-600">ライブ蓄積中</span>の断面です。
+          「そもそもこのプレミアムは過去どれくらいあったのか」を確認したいときは、
+          Stage 1で検証した<span className="font-600">週次276点（2021-03-24〜2026-07-01）の全数</span>を
+          別ページにまとめてあります。全期間の平均VRP・年別の推移・分布の裾・ライブとの接続部まで、
+          生データをそのまま掲載しています。
+        </InfoNote>
+        <a
+          href="/reports/obs000037-vrp-backtest.html"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded border border-violet-400 dark:border-violet-600 bg-violet-50 dark:bg-violet-950/20 text-violet-700 dark:text-violet-300 text-sm font-600 hover:bg-violet-100 dark:hover:bg-violet-950/40 transition-colors"
+        >
+          <ExternalLink size={15} />
+          DVOL・VRPのバックテストデータを開く
+        </a>
       </SectionBox>
 
       {/* IV vs RV */}

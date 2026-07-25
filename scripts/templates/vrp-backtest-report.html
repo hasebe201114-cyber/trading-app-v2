@@ -1,0 +1,902 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#fbbf24" />
+  <title>DVOL・VRP バックテストデータ — EXP-OBS000037</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+  <script>
+    // アプリ本体（index.html）と同じテーマ判定。localStorage.theme を共有する。
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('theme') === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  </script>
+  <style>*,*::before,*::after{box-sizing:border-box}body{margin:0}</style>
+<style>
+  :root {
+    --ground: #F4F6F8;
+    --surface: #FFFFFF;
+    --sunken: #EDF0F4;
+    --ink: #131820;
+    --ink-2: #3D4653;
+    --muted: #5B6675;
+    --hairline: #DEE3EA;
+    --iv: #B45309;
+    --rv: #2563EB;
+    --pos: #7C3AED;
+    --neg: #DC2626;
+    --grid: #E7EBF0;
+    --tip-bg: #131820;
+    --tip-ink: #F4F6F8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0E1218;
+      --surface: #161C24;
+      --sunken: #11161D;
+      --ink: #E3E9F1;
+      --ink-2: #BAC3CF;
+      --muted: #8A94A4;
+      --hairline: #252D38;
+      --iv: #C77F0A;
+      --rv: #5B93F0;
+      --pos: #8B5CF6;
+      --neg: #EF4444;
+      --grid: #222A34;
+      --tip-bg: #E3E9F1;
+      --tip-ink: #0E1218;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0E1218; --surface: #161C24; --sunken: #11161D;
+    --ink: #E3E9F1; --ink-2: #BAC3CF; --muted: #8A94A4; --hairline: #252D38;
+    --iv: #C77F0A; --rv: #5B93F0; --pos: #8B5CF6; --neg: #EF4444;
+    --grid: #222A34; --tip-bg: #E3E9F1; --tip-ink: #0E1218;
+  }
+  :root[data-theme="light"] {
+    --ground: #F4F6F8; --surface: #FFFFFF; --sunken: #EDF0F4;
+    --ink: #131820; --ink-2: #3D4653; --muted: #5B6675; --hairline: #DEE3EA;
+    --iv: #B45309; --rv: #2563EB; --pos: #7C3AED; --neg: #DC2626;
+    --grid: #E7EBF0; --tip-bg: #131820; --tip-ink: #F4F6F8;
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Inter", "Noto Sans JP", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 40px 20px 96px; }
+  .measure { max-width: 62ch; }
+
+  /* ── type ─────────────────────────────── */
+  .eyebrow {
+    font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 10px;
+  }
+  h1 {
+    font-size: clamp(28px, 5.2vw, 42px); line-height: 1.18; font-weight: 700;
+    letter-spacing: -.02em; text-wrap: balance; margin: 0 0 14px;
+  }
+  h2 {
+    font-size: clamp(19px, 3vw, 23px); line-height: 1.35; font-weight: 700;
+    letter-spacing: -.01em; text-wrap: balance; margin: 0 0 6px;
+  }
+  h3 { font-size: 15px; font-weight: 700; margin: 0 0 4px; letter-spacing: -.005em; }
+  p { margin: 0 0 14px; color: var(--ink-2); }
+  .lede { font-size: 16px; color: var(--ink-2); }
+  strong { color: var(--ink); font-weight: 700; }
+  code {
+    font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: .88em; background: var(--sunken); padding: .1em .38em;
+    border-radius: 3px; color: var(--ink);
+  }
+  .num { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+         font-variant-numeric: tabular-nums; }
+
+  header.page { border-bottom: 1px solid var(--hairline); padding-bottom: 26px; margin-bottom: 34px; }
+  .provenance {
+    display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 18px;
+    font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11.5px; color: var(--muted); line-height: 1.7;
+  }
+  .provenance span::before { content: "· "; opacity: .5; }
+  .provenance span:first-child::before { content: ""; }
+
+  section { margin: 0 0 52px; }
+  .sec-head { margin-bottom: 18px; }
+
+  /* ── stat row ─────────────────────────── */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 1px;
+           background: var(--hairline); border: 1px solid var(--hairline); margin: 0 0 30px; }
+  .stat { background: var(--surface); padding: 16px 16px 14px; }
+  .stat .k { font-size: 11.5px; color: var(--muted); line-height: 1.45; margin-bottom: 8px; }
+  .stat .v { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+             font-variant-numeric: tabular-nums; font-size: 27px; font-weight: 600;
+             letter-spacing: -.02em; line-height: 1.05; }
+  .stat .u { font-size: 12px; font-weight: 400; color: var(--muted); margin-left: 3px; }
+  .stat .n { font-size: 11px; color: var(--muted); margin-top: 7px; line-height: 1.5; }
+
+  /* ── panels ───────────────────────────── */
+  .panel { background: var(--surface); border: 1px solid var(--hairline); padding: 18px 16px 14px; margin-bottom: 14px; }
+  .panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px; margin-bottom: 4px; }
+  .panel-title { font-size: 14px; font-weight: 700; }
+  .panel-sub { font-size: 11.5px; color: var(--muted); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 8px 0 4px; font-size: 12px; color: var(--ink-2); }
+  .legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: 3px; }
+  .legend i.sq { height: 10px; width: 10px; border-radius: 2px; vertical-align: -1px; }
+  .chart-host { position: relative; }
+  .chart-host svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+  .tip {
+    position: absolute; pointer-events: none; opacity: 0; transition: opacity .1s;
+    background: var(--tip-bg); color: var(--tip-ink); padding: 7px 10px; font-size: 11.5px;
+    line-height: 1.6; border-radius: 4px; white-space: nowrap; z-index: 5;
+    font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums; box-shadow: 0 4px 14px rgba(0,0,0,.18);
+  }
+  .tip.on { opacity: 1; }
+  .tip b { font-weight: 700; }
+
+  /* ── callout ──────────────────────────── */
+  .callout { border-left: 3px solid var(--pos); background: var(--surface);
+             padding: 14px 16px; margin: 0 0 18px; }
+  .callout.warn { border-left-color: var(--iv); }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .lbl { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+                  font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase;
+                  color: var(--muted); display: block; margin-bottom: 6px; }
+
+  /* ── tables ───────────────────────────── */
+  .table-scroll { overflow-x: auto; border: 1px solid var(--hairline); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { padding: 8px 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--hairline); }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
+             font-weight: 600; background: var(--sunken); position: sticky; top: 0; }
+  tbody tr:last-child td { border-bottom: none; }
+  td.n { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+  .pos { color: var(--pos); }
+  .neg { color: var(--neg); }
+  tr.total td { font-weight: 700; background: var(--sunken); }
+
+  details { border: 1px solid var(--hairline); background: var(--surface); margin-top: 14px; }
+  summary { cursor: pointer; padding: 12px 16px; font-size: 13px; font-weight: 700; list-style: none; }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "▸ "; color: var(--muted); }
+  details[open] summary::before { content: "▾ "; }
+  details[open] summary { border-bottom: 1px solid var(--hairline); }
+  details .table-scroll { border: 0; max-height: 420px; overflow-y: auto; }
+
+  ul.notes { margin: 0 0 14px; padding-left: 1.1em; color: var(--ink-2); }
+  ul.notes li { margin-bottom: 9px; }
+  ul.notes li::marker { color: var(--muted); }
+
+  .backlink { margin: 0 0 22px; font-size: 13px; }
+  .backlink a { color: var(--muted); text-decoration: none; }
+  .backlink a:hover { color: var(--rv); text-decoration: underline; }
+
+  a { color: var(--rv); }
+  :focus-visible { outline: 2px solid var(--rv); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  @media (max-width: 560px) {
+    .wrap { padding: 28px 14px 72px; }
+    .stat .v { font-size: 23px; }
+    th, td { padding: 7px 9px; font-size: 12px; }
+  }
+</style>
+
+
+</head>
+<body>
+<div class="wrap">
+
+  <p class="backlink"><a href="/forward?exp=vrp">← フォワード較正モニターへ戻る</a></p>
+
+  <header class="page">
+    <p class="eyebrow">EXP-OBS000037 / SYS-001 · Stage 1 予測単位</p>
+    <h1>DVOLとVRPの<br>バックテストデータ</h1>
+    <p class="lede measure">
+      Deribitのボラティリティ指数（DVOL）が、あとから実際に起きたボラティリティを
+      どれだけ上回ってきたか。2021年3月から2026年7月までの週次276点、全数を掲載します。
+    </p>
+    <div class="provenance">
+      <span>scripts/vrp-prediction-unit.ts</span>
+      <span>commit 34234675</span>
+      <span>run 2026-07-12T21:55Z</span>
+      <span>spec 00-spec-stage1.md</span>
+      <span>DVOL 1,937行 (2021-03-24 → 2026-07-12)</span>
+      <span>先読み違反 0件</span>
+      <span>本ページ生成 __GENERATED_AT__</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="stats">
+      <div class="stat">
+        <div class="k">全期間の平均VRP</div>
+        <div class="v pos">+12.56<span class="u">vol pt</span></div>
+        <div class="n">週次276点・block-bootstrap p = 0</div>
+      </div>
+      <div class="stat">
+        <div class="k">VRPがプラスだった週</div>
+        <div class="v">77.2<span class="u">%</span></div>
+        <div class="n">213 / 276週（F2ゲートの基準は60%）</div>
+      </div>
+      <div class="stat">
+        <div class="k">選定期 → 確認期</div>
+        <div class="v">+16.84<span class="u">→ +9.32</span></div>
+        <div class="n">未見期間でも符号は維持・水準は減衰</div>
+      </div>
+      <div class="stat">
+        <div class="k">最大ドローダウン</div>
+        <div class="v neg">12.37<span class="u">%</span></div>
+        <div class="n">2022-01-12 → 2022-03-02（ピーク比）</div>
+      </div>
+    </div>
+
+    <div class="measure">
+      <p>
+        VRP（バリアンス・リスクプレミアム）は <code>DVOL − 実現RV</code> の引き算です。
+        DVOLはオプション市場が織り込んだ<strong>予想</strong>のボラティリティ、実現RVは
+        <strong>あとから確定した実際</strong>のボラティリティ。単位はどちらも年率%で、
+        この文書では「vol pt」と呼びます。
+      </p>
+      <p>
+        +12.56 vol pt という平均は、「市場は平均して年率12.56%ポイントぶん、実際より高くボラを見積もってきた」
+        という意味です。その上振れ分を、価格の方向を当てにいかずに回収するのがこの戦略の狙いです。
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head measure">
+      <p class="eyebrow">時系列</p>
+      <h2>予想と実際の差が、そのまま収益源になる</h2>
+      <p>
+        上のパネルの2本の線が離れている期間ほど、下のパネルの棒が伸びます。
+        2021年の強気相場では予想ボラ自体が年率90%台で、差も大きく開いていました。
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">DVOL（予想ボラ）と 事後実現RV</div>
+        <div class="panel-sub">週次・年率% / 276点</div>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--iv)"></i>DVOL（予想ボラ）</span>
+        <span><i style="background:var(--rv)"></i>実現RV（7日先）</span>
+        <span><i class="sq" style="background:var(--pos);opacity:.22"></i>その差＝VRP</span>
+      </div>
+      <div class="chart-host" id="host-levels">
+        <svg id="chart-levels" role="img" aria-label="DVOLと実現RVの週次推移。2021年の年率90%台から2026年の40%台まで低下し、両者の差であるVRPも縮小している。"></svg>
+        <div class="tip" id="tip-levels"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">週次VRP</div>
+        <div class="panel-sub">プラス = プレミアムを取れた週 / 太線 = 52週移動平均</div>
+      </div>
+      <div class="legend">
+        <span><i class="sq" style="background:var(--pos)"></i>VRP &gt; 0（213週）</span>
+        <span><i class="sq" style="background:var(--neg)"></i>VRP &lt; 0（63週）</span>
+        <span><i style="background:var(--ink-2)"></i>52週移動平均</span>
+      </div>
+      <div class="chart-host" id="host-vrp">
+        <svg id="chart-vrp" role="img" aria-label="週次VRPの棒グラフ。最大は2022年11月9日の+89.73、最小は2024年7月31日の−81.81。52週移動平均は一貫して低下傾向。"></svg>
+        <div class="tip" id="tip-vrp"></div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <span class="lbl">分布の裾</span>
+      <p>
+        平均は+12.56ですが、<strong>最悪の週は −81.81 vol pt</strong>（2024-07-31）、
+        最良は +89.73（2022-11-09）です。週次の標準偏差は23.41 vol pt——
+        平均の約1.9倍の振れ幅があります。「平均してプラス」と「毎週プラス」はまったく別物で、
+        4週に1週弱はマイナスになる分布だという点は、サイジングを考えるうえで外せません。
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head measure">
+      <p class="eyebrow">年別</p>
+      <h2>プレミアムは年々薄くなっている</h2>
+      <p>
+        これがこのデータで一番重要な構造だと思います。2021年の +22.00 から
+        2026年（26週時点）の +5.96 まで、<strong>おおむね一貫して縮小</strong>しています。
+        一方で「プラスだった週の比率」は73〜81%で安定していて、<strong>崩れているのは頻度ではなく1回あたりの厚み</strong>です。
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">年別の平均VRP</div>
+        <div class="panel-sub">棒の下の数字 = VRPがプラスだった週の比率</div>
+      </div>
+      <div class="chart-host" id="host-year">
+        <svg id="chart-year" role="img" aria-label="年別平均VRPの棒グラフ。2021年+22.00、2022年+16.95、2023年+10.21、2024年+11.72、2025年+7.34、2026年+5.96と減衰傾向。"></svg>
+        <div class="tip" id="tip-year"></div>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <caption class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">年別のVRP集計</caption>
+        <thead>
+          <tr>
+            <th scope="col">年</th><th scope="col">週数</th><th scope="col">平均VRP</th>
+            <th scope="col">VRP&gt;0比率</th><th scope="col">平均DVOL</th><th scope="col">平均実現RV</th>
+          </tr>
+        </thead>
+        <tbody id="year-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head measure">
+      <p class="eyebrow">パイプライン</p>
+      <h2>コストを引いた後の積み上がり方</h2>
+      <p>
+        Stage 1では暫定コスト 1.8 vol pt/週を毎週差し引いています
+        （Stage 2で実測コスト 2.8613 vol pt/週に置き換え済み）。
+        下の線は、その暫定コスト控除後のペイオフを積み上げたものです。
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">累積ペイオフ（暫定コスト控除後）</div>
+        <div class="panel-sub">vol pt 建て・年率Sharpe 3.32</div>
+      </div>
+      <div class="chart-host" id="host-cum">
+        <svg id="chart-cum" role="img" aria-label="累積ペイオフの推移。単調に近い右肩上がりで、2022年初頭に最大12.37%のドローダウンがある。"></svg>
+        <div class="tip" id="tip-cum"></div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="k">週次ネット平均</div>
+        <div class="v">+10.76<span class="u">vol pt</span></div>
+        <div class="n">VRP 12.56 − 暫定コスト 1.8</div>
+      </div>
+      <div class="stat">
+        <div class="k">年率 Sharpe</div>
+        <div class="v">3.32</div>
+        <div class="n">週次 × √52</div>
+      </div>
+      <div class="stat">
+        <div class="k">週次の標準偏差</div>
+        <div class="v">23.41<span class="u">vol pt</span></div>
+        <div class="n">平均の約1.9倍</div>
+      </div>
+      <div class="stat">
+        <div class="k">副系列での再計算</div>
+        <div class="v">+11.71<span class="u">vol pt</span></div>
+        <div class="n">Binance 00:00 UTC 価格・Sharpe 3.05</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head measure">
+      <p class="eyebrow">ライブとの接続</p>
+      <h2>いまのフォワード較正は、この線のどこにいるか</h2>
+      <p>
+        バックテストは2026-07-01の週で終わり、フォワード較正は2026-07-11に始まりました。
+        つなぎ目を並べると、<strong>ライブ初週のVRPは −0.80</strong>——バックテスト2026年の平均 +5.96 を下回っています。
+      </p>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th scope="col">日付</th><th scope="col">区分</th><th scope="col">DVOL</th><th scope="col">実現RV</th><th scope="col">VRP</th></tr>
+        </thead>
+        <tbody id="join-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="callout" style="margin-top:18px">
+      <span class="lbl">読み方の注意</span>
+      <p>
+        <strong>この表はページ生成時点のスナップショットです</strong>（ライブ側は日次で伸びます）。
+        最新の状況は<a href="/forward?exp=vrp">フォワード較正モニター</a>を参照してください。
+      </p>
+      <p>
+        ライブ側は<strong>まだ週次アンカーが1点（2026-07-11）しか確定していません</strong>。
+        −0.80という1点から「プレミアムが消えた」とは到底言えず、
+        バックテストでも4週に1週弱はマイナスが出る分布です。
+      </p>
+      <p>
+        ただし年別の減衰トレンドと合わせて見ると、
+        <strong>Day90（2026-10-09）のF1判定では「符号がプラスか」だけでなく「水準がどこまで落ちているか」を見る必要がある</strong>——
+        これは私の見立てで、C品質チームの正式な判定基準ではありません。
+        F1bはバックテスト確認期の統計的下限との比較なので、この観点は基準側に既に組み込まれています。
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head measure">
+      <p class="eyebrow">方法論と限界</p>
+      <h2>この数字を信じる前に知っておくこと</h2>
+    </div>
+    <ul class="notes measure">
+      <li>
+        <strong>実現RVは外部指数ではなく自前計算</strong>です。BTC-PERPETUALの日次終値 D+1〜D+8 の8終値から
+        7本の対数リターンを取り、標本標準偏差（ddof=1）× √365 × 100 で年率化しています。
+      </li>
+      <li>
+        <strong>この窓長は一度バグっていました。</strong> 初回実装は6リターン（D+1〜D+7）で、
+        RVを構造的に低く見積もりVRPを過大化していました（平均 14.23 → 是正後 12.56）。
+        C品質チームがDeribit APIを独立再取得し、Python別実装で6桁一致を確認して是正済みです。
+        <strong>定義の細部が結論を1.7 vol pt動かした</strong>という事実は、この数字の読み方として覚えておく価値があります。
+      </li>
+      <li>
+        <strong>DVOLは30日ホライズンの指数、比べている実現RVは7日先</strong>です。
+        コスト側は「残存7日以上で最も近い満期」に揃えられている一方、シグナル側のIVだけ30日指数のままです。
+        ボラティリティの期間構造は通常、期間が長いほど高く出るため、
+        この非対称はVRP水準をやや押し上げる方向に効いている可能性があります。
+        specにこの点を明示的に論じた記述は見当たりませんでした（私の観察であり、監査上の指摘事項ではありません）。
+      </li>
+      <li>
+        <strong>2020年3月のコロナショックは窓の外</strong>です。DVOLの履歴が2021-03-24までしか遡れないため、
+        最大級のテールでこの戦略がどう振る舞うかはバックテストでは測れません。
+        90日フォワード較正が必須になっているのは、この空白を前向きに埋めるためです。
+      </li>
+      <li>
+        <strong>先読みの自己点検は違反0件</strong>。各週次点のRV計算に使った価格日付が、
+        すべてその週次点より後（D+1以降）であることを検証済みです。
+      </li>
+      <li>
+        <strong>価格系列の取り方で結果は0.86 vol pt動きます。</strong>
+        主系列（Deribit 08:00 UTC）で+12.56、副系列（Binance 00:00 UTC）で+11.71。
+        判定に使うのは主系列と事前に決めてあり、副系列は頑健性の情報開示として並記されています。
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="sec-head measure">
+      <p class="eyebrow">全データ</p>
+      <h2>週次276点の全数</h2>
+      <p>集計値だけでなく、元の系列をそのまま確認できるようにしています。</p>
+    </div>
+    <details>
+      <summary>週次VRP 全276点を開く</summary>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th scope="col">週（起点）</th><th scope="col">DVOL</th><th scope="col">実現RV</th><th scope="col">VRP</th><th scope="col">累積ペイオフ</th></tr>
+          </thead>
+          <tbody id="all-tbody"></tbody>
+        </table>
+      </div>
+    </details>
+    <p class="measure" style="margin-top:20px;font-size:13px;color:var(--muted)">
+      出典: <code>research/EXP-OBS000037/10-result/stage1-vrp-prediction-unit.json</code>（290KB・リポジトリ内）。
+      本ページはその生データをそのまま描画したもので、値の再計算・平滑化・外れ値除去は一切していません。
+    </p>
+  </section>
+
+</div>
+
+<script type="application/json" id="vrp-data">__DATA__</script>
+
+<script>
+(function () {
+  "use strict";
+  var D = JSON.parse(document.getElementById("vrp-data").textContent);
+  var W = D.weekly, CUM = D.cum, LIVE = D.live;
+
+  var css = function (n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); };
+  var fmt = function (v, d) { return (v >= 0 ? "+" : "") + v.toFixed(d === undefined ? 2 : d); };
+  var SVGNS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs) {
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) if (attrs[k] !== null && attrs[k] !== undefined) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  // ── 年別集計 ────────────────────────────
+  var byYear = {};
+  W.forEach(function (p) {
+    var y = p.d.slice(0, 4);
+    (byYear[y] = byYear[y] || []).push(p);
+  });
+  var years = Object.keys(byYear).sort().map(function (y) {
+    var g = byYear[y], n = g.length;
+    var sum = function (f) { return g.reduce(function (a, p) { return a + f(p); }, 0); };
+    return {
+      year: y, n: n,
+      meanVrp: sum(function (p) { return p.vrp; }) / n,
+      posPct: 100 * g.filter(function (p) { return p.vrp > 0; }).length / n,
+      meanIv: sum(function (p) { return p.iv; }) / n,
+      meanRv: sum(function (p) { return p.rv; }) / n
+    };
+  });
+
+  // ── 共通スケール ────────────────────────
+  function xScale(i, n, L, R) { return L + (R - L) * (n < 2 ? 0.5 : i / (n - 1)); }
+  function makeY(min, max, T, B) {
+    var span = (max - min) || 1;
+    return function (v) { return B - (v - min) / span * (B - T); };
+  }
+  function niceTicks(min, max, count) {
+    var span = max - min, step = Math.pow(10, Math.floor(Math.log(span / count) / Math.LN10));
+    [1, 2, 2.5, 5, 10].some(function (m) { if (step * m >= span / count) { step = step * m; return true; } return false; });
+    var out = [], t = Math.ceil(min / step) * step;
+    for (; t <= max + 1e-9; t += step) out.push(Math.round(t * 1000) / 1000);
+    return out;
+  }
+  function yearTickIndices(rows) {
+    var seen = {}, out = [];
+    rows.forEach(function (p, i) { var y = p.d.slice(0, 4); if (!seen[y]) { seen[y] = 1; out.push({ i: i, label: y }); } });
+    return out;
+  }
+
+  // ── ツールチップ ────────────────────────
+  function bindTip(host, tip, svg, hitFn) {
+    function move(ev) {
+      var r = svg.getBoundingClientRect();
+      var cx = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left;
+      var res = hitFn(cx / r.width);
+      if (!res) { tip.classList.remove("on"); return; }
+      tip.innerHTML = res.html;
+      tip.classList.add("on");
+      var hr = host.getBoundingClientRect();
+      var px = res.xFrac * r.width;
+      var tw = tip.offsetWidth;
+      var left = Math.max(4, Math.min(px - tw / 2, hr.width - tw - 4));
+      tip.style.left = left + "px";
+      tip.style.top = "6px";
+    }
+    svg.addEventListener("mousemove", move);
+    svg.addEventListener("touchstart", move, { passive: true });
+    svg.addEventListener("touchmove", move, { passive: true });
+    svg.addEventListener("mouseleave", function () { tip.classList.remove("on"); });
+    svg.addEventListener("touchend", function () { tip.classList.remove("on"); });
+  }
+
+  // ── チャート1: DVOL と RV ────────────────
+  function drawLevels(w) {
+    var svg = document.getElementById("chart-levels"), host = document.getElementById("host-levels");
+    var narrow = w < 520;
+    var h = narrow ? 210 : 264, L = narrow ? 30 : 40, R = 8, T = 10, B = h - 24;
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    var lo = 0, hi = Math.max.apply(null, W.map(function (p) { return Math.max(p.iv, p.rv); }));
+    hi = Math.ceil(hi / 20) * 20;
+    var y = makeY(lo, hi, T, B), n = W.length;
+
+    niceTicks(lo, hi, narrow ? 3 : 5).forEach(function (t) {
+      svg.appendChild(el("line", { x1: L, x2: w - R, y1: y(t), y2: y(t), stroke: css("--grid"), "stroke-width": 1 }));
+      var tx = el("text", { x: L - 6, y: y(t) + 3.5, "text-anchor": "end", "font-size": narrow ? 9 : 10, fill: css("--muted") });
+      tx.textContent = t;
+      svg.appendChild(tx);
+    });
+    yearTickIndices(W).forEach(function (o) {
+      var x = xScale(o.i, n, L, w - R);
+      var tx = el("text", { x: x, y: h - 7, "text-anchor": "middle", "font-size": narrow ? 9 : 10, fill: css("--muted") });
+      tx.textContent = o.label;
+      svg.appendChild(tx);
+    });
+
+    // VRPの帯（IVとRVの間）
+    var top = [], bot = [];
+    W.forEach(function (p, i) {
+      var x = xScale(i, n, L, w - R);
+      top.push(x + "," + y(Math.max(p.iv, p.rv)));
+      bot.push(x + "," + y(Math.min(p.iv, p.rv)));
+    });
+    svg.appendChild(el("polygon", { points: top.concat(bot.reverse()).join(" "), fill: css("--pos"), "fill-opacity": .18 }));
+
+    [["rv", "--rv"], ["iv", "--iv"]].forEach(function (pair) {
+      var pts = W.map(function (p, i) { return xScale(i, n, L, w - R) + "," + y(p[pair[0]]); }).join(" ");
+      svg.appendChild(el("polyline", { points: pts, fill: "none", stroke: css(pair[1]), "stroke-width": 2, "stroke-linejoin": "round" }));
+    });
+
+    var cursor = el("line", { y1: T, y2: B, stroke: css("--muted"), "stroke-width": 1, "stroke-dasharray": "3 3", opacity: 0 });
+    svg.appendChild(cursor);
+
+    bindTip(host, document.getElementById("tip-levels"), svg, function (frac) {
+      var px = frac * w;
+      var i = Math.round((px - L) / ((w - R - L) || 1) * (n - 1));
+      if (i < 0 || i >= n) { cursor.setAttribute("opacity", 0); return null; }
+      var p = W[i], x = xScale(i, n, L, w - R);
+      cursor.setAttribute("x1", x); cursor.setAttribute("x2", x); cursor.setAttribute("opacity", 1);
+      return {
+        xFrac: x / w,
+        html: "<b>" + p.d + "</b><br>DVOL " + p.iv.toFixed(2) + "<br>実現RV " + p.rv.toFixed(2) +
+              "<br>VRP <b>" + fmt(p.vrp) + "</b>"
+      };
+    });
+  }
+
+  // ── チャート2: 週次VRP ──────────────────
+  function drawVrp(w) {
+    var svg = document.getElementById("chart-vrp"), host = document.getElementById("host-vrp");
+    var narrow = w < 520;
+    var h = narrow ? 190 : 230, L = narrow ? 30 : 40, R = 8, T = 10, B = h - 24;
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    var vals = W.map(function (p) { return p.vrp; });
+    var hi = Math.ceil(Math.max.apply(null, vals) / 20) * 20;
+    var lo = Math.floor(Math.min.apply(null, vals) / 20) * 20;
+    var y = makeY(lo, hi, T, B), n = W.length;
+    var bw = Math.max(1.4, (w - R - L) / n - 1.2);
+
+    niceTicks(lo, hi, narrow ? 3 : 4).forEach(function (t) {
+      svg.appendChild(el("line", { x1: L, x2: w - R, y1: y(t), y2: y(t), stroke: css("--grid"), "stroke-width": 1 }));
+      var tx = el("text", { x: L - 6, y: y(t) + 3.5, "text-anchor": "end", "font-size": narrow ? 9 : 10, fill: css("--muted") });
+      tx.textContent = t;
+      svg.appendChild(tx);
+    });
+
+    W.forEach(function (p, i) {
+      var x = xScale(i, n, L, w - R);
+      var y0 = y(0), y1 = y(p.vrp);
+      svg.appendChild(el("rect", {
+        x: x - bw / 2, y: Math.min(y0, y1), width: bw, height: Math.max(1, Math.abs(y1 - y0)),
+        fill: css(p.vrp >= 0 ? "--pos" : "--neg"), "fill-opacity": .85, rx: 1
+      }));
+    });
+    svg.appendChild(el("line", { x1: L, x2: w - R, y1: y(0), y2: y(0), stroke: css("--ink-2"), "stroke-width": 1 }));
+
+    // 52週移動平均
+    var ma = [];
+    W.forEach(function (p, i) {
+      if (i < 51) { ma.push(null); return; }
+      var s = 0; for (var k = i - 51; k <= i; k++) s += W[k].vrp;
+      ma.push(s / 52);
+    });
+    var mpts = [];
+    ma.forEach(function (v, i) { if (v !== null) mpts.push(xScale(i, n, L, w - R) + "," + y(v)); });
+    svg.appendChild(el("polyline", { points: mpts.join(" "), fill: "none", stroke: css("--ink-2"), "stroke-width": 2.5, "stroke-linejoin": "round" }));
+
+    yearTickIndices(W).forEach(function (o) {
+      var tx = el("text", { x: xScale(o.i, n, L, w - R), y: h - 7, "text-anchor": "middle", "font-size": narrow ? 9 : 10, fill: css("--muted") });
+      tx.textContent = o.label;
+      svg.appendChild(tx);
+    });
+
+    bindTip(host, document.getElementById("tip-vrp"), svg, function (frac) {
+      var px = frac * w;
+      var i = Math.round((px - L) / ((w - R - L) || 1) * (n - 1));
+      if (i < 0 || i >= n) return null;
+      var p = W[i];
+      return {
+        xFrac: xScale(i, n, L, w - R) / w,
+        html: "<b>" + p.d + "</b><br>VRP <b>" + fmt(p.vrp) + "</b>" +
+              (ma[i] !== null ? "<br>52週平均 " + fmt(ma[i]) : "")
+      };
+    });
+  }
+
+  // ── チャート3: 年別 ─────────────────────
+  function drawYear(w) {
+    var svg = document.getElementById("chart-year"), host = document.getElementById("host-year");
+    var narrow = w < 520;
+    var h = narrow ? 200 : 230, L = narrow ? 30 : 40, R = 10, T = 14, B = h - 38;
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    var hi = Math.ceil(Math.max.apply(null, years.map(function (r) { return r.meanVrp; })) / 5) * 5;
+    var y = makeY(0, hi, T, B), n = years.length;
+    var slot = (w - R - L) / n, bw = Math.min(56, slot * 0.56);
+
+    niceTicks(0, hi, 4).forEach(function (t) {
+      svg.appendChild(el("line", { x1: L, x2: w - R, y1: y(t), y2: y(t), stroke: css("--grid"), "stroke-width": 1 }));
+      var tx = el("text", { x: L - 6, y: y(t) + 3.5, "text-anchor": "end", "font-size": narrow ? 9 : 10, fill: css("--muted") });
+      tx.textContent = t;
+      svg.appendChild(tx);
+    });
+
+    years.forEach(function (r, i) {
+      var x = L + slot * (i + 0.5);
+      svg.appendChild(el("rect", {
+        x: x - bw / 2, y: y(r.meanVrp), width: bw, height: B - y(r.meanVrp),
+        fill: css("--pos"), "fill-opacity": .9, rx: 2
+      }));
+      var v = el("text", { x: x, y: y(r.meanVrp) - 6, "text-anchor": "middle", "font-size": narrow ? 10 : 11.5,
+                           "font-weight": 700, fill: css("--ink") });
+      v.textContent = "+" + r.meanVrp.toFixed(1);
+      svg.appendChild(v);
+      var yl = el("text", { x: x, y: h - 22, "text-anchor": "middle", "font-size": narrow ? 10 : 11, fill: css("--ink-2") });
+      yl.textContent = r.year;
+      svg.appendChild(yl);
+      var pl = el("text", { x: x, y: h - 8, "text-anchor": "middle", "font-size": narrow ? 9 : 10, fill: css("--muted") });
+      pl.textContent = r.posPct.toFixed(0) + "%";
+      svg.appendChild(pl);
+    });
+    svg.appendChild(el("line", { x1: L, x2: w - R, y1: B, y2: B, stroke: css("--ink-2"), "stroke-width": 1 }));
+
+    bindTip(host, document.getElementById("tip-year"), svg, function (frac) {
+      var i = Math.floor((frac * w - L) / slot);
+      if (i < 0 || i >= n) return null;
+      var r = years[i];
+      return {
+        xFrac: (L + slot * (i + 0.5)) / w,
+        html: "<b>" + r.year + "年</b>（" + r.n + "週）<br>平均VRP <b>" + fmt(r.meanVrp) + "</b>" +
+              "<br>VRP&gt;0 " + r.posPct.toFixed(1) + "%<br>DVOL " + r.meanIv.toFixed(1) + " / RV " + r.meanRv.toFixed(1)
+      };
+    });
+  }
+
+  // ── チャート4: 累積ペイオフ ─────────────
+  function drawCum(w) {
+    var svg = document.getElementById("chart-cum"), host = document.getElementById("host-cum");
+    var narrow = w < 520;
+    var h = narrow ? 190 : 230, L = narrow ? 38 : 48, R = 8, T = 12, B = h - 24;
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    var vals = CUM.map(function (p) { return p.c; });
+    var hi = Math.ceil(Math.max.apply(null, vals) / 500) * 500, n = CUM.length;
+    var y = makeY(0, hi, T, B);
+
+    niceTicks(0, hi, narrow ? 3 : 4).forEach(function (t) {
+      svg.appendChild(el("line", { x1: L, x2: w - R, y1: y(t), y2: y(t), stroke: css("--grid"), "stroke-width": 1 }));
+      var tx = el("text", { x: L - 6, y: y(t) + 3.5, "text-anchor": "end", "font-size": narrow ? 9 : 10, fill: css("--muted") });
+      tx.textContent = t;
+      svg.appendChild(tx);
+    });
+
+    var area = CUM.map(function (p, i) { return xScale(i, n, L, w - R) + "," + y(p.c); });
+    svg.appendChild(el("polygon", {
+      points: (L + "," + y(0)) + " " + area.join(" ") + " " + ((w - R) + "," + y(0)),
+      fill: css("--pos"), "fill-opacity": .12
+    }));
+    svg.appendChild(el("polyline", { points: area.join(" "), fill: "none", stroke: css("--pos"), "stroke-width": 2, "stroke-linejoin": "round" }));
+
+    // 最大DD区間のマーカー
+    var pi = CUM.findIndex(function (p) { return p.d === D.pipeline.ddPeakDate; });
+    var ti = CUM.findIndex(function (p) { return p.d === D.pipeline.ddTroughDate; });
+    if (pi >= 0 && ti >= 0) {
+      var x1 = xScale(pi, n, L, w - R), x2 = xScale(ti, n, L, w - R);
+      svg.appendChild(el("rect", { x: x1, y: T, width: Math.max(2, x2 - x1), height: B - T, fill: css("--neg"), "fill-opacity": .13 }));
+      var lbl = el("text", { x: (x1 + x2) / 2, y: T + 12, "text-anchor": "middle", "font-size": narrow ? 9 : 10, fill: css("--neg"), "font-weight": 700 });
+      lbl.textContent = "最大DD 12.4%";
+      svg.appendChild(lbl);
+    }
+
+    yearTickIndices(CUM.map(function (p) { return { d: p.d }; })).forEach(function (o) {
+      var tx = el("text", { x: xScale(o.i, n, L, w - R), y: h - 7, "text-anchor": "middle", "font-size": narrow ? 9 : 10, fill: css("--muted") });
+      tx.textContent = o.label;
+      svg.appendChild(tx);
+    });
+
+    var cursor2 = el("line", { y1: T, y2: B, stroke: css("--muted"), "stroke-width": 1, "stroke-dasharray": "3 3", opacity: 0 });
+    svg.appendChild(cursor2);
+
+    bindTip(host, document.getElementById("tip-cum"), svg, function (frac) {
+      var i = Math.round((frac * w - L) / ((w - R - L) || 1) * (n - 1));
+      if (i < 0 || i >= n) { cursor2.setAttribute("opacity", 0); return null; }
+      var p = CUM[i], x = xScale(i, n, L, w - R);
+      cursor2.setAttribute("x1", x); cursor2.setAttribute("x2", x); cursor2.setAttribute("opacity", 1);
+      return { xFrac: x / w, html: "<b>" + p.d + "</b><br>累積 " + p.c.toFixed(1) + " vol pt" };
+    });
+  }
+
+  // ── テーブル ────────────────────────────
+  function cell(txt, cls) {
+    var td = document.createElement("td");
+    td.className = "n" + (cls ? " " + cls : "");
+    td.textContent = txt;
+    return td;
+  }
+  (function fillYear() {
+    var tb = document.getElementById("year-tbody");
+    years.forEach(function (r) {
+      var tr = document.createElement("tr");
+      var th = document.createElement("th");
+      th.scope = "row"; th.textContent = r.year + "年";
+      th.style.textAlign = "left"; th.style.fontWeight = "600";
+      tr.appendChild(th);
+      tr.appendChild(cell(r.n));
+      tr.appendChild(cell(fmt(r.meanVrp), r.meanVrp >= 0 ? "pos" : "neg"));
+      tr.appendChild(cell(r.posPct.toFixed(1) + "%"));
+      tr.appendChild(cell(r.meanIv.toFixed(1)));
+      tr.appendChild(cell(r.meanRv.toFixed(1)));
+      tb.appendChild(tr);
+    });
+    var tr = document.createElement("tr");
+    tr.className = "total";
+    var th = document.createElement("th");
+    th.scope = "row"; th.textContent = "全期間";
+    th.style.textAlign = "left";
+    tr.appendChild(th);
+    tr.appendChild(cell(W.length));
+    tr.appendChild(cell("+12.56", "pos"));
+    tr.appendChild(cell("77.2%"));
+    var mi = W.reduce(function (a, p) { return a + p.iv; }, 0) / W.length;
+    var mr = W.reduce(function (a, p) { return a + p.rv; }, 0) / W.length;
+    tr.appendChild(cell(mi.toFixed(1)));
+    tr.appendChild(cell(mr.toFixed(1)));
+    tb.appendChild(tr);
+  })();
+
+  (function fillJoin() {
+    var tb = document.getElementById("join-tbody");
+    W.slice(-4).forEach(function (p) {
+      var tr = document.createElement("tr");
+      tr.appendChild(cell(p.d));
+      var td = document.createElement("td");
+      td.textContent = "バックテスト"; td.style.textAlign = "left"; td.style.color = "var(--muted)";
+      tr.appendChild(td);
+      tr.appendChild(cell(p.iv.toFixed(2)));
+      tr.appendChild(cell(p.rv.toFixed(2)));
+      tr.appendChild(cell(fmt(p.vrp), p.vrp >= 0 ? "pos" : "neg"));
+      tb.appendChild(tr);
+    });
+    LIVE.forEach(function (p) {
+      var tr = document.createElement("tr");
+      tr.appendChild(cell(p.d));
+      var td = document.createElement("td");
+      td.style.textAlign = "left";
+      td.textContent = p.phase === "warmup" ? "ウォームアップ" : (p.anchor === 1 ? "ライブ（週次アンカー）" : "ライブ");
+      td.style.color = p.anchor === 1 ? "var(--ink)" : "var(--muted)";
+      if (p.anchor === 1) td.style.fontWeight = "700";
+      tr.appendChild(td);
+      tr.appendChild(cell(p.iv.toFixed(2)));
+      tr.appendChild(cell(p.rv.toFixed(2)));
+      tr.appendChild(cell(fmt(p.vrp), p.vrp >= 0 ? "pos" : "neg"));
+      tb.appendChild(tr);
+    });
+  })();
+
+  (function fillAll() {
+    var tb = document.getElementById("all-tbody");
+    var cmap = {};
+    CUM.forEach(function (p) { cmap[p.d] = p.c; });
+    var frag = document.createDocumentFragment();
+    W.forEach(function (p) {
+      var tr = document.createElement("tr");
+      tr.appendChild(cell(p.d));
+      tr.appendChild(cell(p.iv.toFixed(2)));
+      tr.appendChild(cell(p.rv.toFixed(2)));
+      tr.appendChild(cell(fmt(p.vrp), p.vrp >= 0 ? "pos" : "neg"));
+      tr.appendChild(cell(cmap[p.d] !== undefined ? cmap[p.d].toFixed(1) : "—"));
+      frag.appendChild(tr);
+    });
+    tb.appendChild(frag);
+  })();
+
+  // ── 描画とリサイズ ──────────────────────
+  function renderAll() {
+    var w = Math.max(280, Math.round(document.getElementById("host-levels").clientWidth));
+    drawLevels(w);
+    drawVrp(w);
+    drawYear(Math.max(280, Math.round(document.getElementById("host-year").clientWidth)));
+    drawCum(Math.max(280, Math.round(document.getElementById("host-cum").clientWidth)));
+  }
+  renderAll();
+
+  var t = null;
+  window.addEventListener("resize", function () {
+    clearTimeout(t);
+    t = setTimeout(renderAll, 140);
+  });
+  if (window.matchMedia) {
+    var mq = window.matchMedia("(prefers-color-scheme: dark)");
+    if (mq.addEventListener) mq.addEventListener("change", renderAll);
+  }
+  new MutationObserver(renderAll).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+})();
+</script>
+</body>
+</html>
