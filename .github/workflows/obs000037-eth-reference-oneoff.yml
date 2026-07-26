@@ -39,7 +39,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          if git diff --quiet research/EXP-OBS000037/10-result/eth-reference-vrp.json research/EXP-OBS000037/10-result/eth-reference-run.log; then
+          # ⚠ 初回実行時はeth-reference-vrp.json/run.logが未追跡（新規）ファイルのため、
+          # 「git diff --quiet <path>」は追跡差分しか見ず新規ファイルを検出できずスキップしてしまう
+          # バグを踏んだ（run 30182740505・成功したのにcommitされなかった）。
+          # carry-executor-sync.ymlと同じ確立済みの是正パターン（git status --porcelain＝
+          # 未追跡ファイルも拾う）で変更有無を判定する。
+          if [ -z "$(git status --porcelain research/EXP-OBS000037/10-result/eth-reference-vrp.json research/EXP-OBS000037/10-result/eth-reference-run.log)" ]; then
             echo "No changes to ETH reference results — skipping commit"
           else
             git add research/EXP-OBS000037/10-result/eth-reference-vrp.json research/EXP-OBS000037/10-result/eth-reference-run.log
