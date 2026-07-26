@@ -1,0 +1,89 @@
+name: OBS000041 Stage 0 (ETH VRP methodology unification, US-IP)
+
+# EXP-OBS000041 Stage 0（research/EXP-OBS000041/00-spec-stage0.md）
+# G0-E1（最優先・単独分岐ゲート）+ G0-E2（満期短縮開示）+ G0-C0〜G0-C4（BTC回帰再現・同時点スナップショット・
+# C_real完全構築・CVaR/サイジング・依存性開示）を米国IP(GitHub Actions)から実行し、
+# research/EXP-OBS000041/10-result/ に生データをcommit/pushする。
+#
+# ⚠ 必須条件F（spec §0-3）: 本実験はオフライン計算に限定する。scheduleは設定しない
+#   （日次蓄積・ライブ較正ではない・workflow_dispatchのみ）。Secrets/環境変数は使わない
+#   （Deribit publicエンドポイントは認証不要）。
+# ⚠ 実行順序厳守（spec §9-5）: G0-E1（インベントリ）を必ず先に実行し、その後G0-C0〜C5を実行する。
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Set to 'true' to run without committing results"
+        required: false
+        default: "false"
+
+jobs:
+  stage0:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      contents: write   # 結果をコミット・push するために必要
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Show runner IP (diagnostic only)
+        run: curl -s https://api.ipify.org || true
+
+      - name: Run G0-E1 + G0-E2 (instrument inventory — must run first)
+        run: |
+          node --experimental-strip-types scripts/probe-deribit-instrument-inventory.ts
+
+      - name: Run G0-C0〜G0-C4 (ETH/BTC methodology unification economics)
+        run: |
+          node --experimental-strip-types scripts/vrp-eth-stage0-economics.ts
+
+      - name: Commit and push results
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # ⚠ 変更検出は git status --porcelain 方式を使う（git diff --quiet <未追跡ファイル> は
+          # 新規（未追跡）ファイルの差分を検出できずcommitをスキップしてしまうバグを踏んだ前例がある
+          # （obs000037-eth-reference-oneoff.yml run 30182740505・commit 13aeed4で是正済みのパターン）。
+          # 初回実行時、本ワークフローの成果物はすべて未追跡ファイルであるため、同じ確立済みパターンを踏襲する。
+          RESULT_PATHS="research/EXP-OBS000041/10-result/stage0-instrument-inventory.json research/EXP-OBS000041/10-result/stage0-instrument-inventory-run.log research/EXP-OBS000041/10-result/stage0-eth-vrp-series.json research/EXP-OBS000041/10-result/stage0-economics-snapshot.json research/EXP-OBS000041/10-result/stage0-economics-params.json research/EXP-OBS000041/10-result/stage0-eth-run.log"
+
+          if [ -z "$(git status --porcelain $RESULT_PATHS)" ]; then
+            echo "No changes to Stage 0 results — skipping commit"
+          else
+            git add $RESULT_PATHS
+            git commit -m "chore(obs000041): Stage 0 run (G0-E1/E2 + G0-C0-C4) from GitHub Actions (US IP) — $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+            if ! git pull --rebase origin main; then
+              git rebase --abort || true
+              echo "::warning::git pull --rebase failed (conflict). Aborted rebase."
+              exit 1
+            fi
+            git push origin main
+            echo "Committed and pushed Stage 0 results"
+          fi
+
+      - name: Upload results as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: obs000041-stage0-${{ github.run_id }}
+          path: |
+            research/EXP-OBS000041/10-result/stage0-instrument-inventory.json
+            research/EXP-OBS000041/10-result/stage0-instrument-inventory-run.log
+            research/EXP-OBS000041/10-result/stage0-eth-vrp-series.json
+            research/EXP-OBS000041/10-result/stage0-economics-snapshot.json
+            research/EXP-OBS000041/10-result/stage0-economics-params.json
+            research/EXP-OBS000041/10-result/stage0-eth-run.log
+          retention-days: 30
