@@ -1,0 +1,4365 @@
+{
+  "experiment": "EXP-OBS000041",
+  "stage": "Stage 0",
+  "gate": "G0-C1 + G0-C2 + G0-C3 + G0-C4",
+  "scriptPath": "scripts/vrp-eth-stage0-economics.ts",
+  "specReference": "research/EXP-OBS000041/00-spec-stage0.md §3-4〜§3-7, §5-2",
+  "executedBy": "B実装チーム (Quant Researcher)",
+  "runTimestampUTC": "2026-07-26T03:34:10.910Z",
+  "gitCommit": "4f5a5d8397c154b1b4a35270021a0f2409d98a6a",
+  "nodeVersion": "v22.23.1",
+  "params": {
+    "anchorDateBtc": "2021-03-24",
+    "weeklyStepDays": 7,
+    "rvForwardReturnCount": 7,
+    "annualizationRv": 19.1049731745428,
+    "minResidualDaysForRepresentativeMaturity": 7,
+    "atmDeltaRange": [
+      0.35,
+      0.65
+    ],
+    "optionPremiumCapRate": 0.125,
+    "hedgeRebalancesPerWeek": 7,
+    "cvarTailFraction": 0.05,
+    "weeklyRiskBudget": 0.02,
+    "fFraction_main": 0.5,
+    "fFraction_reference": 1,
+    "slippageNotionalUsdPrimary": 100000,
+    "slippageNotionalUsdReference": 10000,
+    "orderBookDepth": 50,
+    "tailWindows": {
+      "T2": {
+        "start": "2022-05-01",
+        "end": "2022-06-30",
+        "label": "LUNA/UST崩壊"
+      },
+      "T3": {
+        "start": "2022-10-25",
+        "end": "2022-12-15",
+        "label": "FTX破綻"
+      }
+    },
+    "officialFeePageUrl": "https://www.deribit.com/kb/fees",
+    "requestSleepMs": 180,
+    "c1SamenessMaxMinutes": 30
+  },
+  "g0c1_sameTimeSnapshot": {
+    "runIdentifier": "2026-07-26T03:34:10.910Z",
+    "btc": {
+      "snapshotStartUTC": "2026-07-26T03:34:13.267Z",
+      "snapshotEndUTC": "2026-07-26T03:34:21.361Z",
+      "selectionMethod": "deltaRange",
+      "unavailableReason": null,
+      "selectedExpiryIso": "2026-08-07T08:00:00.000Z",
+      "residualDays": 12.184595833333333,
+      "selectedStrike": 65000,
+      "indexPriceAtSelection": 64507,
+      "call": {
+        "instrumentName": "BTC-7AUG26-65000-C",
+        "indexPrice": 64507,
+        "markPrice": 0.0226,
+        "bestBid": 0.022,
+        "bestAsk": 0.023,
+        "greeks": {
+          "delta": 0.47285,
+          "gamma": 0.0001,
+          "vega": 46.96644,
+          "theta": -67.63859
+        },
+        "openInterest": 131.7,
+        "snapshotUtc": "2026-07-26T03:34:16.894Z"
+      },
+      "put": {
+        "instrumentName": "BTC-7AUG26-65000-P",
+        "indexPrice": 64507.71,
+        "markPrice": 0.029,
+        "bestBid": 0.0285,
+        "bestAsk": 0.0295,
+        "greeks": {
+          "delta": -0.52712,
+          "gamma": 0.0001,
+          "vega": 46.96691,
+          "theta": -67.63789
+        },
+        "openInterest": 72.1,
+        "snapshotUtc": "2026-07-26T03:34:20.673Z"
+      },
+      "candidateLog": [
+        {
+          "strike": 53000,
+          "delta": 0.97893,
+          "instrumentName": "BTC-7AUG26-53000-C"
+        },
+        {
+          "strike": 55000,
+          "delta": 0.96434,
+          "instrumentName": "BTC-7AUG26-55000-C"
+        },
+        {
+          "strike": 58000,
+          "delta": 0.91634,
+          "instrumentName": "BTC-7AUG26-58000-C"
+        },
+        {
+          "strike": 60000,
+          "delta": 0.84958,
+          "instrumentName": "BTC-7AUG26-60000-C"
+        },
+        {
+          "strike": 61000,
+          "delta": 0.79725,
+          "instrumentName": "BTC-7AUG26-61000-C"
+        },
+        {
+          "strike": 62000,
+          "delta": 0.73528,
+          "instrumentName": "BTC-7AUG26-62000-C"
+        },
+        {
+          "strike": 63000,
+          "delta": 0.65701,
+          "instrumentName": "BTC-7AUG26-63000-C"
+        },
+        {
+          "strike": 64000,
+          "delta": 0.56821,
+          "instrumentName": "BTC-7AUG26-64000-C"
+        },
+        {
+          "strike": 65000,
+          "delta": 0.47285,
+          "instrumentName": "BTC-7AUG26-65000-C"
+        },
+        {
+          "strike": 66000,
+          "delta": 0.37741,
+          "instrumentName": "BTC-7AUG26-66000-C"
+        },
+        {
+          "strike": 67000,
+          "delta": 0.28973,
+          "instrumentName": "BTC-7AUG26-67000-C"
+        },
+        {
+          "strike": 68000,
+          "delta": 0.21256,
+          "instrumentName": "BTC-7AUG26-68000-C"
+        },
+        {
+          "strike": 69000,
+          "delta": 0.15194,
+          "instrumentName": "BTC-7AUG26-69000-C"
+        },
+        {
+          "strike": 70000,
+          "delta": 0.11046,
+          "instrumentName": "BTC-7AUG26-70000-C"
+        },
+        {
+          "strike": 71000,
+          "delta": 0.08,
+          "instrumentName": "BTC-7AUG26-71000-C"
+        },
+        {
+          "strike": 72000,
+          "delta": 0.05916,
+          "instrumentName": "BTC-7AUG26-72000-C"
+        },
+        {
+          "strike": 75000,
+          "delta": 0.02641,
+          "instrumentName": "BTC-7AUG26-75000-C"
+        },
+        {
+          "strike": 77000,
+          "delta": 0.01926,
+          "instrumentName": "BTC-7AUG26-77000-C"
+        },
+        {
+          "strike": 80000,
+          "delta": 0.01243,
+          "instrumentName": "BTC-7AUG26-80000-C"
+        }
+      ],
+      "diagLog": [
+        {
+          "instrumentName": "BTC-7AUG26-53000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-55000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-58000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-60000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-61000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-62000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-63000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-64000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-65000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-66000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-67000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-68000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-69000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-70000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-71000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-72000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-75000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-77000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-80000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "BTC-7AUG26-65000-P",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        }
+      ],
+      "perpTicker": null,
+      "perpOrderBook": {
+        "instrumentName": "BTC-PERPETUAL",
+        "requestUrl": "https://www.deribit.com/api/v2/public/get_order_book?instrument_name=BTC-PERPETUAL&depth=50",
+        "status": 200,
+        "bids": [
+          {
+            "price": 64526,
+            "size": 35390
+          },
+          {
+            "price": 64524.5,
+            "size": 10010
+          },
+          {
+            "price": 64523,
+            "size": 16280
+          },
+          {
+            "price": 64522.5,
+            "size": 13870
+          },
+          {
+            "price": 64522,
+            "size": 30020
+          },
+          {
+            "price": 64521.5,
+            "size": 6000
+          },
+          {
+            "price": 64521,
+            "size": 19310
+          },
+          {
+            "price": 64520.5,
+            "size": 490
+          },
+          {
+            "price": 64520,
+            "size": 36290
+          },
+          {
+            "price": 64519.5,
+            "size": 7900
+          },
+          {
+            "price": 64519,
+            "size": 8100
+          },
+          {
+            "price": 64518.5,
+            "size": 6000
+          },
+          {
+            "price": 64518,
+            "size": 4020
+          },
+          {
+            "price": 64517.5,
+            "size": 6010
+          },
+          {
+            "price": 64517,
+            "size": 10
+          },
+          {
+            "price": 64516.5,
+            "size": 6000
+          },
+          {
+            "price": 64511.5,
+            "size": 600
+          },
+          {
+            "price": 64511,
+            "size": 960
+          },
+          {
+            "price": 64510.5,
+            "size": 200
+          },
+          {
+            "price": 64509.5,
+            "size": 10
+          },
+          {
+            "price": 64508,
+            "size": 10250
+          },
+          {
+            "price": 64507.5,
+            "size": 33190
+          },
+          {
+            "price": 64507,
+            "size": 19600
+          },
+          {
+            "price": 64506.5,
+            "size": 91540
+          },
+          {
+            "price": 64502.5,
+            "size": 50000
+          },
+          {
+            "price": 64502,
+            "size": 11810
+          },
+          {
+            "price": 64501.5,
+            "size": 36950
+          },
+          {
+            "price": 64501,
+            "size": 2500
+          },
+          {
+            "price": 64500.5,
+            "size": 70
+          },
+          {
+            "price": 64497,
+            "size": 2000
+          },
+          {
+            "price": 64494.5,
+            "size": 10
+          },
+          {
+            "price": 64493,
+            "size": 280
+          },
+          {
+            "price": 64491,
+            "size": 25080
+          },
+          {
+            "price": 64490.5,
+            "size": 84000
+          },
+          {
+            "price": 64489.5,
+            "size": 10
+          },
+          {
+            "price": 64487.5,
+            "size": 2880
+          },
+          {
+            "price": 64487,
+            "size": 10
+          },
+          {
+            "price": 64484,
+            "size": 57440
+          },
+          {
+            "price": 64483.5,
+            "size": 188090
+          },
+          {
+            "price": 64482,
+            "size": 5000
+          },
+          {
+            "price": 64480.5,
+            "size": 90
+          },
+          {
+            "price": 64480,
+            "size": 1290
+          },
+          {
+            "price": 64479.5,
+            "size": 10
+          },
+          {
+            "price": 64478.5,
+            "size": 9710
+          },
+          {
+            "price": 64477.5,
+            "size": 19590
+          },
+          {
+            "price": 64477,
+            "size": 9840
+          },
+          {
+            "price": 64476.5,
+            "size": 5000
+          },
+          {
+            "price": 64472,
+            "size": 5390
+          },
+          {
+            "price": 64471.5,
+            "size": 6000
+          },
+          {
+            "price": 64470.5,
+            "size": 6000
+          }
+        ],
+        "asks": [
+          {
+            "price": 64526.5,
+            "size": 123300
+          },
+          {
+            "price": 64527,
+            "size": 26990
+          },
+          {
+            "price": 64528,
+            "size": 500
+          },
+          {
+            "price": 64528.5,
+            "size": 13000
+          },
+          {
+            "price": 64529.5,
+            "size": 30010
+          },
+          {
+            "price": 64530.5,
+            "size": 3220
+          },
+          {
+            "price": 64532,
+            "size": 1970
+          },
+          {
+            "price": 64532.5,
+            "size": 6600
+          },
+          {
+            "price": 64533,
+            "size": 12750
+          },
+          {
+            "price": 64536,
+            "size": 36970
+          },
+          {
+            "price": 64536.5,
+            "size": 21120
+          },
+          {
+            "price": 64537,
+            "size": 19600
+          },
+          {
+            "price": 64538.5,
+            "size": 2000
+          },
+          {
+            "price": 64539,
+            "size": 48640
+          },
+          {
+            "price": 64541,
+            "size": 960
+          },
+          {
+            "price": 64542,
+            "size": 1440
+          },
+          {
+            "price": 64542.5,
+            "size": 360
+          },
+          {
+            "price": 64543.5,
+            "size": 3220
+          },
+          {
+            "price": 64545,
+            "size": 1290
+          },
+          {
+            "price": 64545.5,
+            "size": 30
+          },
+          {
+            "price": 64546.5,
+            "size": 1530
+          },
+          {
+            "price": 64547,
+            "size": 5000
+          },
+          {
+            "price": 64547.5,
+            "size": 110
+          },
+          {
+            "price": 64549.5,
+            "size": 33220
+          },
+          {
+            "price": 64550,
+            "size": 17650
+          },
+          {
+            "price": 64550.5,
+            "size": 2000
+          },
+          {
+            "price": 64551,
+            "size": 130420
+          },
+          {
+            "price": 64551.5,
+            "size": 43960
+          },
+          {
+            "price": 64552.5,
+            "size": 10
+          },
+          {
+            "price": 64553.5,
+            "size": 84010
+          },
+          {
+            "price": 64556,
+            "size": 10
+          },
+          {
+            "price": 64557.5,
+            "size": 10
+          },
+          {
+            "price": 64559,
+            "size": 4840
+          },
+          {
+            "price": 64559.5,
+            "size": 5080
+          },
+          {
+            "price": 64560,
+            "size": 11150
+          },
+          {
+            "price": 64560.5,
+            "size": 1260
+          },
+          {
+            "price": 64561,
+            "size": 4210
+          },
+          {
+            "price": 64564.5,
+            "size": 2880
+          },
+          {
+            "price": 64565.5,
+            "size": 100
+          },
+          {
+            "price": 64566,
+            "size": 26870
+          },
+          {
+            "price": 64568,
+            "size": 5000
+          },
+          {
+            "price": 64568.5,
+            "size": 40000
+          },
+          {
+            "price": 64569,
+            "size": 50000
+          },
+          {
+            "price": 64569.5,
+            "size": 120
+          },
+          {
+            "price": 64570,
+            "size": 180
+          },
+          {
+            "price": 64570.5,
+            "size": 1290
+          },
+          {
+            "price": 64571,
+            "size": 4210
+          },
+          {
+            "price": 64572.5,
+            "size": 67970
+          },
+          {
+            "price": 64573,
+            "size": 2000
+          },
+          {
+            "price": 64573.5,
+            "size": 50000
+          }
+        ],
+        "bestBid": 64526,
+        "bestAsk": 64526.5,
+        "midPrice": 64526.25,
+        "spreadBps": 0.07748784409445768,
+        "snapshotUtc": "2026-07-26T03:34:21.361Z"
+      }
+    },
+    "eth": {
+      "snapshotStartUTC": "2026-07-26T03:34:21.361Z",
+      "snapshotEndUTC": "2026-07-26T03:34:27.406Z",
+      "selectionMethod": "deltaRange",
+      "unavailableReason": null,
+      "selectedExpiryIso": "2026-08-07T08:00:00.000Z",
+      "residualDays": 12.184595833333333,
+      "selectedStrike": 1900,
+      "indexPriceAtSelection": 1881.78,
+      "call": {
+        "instrumentName": "ETH-7AUG26-1900-C",
+        "indexPrice": 1881.78,
+        "markPrice": 0.0311,
+        "bestBid": 0.0305,
+        "bestAsk": 0.0315,
+        "greeks": {
+          "delta": 0.47506,
+          "gamma": 0.00238,
+          "vega": 1.36912,
+          "theta": -2.73465
+        },
+        "openInterest": 1017,
+        "snapshotUtc": "2026-07-26T03:34:24.289Z"
+      },
+      "put": {
+        "instrumentName": "ETH-7AUG26-1900-P",
+        "indexPrice": 1881.74,
+        "markPrice": 0.0406,
+        "bestBid": 0.04,
+        "bestAsk": 0.0415,
+        "greeks": {
+          "delta": -0.52504,
+          "gamma": 0.00238,
+          "vega": 1.36907,
+          "theta": -2.73454
+        },
+        "openInterest": 930,
+        "snapshotUtc": "2026-07-26T03:34:26.720Z"
+      },
+      "candidateLog": [
+        {
+          "strike": 1400,
+          "delta": 0.98526,
+          "instrumentName": "ETH-7AUG26-1400-C"
+        },
+        {
+          "strike": 1600,
+          "delta": 0.93804,
+          "instrumentName": "ETH-7AUG26-1600-C"
+        },
+        {
+          "strike": 1700,
+          "delta": 0.86038,
+          "instrumentName": "ETH-7AUG26-1700-C"
+        },
+        {
+          "strike": 1750,
+          "delta": 0.79469,
+          "instrumentName": "ETH-7AUG26-1750-C"
+        },
+        {
+          "strike": 1800,
+          "delta": 0.70373,
+          "instrumentName": "ETH-7AUG26-1800-C"
+        },
+        {
+          "strike": 1850,
+          "delta": 0.59363,
+          "instrumentName": "ETH-7AUG26-1850-C"
+        },
+        {
+          "strike": 1900,
+          "delta": 0.47506,
+          "instrumentName": "ETH-7AUG26-1900-C"
+        },
+        {
+          "strike": 1950,
+          "delta": 0.36158,
+          "instrumentName": "ETH-7AUG26-1950-C"
+        },
+        {
+          "strike": 2000,
+          "delta": 0.26411,
+          "instrumentName": "ETH-7AUG26-2000-C"
+        },
+        {
+          "strike": 2050,
+          "delta": 0.18812,
+          "instrumentName": "ETH-7AUG26-2050-C"
+        },
+        {
+          "strike": 2100,
+          "delta": 0.13352,
+          "instrumentName": "ETH-7AUG26-2100-C"
+        },
+        {
+          "strike": 2200,
+          "delta": 0.07109,
+          "instrumentName": "ETH-7AUG26-2200-C"
+        },
+        {
+          "strike": 2400,
+          "delta": 0.027,
+          "instrumentName": "ETH-7AUG26-2400-C"
+        }
+      ],
+      "diagLog": [
+        {
+          "instrumentName": "ETH-7AUG26-1400-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "ETH-7AUG26-1600-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "ETH-7AUG26-1700-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "ETH-7AUG26-1750-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "ETH-7AUG26-1800-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "ETH-7AUG26-1850-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "ETH-7AUG26-1900-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "ETH-7AUG26-1950-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "ETH-7AUG26-2000-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "ETH-7AUG26-2050-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "ETH-7AUG26-2100-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "ETH-7AUG26-2200-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "ETH-7AUG26-2400-C",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        },
+        {
+          "instrumentName": "ETH-7AUG26-1900-P",
+          "httpStatus": 200,
+          "hasResult": true,
+          "hasGreeks": true
+        }
+      ],
+      "perpTicker": null,
+      "perpOrderBook": {
+        "instrumentName": "ETH-PERPETUAL",
+        "requestUrl": "https://www.deribit.com/api/v2/public/get_order_book?instrument_name=ETH-PERPETUAL&depth=50",
+        "status": 200,
+        "bids": [
+          {
+            "price": 1881.9,
+            "size": 11195
+          },
+          {
+            "price": 1881.75,
+            "size": 9220
+          },
+          {
+            "price": 1881.7,
+            "size": 31384
+          },
+          {
+            "price": 1881.65,
+            "size": 21000
+          },
+          {
+            "price": 1881.55,
+            "size": 3000
+          },
+          {
+            "price": 1881.45,
+            "size": 80
+          },
+          {
+            "price": 1881.35,
+            "size": 3904
+          },
+          {
+            "price": 1881.3,
+            "size": 15775
+          },
+          {
+            "price": 1881.25,
+            "size": 7790
+          },
+          {
+            "price": 1881.2,
+            "size": 20294
+          },
+          {
+            "price": 1881.15,
+            "size": 5300
+          },
+          {
+            "price": 1881.1,
+            "size": 7859
+          },
+          {
+            "price": 1881.05,
+            "size": 300
+          },
+          {
+            "price": 1881,
+            "size": 41528
+          },
+          {
+            "price": 1880.95,
+            "size": 7050
+          },
+          {
+            "price": 1880.9,
+            "size": 67280
+          },
+          {
+            "price": 1880.85,
+            "size": 80
+          },
+          {
+            "price": 1880.8,
+            "size": 7050
+          },
+          {
+            "price": 1880.75,
+            "size": 7233
+          },
+          {
+            "price": 1880.65,
+            "size": 19455
+          },
+          {
+            "price": 1880.6,
+            "size": 88068
+          },
+          {
+            "price": 1880.55,
+            "size": 45350
+          },
+          {
+            "price": 1880.5,
+            "size": 17570
+          },
+          {
+            "price": 1880.45,
+            "size": 1240
+          },
+          {
+            "price": 1880.4,
+            "size": 330
+          },
+          {
+            "price": 1880.35,
+            "size": 300
+          },
+          {
+            "price": 1880.2,
+            "size": 1244
+          },
+          {
+            "price": 1880.05,
+            "size": 300
+          },
+          {
+            "price": 1880,
+            "size": 1726
+          },
+          {
+            "price": 1879.95,
+            "size": 12010
+          },
+          {
+            "price": 1879.9,
+            "size": 40236
+          },
+          {
+            "price": 1879.8,
+            "size": 30
+          },
+          {
+            "price": 1879.75,
+            "size": 680
+          },
+          {
+            "price": 1879.55,
+            "size": 300
+          },
+          {
+            "price": 1879.5,
+            "size": 947
+          },
+          {
+            "price": 1879.45,
+            "size": 300
+          },
+          {
+            "price": 1879.35,
+            "size": 300
+          },
+          {
+            "price": 1879.3,
+            "size": 40238
+          },
+          {
+            "price": 1879.25,
+            "size": 134700
+          },
+          {
+            "price": 1879.2,
+            "size": 100
+          },
+          {
+            "price": 1879.05,
+            "size": 1500
+          },
+          {
+            "price": 1879,
+            "size": 14245
+          },
+          {
+            "price": 1878.95,
+            "size": 40000
+          },
+          {
+            "price": 1878.9,
+            "size": 300
+          },
+          {
+            "price": 1878.7,
+            "size": 13895
+          },
+          {
+            "price": 1878.65,
+            "size": 45050
+          },
+          {
+            "price": 1878.6,
+            "size": 66189
+          },
+          {
+            "price": 1878.55,
+            "size": 221739
+          },
+          {
+            "price": 1878.45,
+            "size": 600000
+          },
+          {
+            "price": 1878.25,
+            "size": 24
+          }
+        ],
+        "asks": [
+          {
+            "price": 1881.95,
+            "size": 7378
+          },
+          {
+            "price": 1882,
+            "size": 63984
+          },
+          {
+            "price": 1882.25,
+            "size": 941
+          },
+          {
+            "price": 1882.3,
+            "size": 7363
+          },
+          {
+            "price": 1882.35,
+            "size": 13176
+          },
+          {
+            "price": 1882.4,
+            "size": 13176
+          },
+          {
+            "price": 1882.5,
+            "size": 2130
+          },
+          {
+            "price": 1882.55,
+            "size": 2000
+          },
+          {
+            "price": 1882.6,
+            "size": 5002
+          },
+          {
+            "price": 1882.65,
+            "size": 600
+          },
+          {
+            "price": 1882.7,
+            "size": 14899
+          },
+          {
+            "price": 1882.75,
+            "size": 55900
+          },
+          {
+            "price": 1882.8,
+            "size": 30
+          },
+          {
+            "price": 1882.9,
+            "size": 1538
+          },
+          {
+            "price": 1882.95,
+            "size": 5000
+          },
+          {
+            "price": 1883,
+            "size": 151
+          },
+          {
+            "price": 1883.05,
+            "size": 6750
+          },
+          {
+            "price": 1883.1,
+            "size": 11289
+          },
+          {
+            "price": 1883.15,
+            "size": 20014
+          },
+          {
+            "price": 1883.2,
+            "size": 17804
+          },
+          {
+            "price": 1883.25,
+            "size": 6750
+          },
+          {
+            "price": 1883.3,
+            "size": 40
+          },
+          {
+            "price": 1883.35,
+            "size": 5000
+          },
+          {
+            "price": 1883.4,
+            "size": 15369
+          },
+          {
+            "price": 1883.45,
+            "size": 28835
+          },
+          {
+            "price": 1883.5,
+            "size": 3833
+          },
+          {
+            "price": 1883.55,
+            "size": 13732
+          },
+          {
+            "price": 1883.6,
+            "size": 36884
+          },
+          {
+            "price": 1883.65,
+            "size": 47439
+          },
+          {
+            "price": 1883.7,
+            "size": 83008
+          },
+          {
+            "price": 1883.75,
+            "size": 100
+          },
+          {
+            "price": 1883.85,
+            "size": 1700
+          },
+          {
+            "price": 1883.9,
+            "size": 25870
+          },
+          {
+            "price": 1883.95,
+            "size": 45939
+          },
+          {
+            "price": 1884,
+            "size": 40729
+          },
+          {
+            "price": 1884.1,
+            "size": 5594
+          },
+          {
+            "price": 1884.15,
+            "size": 18742
+          },
+          {
+            "price": 1884.3,
+            "size": 1994
+          },
+          {
+            "price": 1884.35,
+            "size": 6465
+          },
+          {
+            "price": 1884.4,
+            "size": 6230
+          },
+          {
+            "price": 1884.5,
+            "size": 32812
+          },
+          {
+            "price": 1884.55,
+            "size": 40000
+          },
+          {
+            "price": 1884.9,
+            "size": 134501
+          },
+          {
+            "price": 1885,
+            "size": 42
+          },
+          {
+            "price": 1885.25,
+            "size": 17
+          },
+          {
+            "price": 1885.35,
+            "size": 27864
+          },
+          {
+            "price": 1885.4,
+            "size": 1000000
+          },
+          {
+            "price": 1885.6,
+            "size": 249902
+          },
+          {
+            "price": 1885.75,
+            "size": 68
+          },
+          {
+            "price": 1885.95,
+            "size": 40612
+          }
+        ],
+        "bestBid": 1881.9,
+        "bestAsk": 1881.95,
+        "midPrice": 1881.9250000000002,
+        "spreadBps": 0.26568540191535006,
+        "snapshotUtc": "2026-07-26T03:34:27.406Z"
+      }
+    },
+    "c1_2_sameness": {
+      "diffMinutes": 0,
+      "sameUtcDay": true,
+      "thresholdMinutes": 30
+    },
+    "c1_3_fallbackUsedCount": 0,
+    "c1_4_residualDaysComparison": {
+      "btcResidualDays": 12.184595833333333,
+      "ethResidualDays": 12.184595833333333,
+      "ratio": 1,
+      "sqrtRatio": 1
+    }
+  },
+  "g0c2_cRealConstruction": {
+    "officialFeePageProbe": {
+      "url": "https://www.deribit.com/kb/fees",
+      "status": 200,
+      "bodyLength": 12155,
+      "fetchSucceeded": true
+    },
+    "c2_1_commissionRates": {
+      "btc": {
+        "optionCall": {
+          "callPremiumUsd": 1457.8582,
+          "putPremiumUsd": 1870.7030000000002,
+          "callFeeUsd": 19.3521,
+          "putFeeUsd": 19.3521,
+          "callHalfSpreadUsd": 32.25350000000003,
+          "putHalfSpreadUsd": 32.25349999999992,
+          "perRoundCostUsd": 103.21119999999995,
+          "callTakerCommissionRate": 0.0003,
+          "putTakerCommissionRate": 0.0003,
+          "callMakerCommissionRate": 0.0003,
+          "putMakerCommissionRate": 0.0003,
+          "callMinTradeAmount": 0.1,
+          "putMinTradeAmount": 0.1,
+          "callContractSize": 1,
+          "note": "C_options = [(手数料+半スプレッド)×(call+put)] × 2ラウンド(entry+exit) の合計USD ÷ (call vega + put vega)。手数料率は資産別に get_instruments から実測（spec D7・BTCの0.0003流用禁止）。"
+        },
+        "perp": {
+          "taker": 0.0005,
+          "maker": 0
+        }
+      },
+      "eth": {
+        "optionCall": {
+          "callPremiumUsd": 58.523357999999995,
+          "putPremiumUsd": 76.400268,
+          "callFeeUsd": 0.564534,
+          "putFeeUsd": 0.564534,
+          "callHalfSpreadUsd": 0.9408900000000008,
+          "putHalfSpreadUsd": 1.4113350000000013,
+          "perRoundCostUsd": 3.4812930000000017,
+          "callTakerCommissionRate": 0.0003,
+          "putTakerCommissionRate": 0.0003,
+          "callMakerCommissionRate": 0.0003,
+          "putMakerCommissionRate": 0.0003,
+          "callMinTradeAmount": 1,
+          "putMinTradeAmount": 1,
+          "callContractSize": 1,
+          "note": "C_options = [(手数料+半スプレッド)×(call+put)] × 2ラウンド(entry+exit) の合計USD ÷ (call vega + put vega)。手数料率は資産別に get_instruments から実測（spec D7・BTCの0.0003流用禁止）。"
+        },
+        "perp": {
+          "taker": 0.0005,
+          "maker": 0
+        }
+      },
+      "note": "ETHの手数料率はBTC値を流用せず get_instruments から資産別に実測（spec D7・§9-7）。"
+    },
+    "c2_2_spreadSlippage": {
+      "btc": {
+        "optionSpread": {
+          "callBidAsk": [
+            0.022,
+            0.023
+          ],
+          "putBidAsk": [
+            0.0285,
+            0.0295
+          ]
+        },
+        "perpSpreadBps": 0.07748784409445768,
+        "slippagePrimary100k": {
+          "filledNotionalUsd": 100000,
+          "avgFillPrice": 64526.5,
+          "slippageBps": 0.03874392204722884
+        },
+        "slippageReference10k": {
+          "filledNotionalUsd": 10000,
+          "avgFillPrice": 64526.5,
+          "slippageBps": 0.03874392204722884
+        }
+      },
+      "eth": {
+        "optionSpread": {
+          "callBidAsk": [
+            0.0305,
+            0.0315
+          ],
+          "putBidAsk": [
+            0.04,
+            0.0415
+          ]
+        },
+        "perpSpreadBps": 0.26568540191535006,
+        "slippagePrimary100k": {
+          "filledNotionalUsd": 100000,
+          "avgFillPrice": 1881.95,
+          "slippageBps": 0.13284270095707093
+        },
+        "slippageReference10k": {
+          "filledNotionalUsd": 10000,
+          "avgFillPrice": 1881.95,
+          "slippageBps": 0.13284270095707093
+        }
+      }
+    },
+    "c2_3_hedgeCost": {
+      "btc": {
+        "meanCostVolPt": 0.5381563804629919,
+        "stdCostVolPt": 0.5099879312213909,
+        "minCostVolPt": 0.007376134832054048,
+        "maxCostVolPt": 3.492176025160462,
+        "validWeeks": 278,
+        "skippedWeeks": 0,
+        "perWeek": [
+          {
+            "date": "2021-03-24",
+            "hedgeUsd": 41.52387860705382,
+            "costVolPt": 0.4420568265376868
+          },
+          {
+            "date": "2021-03-31",
+            "hedgeUsd": 33.55702698543616,
+            "costVolPt": 0.35724294923407035
+          },
+          {
+            "date": "2021-04-07",
+            "hedgeUsd": 67.32351001705555,
+            "costVolPt": 0.7167157353278208
+          },
+          {
+            "date": "2021-04-14",
+            "hedgeUsd": 81.75505445031479,
+            "costVolPt": 0.8703517382305092
+          },
+          {
+            "date": "2021-04-21",
+            "hedgeUsd": 71.74654199625637,
+            "costVolPt": 0.7638026536502358
+          },
+          {
+            "date": "2021-04-28",
+            "hedgeUsd": 73.45514029150006,
+            "costVolPt": 0.7819921283708083
+          },
+          {
+            "date": "2021-05-05",
+            "hedgeUsd": 83.73406921234769,
+            "costVolPt": 0.8914200250746694
+          },
+          {
+            "date": "2021-05-12",
+            "hedgeUsd": 57.80500288842332,
+            "costVolPt": 0.6153831720940787
+          },
+          {
+            "date": "2021-05-19",
+            "hedgeUsd": 42.200032049976755,
+            "costVolPt": 0.4492550521191543
+          },
+          {
+            "date": "2021-05-26",
+            "hedgeUsd": 19.538397547488422,
+            "costVolPt": 0.20800277587766672
+          },
+          {
+            "date": "2021-06-02",
+            "hedgeUsd": 41.987668329604716,
+            "costVolPt": 0.44699426060717223
+          },
+          {
+            "date": "2021-06-09",
+            "hedgeUsd": 32.72304376793262,
+            "costVolPt": 0.3483644921418498
+          },
+          {
+            "date": "2021-06-16",
+            "hedgeUsd": 31.804026262095363,
+            "costVolPt": 0.33858077309172263
+          },
+          {
+            "date": "2021-06-23",
+            "hedgeUsd": 39.5951847960486,
+            "costVolPt": 0.42152424880033135
+          },
+          {
+            "date": "2021-06-30",
+            "hedgeUsd": 22.468249695441777,
+            "costVolPt": 0.2391935313223874
+          },
+          {
+            "date": "2021-07-07",
+            "hedgeUsd": 17.6114432838186,
+            "costVolPt": 0.18748871709375425
+          },
+          {
+            "date": "2021-07-14",
+            "hedgeUsd": 16.678046865543095,
+            "costVolPt": 0.17755192235285014
+          },
+          {
+            "date": "2021-07-21",
+            "hedgeUsd": 37.75937108375613,
+            "costVolPt": 0.4019804583117299
+          },
+          {
+            "date": "2021-07-28",
+            "hedgeUsd": 28.96551344916846,
+            "costVolPt": 0.30836240216247435
+          },
+          {
+            "date": "2021-08-04",
+            "hedgeUsd": 47.95063484133105,
+            "costVolPt": 0.5104750851676327
+          },
+          {
+            "date": "2021-08-11",
+            "hedgeUsd": 39.54206602228163,
+            "costVolPt": 0.42095875450286435
+          },
+          {
+            "date": "2021-08-18",
+            "hedgeUsd": 43.04969838344618,
+            "costVolPt": 0.4583004692523601
+          },
+          {
+            "date": "2021-08-25",
+            "hedgeUsd": 32.544980178905874,
+            "costVolPt": 0.3464688545538499
+          },
+          {
+            "date": "2021-09-01",
+            "hedgeUsd": 61.223023301313425,
+            "costVolPt": 0.6517708918218442
+          },
+          {
+            "date": "2021-09-08",
+            "hedgeUsd": 30.020913116283584,
+            "costVolPt": 0.31959802473012605
+          },
+          {
+            "date": "2021-09-15",
+            "hedgeUsd": 42.59138143116803,
+            "costVolPt": 0.45342129745365234
+          },
+          {
+            "date": "2021-09-22",
+            "hedgeUsd": 43.36986049650288,
+            "costVolPt": 0.4617088658767401
+          },
+          {
+            "date": "2021-09-29",
+            "hedgeUsd": 59.20565743580859,
+            "costVolPt": 0.6302943250273582
+          },
+          {
+            "date": "2021-10-06",
+            "hedgeUsd": 46.004118844893554,
+            "costVolPt": 0.4897527751846768
+          },
+          {
+            "date": "2021-10-13",
+            "hedgeUsd": 65.94661732577005,
+            "costVolPt": 0.7020575474607267
+          },
+          {
+            "date": "2021-10-20",
+            "hedgeUsd": 61.96530523506954,
+            "costVolPt": 0.6596731111481657
+          },
+          {
+            "date": "2021-10-27",
+            "hedgeUsd": 47.90324321997782,
+            "costVolPt": 0.5099705612541001
+          },
+          {
+            "date": "2021-11-03",
+            "hedgeUsd": 75.25326307529009,
+            "costVolPt": 0.8011346670302943
+          },
+          {
+            "date": "2021-11-10",
+            "hedgeUsd": 54.58056931582107,
+            "costVolPt": 0.5810563481002337
+          },
+          {
+            "date": "2021-11-17",
+            "hedgeUsd": 65.68333495788875,
+            "costVolPt": 0.6992546838571045
+          },
+          {
+            "date": "2021-11-24",
+            "hedgeUsd": 48.94258680425749,
+            "costVolPt": 0.5210352532328241
+          },
+          {
+            "date": "2021-12-01",
+            "hedgeUsd": 78.36903028404816,
+            "costVolPt": 0.834304645624245
+          },
+          {
+            "date": "2021-12-08",
+            "hedgeUsd": 39.318412939274715,
+            "costVolPt": 0.41857777817223296
+          },
+          {
+            "date": "2021-12-15",
+            "hedgeUsd": 41.29388686438465,
+            "costVolPt": 0.43960836981098467
+          },
+          {
+            "date": "2021-12-22",
+            "hedgeUsd": 42.980398138281416,
+            "costVolPt": 0.4575627094986117
+          },
+          {
+            "date": "2021-12-29",
+            "hedgeUsd": 19.13904609622973,
+            "costVolPt": 0.20375134173570655
+          },
+          {
+            "date": "2022-01-05",
+            "hedgeUsd": 16.040288065550357,
+            "costVolPt": 0.1707624402360861
+          },
+          {
+            "date": "2022-01-12",
+            "hedgeUsd": 19.0553506145033,
+            "costVolPt": 0.2028603325070734
+          },
+          {
+            "date": "2022-01-19",
+            "hedgeUsd": 42.11434329884737,
+            "costVolPt": 0.44834282285096166
+          },
+          {
+            "date": "2022-01-26",
+            "hedgeUsd": 22.933084288828677,
+            "costVolPt": 0.24414208892612346
+          },
+          {
+            "date": "2022-02-02",
+            "hedgeUsd": 39.83327160297505,
+            "costVolPt": 0.4240588843363412
+          },
+          {
+            "date": "2022-02-09",
+            "hedgeUsd": 20.177271008387574,
+            "costVolPt": 0.2148041245030394
+          },
+          {
+            "date": "2022-02-16",
+            "hedgeUsd": 48.15711870384243,
+            "costVolPt": 0.512673280616974
+          },
+          {
+            "date": "2022-02-23",
+            "hedgeUsd": 46.101968027084915,
+            "costVolPt": 0.4907944625320498
+          },
+          {
+            "date": "2022-03-02",
+            "hedgeUsd": 52.19369980824955,
+            "costVolPt": 0.5556461023507577
+          },
+          {
+            "date": "2022-03-09",
+            "hedgeUsd": 12.693518541717518,
+            "costVolPt": 0.1351332465169987
+          },
+          {
+            "date": "2022-03-16",
+            "hedgeUsd": 18.941315568887177,
+            "costVolPt": 0.2016463329465752
+          },
+          {
+            "date": "2022-03-23",
+            "hedgeUsd": 21.145109270694096,
+            "costVolPt": 0.2251075818193868
+          },
+          {
+            "date": "2022-03-30",
+            "hedgeUsd": 37.25584943491408,
+            "costVolPt": 0.396620044264514
+          },
+          {
+            "date": "2022-04-06",
+            "hedgeUsd": 22.858413280121944,
+            "costVolPt": 0.24334715284956776
+          },
+          {
+            "date": "2022-04-13",
+            "hedgeUsd": 23.11669307849228,
+            "costVolPt": 0.24609675986741963
+          },
+          {
+            "date": "2022-04-20",
+            "hedgeUsd": 30.5819163449352,
+            "costVolPt": 0.3255703788370712
+          },
+          {
+            "date": "2022-04-27",
+            "hedgeUsd": 16.3034539558605,
+            "costVolPt": 0.17356406383739645
+          },
+          {
+            "date": "2022-05-04",
+            "hedgeUsd": 39.31695440550406,
+            "costVolPt": 0.41856225084598886
+          },
+          {
+            "date": "2022-05-11",
+            "hedgeUsd": 17.49830766439918,
+            "costVolPt": 0.18628429268624172
+          },
+          {
+            "date": "2022-05-18",
+            "hedgeUsd": 13.182821980611573,
+            "costVolPt": 0.14034229568743767
+          },
+          {
+            "date": "2022-05-25",
+            "hedgeUsd": 15.89441158591513,
+            "costVolPt": 0.16920946166526724
+          },
+          {
+            "date": "2022-06-01",
+            "hedgeUsd": 17.859503571630245,
+            "costVolPt": 0.19012952877364905
+          },
+          {
+            "date": "2022-06-08",
+            "hedgeUsd": 26.846247632445127,
+            "costVolPt": 0.2858010241564378
+          },
+          {
+            "date": "2022-06-15",
+            "hedgeUsd": 15.474736550225197,
+            "costVolPt": 0.16474166576860294
+          },
+          {
+            "date": "2022-06-22",
+            "hedgeUsd": 6.560993385427926,
+            "costVolPt": 0.06984732669949413
+          },
+          {
+            "date": "2022-06-29",
+            "hedgeUsd": 4.110312980962204,
+            "costVolPt": 0.04375775995386308
+          },
+          {
+            "date": "2022-07-06",
+            "hedgeUsd": 7.935528446782802,
+            "costVolPt": 0.08448041560087874
+          },
+          {
+            "date": "2022-07-13",
+            "hedgeUsd": 12.182853248290424,
+            "costVolPt": 0.12969678232800624
+          },
+          {
+            "date": "2022-07-20",
+            "hedgeUsd": 9.428755574829527,
+            "costVolPt": 0.10037708199302514
+          },
+          {
+            "date": "2022-07-27",
+            "hedgeUsd": 5.342216661325333,
+            "costVolPt": 0.05687241710558959
+          },
+          {
+            "date": "2022-08-03",
+            "hedgeUsd": 8.936717324820325,
+            "costVolPt": 0.0951389184439853
+          },
+          {
+            "date": "2022-08-10",
+            "hedgeUsd": 7.214787171294144,
+            "costVolPt": 0.0768075148101728
+          },
+          {
+            "date": "2022-08-17",
+            "hedgeUsd": 6.517540117520969,
+            "costVolPt": 0.06938472989115123
+          },
+          {
+            "date": "2022-08-24",
+            "hedgeUsd": 6.061339157526975,
+            "costVolPt": 0.0645280846209251
+          },
+          {
+            "date": "2022-08-31",
+            "hedgeUsd": 4.911639319898877,
+            "costVolPt": 0.052288556938498175
+          },
+          {
+            "date": "2022-09-07",
+            "hedgeUsd": 10.979360778096126,
+            "costVolPt": 0.11688458655095477
+          },
+          {
+            "date": "2022-09-14",
+            "hedgeUsd": 7.183058736767014,
+            "costVolPt": 0.0764697387750678
+          },
+          {
+            "date": "2022-09-21",
+            "hedgeUsd": 7.979550850302203,
+            "costVolPt": 0.08494907133943592
+          },
+          {
+            "date": "2022-09-28",
+            "hedgeUsd": 3.2459014196940195,
+            "costVolPt": 0.03455536739288038
+          },
+          {
+            "date": "2022-10-05",
+            "hedgeUsd": 2.54696851301941,
+            "costVolPt": 0.027114635143103173
+          },
+          {
+            "date": "2022-10-12",
+            "hedgeUsd": 4.428291368046919,
+            "costVolPt": 0.04714290896733609
+          },
+          {
+            "date": "2022-10-19",
+            "hedgeUsd": 3.7856051707507596,
+            "costVolPt": 0.04030097053656406
+          },
+          {
+            "date": "2022-10-26",
+            "hedgeUsd": 4.254666468118596,
+            "costVolPt": 0.045294524980942295
+          },
+          {
+            "date": "2022-11-02",
+            "hedgeUsd": 11.176959976215592,
+            "costVolPt": 0.11898819722937161
+          },
+          {
+            "date": "2022-11-09",
+            "hedgeUsd": 2.549684715141609,
+            "costVolPt": 0.027143551413226604
+          },
+          {
+            "date": "2022-11-16",
+            "hedgeUsd": 3.732171288088181,
+            "costVolPt": 0.03973212163824862
+          },
+          {
+            "date": "2022-11-23",
+            "hedgeUsd": 2.511787285208539,
+            "costVolPt": 0.026740101201634343
+          },
+          {
+            "date": "2022-11-30",
+            "hedgeUsd": 1.8635022182290153,
+            "costVolPt": 0.01983855806514955
+          },
+          {
+            "date": "2022-12-07",
+            "hedgeUsd": 3.027368043842622,
+            "costVolPt": 0.032228894677370945
+          },
+          {
+            "date": "2022-12-14",
+            "hedgeUsd": 1.8616015875917749,
+            "costVolPt": 0.01981832424364483
+          },
+          {
+            "date": "2022-12-21",
+            "hedgeUsd": 0.692865054826524,
+            "costVolPt": 0.007376134832054048
+          },
+          {
+            "date": "2022-12-28",
+            "hedgeUsd": 1.0537347334636096,
+            "costVolPt": 0.011217897940013953
+          },
+          {
+            "date": "2023-01-04",
+            "hedgeUsd": 2.478132172531528,
+            "costVolPt": 0.02638181404721037
+          },
+          {
+            "date": "2023-01-11",
+            "hedgeUsd": 8.401017985326709,
+            "costVolPt": 0.08943594565004559
+          },
+          {
+            "date": "2023-01-18",
+            "hedgeUsd": 7.491769312227098,
+            "costVolPt": 0.0797562240910933
+          },
+          {
+            "date": "2023-01-25",
+            "hedgeUsd": 5.572920369339997,
+            "costVolPt": 0.05932845330588121
+          },
+          {
+            "date": "2023-02-01",
+            "hedgeUsd": 4.497762369127875,
+            "costVolPt": 0.047882486562311206
+          },
+          {
+            "date": "2023-02-08",
+            "hedgeUsd": 9.911955797172663,
+            "costVolPt": 0.10552115725855263
+          },
+          {
+            "date": "2023-02-15",
+            "hedgeUsd": 9.253002090447202,
+            "costVolPt": 0.09850603742384577
+          },
+          {
+            "date": "2023-02-22",
+            "hedgeUsd": 6.140347813324034,
+            "costVolPt": 0.06536919862140586
+          },
+          {
+            "date": "2023-03-01",
+            "hedgeUsd": 4.203921826117762,
+            "costVolPt": 0.04475430532518815
+          },
+          {
+            "date": "2023-03-08",
+            "hedgeUsd": 16.3440477349383,
+            "costVolPt": 0.17399621896736678
+          },
+          {
+            "date": "2023-03-15",
+            "hedgeUsd": 16.889282647378007,
+            "costVolPt": 0.17980070600460868
+          },
+          {
+            "date": "2023-03-22",
+            "hedgeUsd": 12.600716712479901,
+            "costVolPt": 0.13414529251304144
+          },
+          {
+            "date": "2023-03-29",
+            "hedgeUsd": 9.781716507625772,
+            "costVolPt": 0.10413464980888867
+          },
+          {
+            "date": "2023-04-05",
+            "hedgeUsd": 8.82228750452432,
+            "costVolPt": 0.09392071617294945
+          },
+          {
+            "date": "2023-04-12",
+            "hedgeUsd": 9.613609923036169,
+            "costVolPt": 0.10234501295904139
+          },
+          {
+            "date": "2023-04-19",
+            "hedgeUsd": 11.754730034451095,
+            "costVolPt": 0.125139048425837
+          },
+          {
+            "date": "2023-04-26",
+            "hedgeUsd": 9.056042401921697,
+            "costVolPt": 0.09640923486622907
+          },
+          {
+            "date": "2023-05-03",
+            "hedgeUsd": 6.604059088687743,
+            "costVolPt": 0.07030579755419926
+          },
+          {
+            "date": "2023-05-10",
+            "hedgeUsd": 9.27260987602962,
+            "costVolPt": 0.09871477889407351
+          },
+          {
+            "date": "2023-05-17",
+            "hedgeUsd": 7.119566274522965,
+            "costVolPt": 0.07579380778523247
+          },
+          {
+            "date": "2023-05-24",
+            "hedgeUsd": 7.981392861342283,
+            "costVolPt": 0.0849686811057232
+          },
+          {
+            "date": "2023-05-31",
+            "hedgeUsd": 8.866389142241529,
+            "costVolPt": 0.09439021542659268
+          },
+          {
+            "date": "2023-06-07",
+            "hedgeUsd": 6.394449930858565,
+            "costVolPt": 0.06807433069148035
+          },
+          {
+            "date": "2023-06-14",
+            "hedgeUsd": 15.665595941755296,
+            "costVolPt": 0.16677352550244717
+          },
+          {
+            "date": "2023-06-21",
+            "hedgeUsd": 5.274201553721354,
+            "costVolPt": 0.05614833872869811
+          },
+          {
+            "date": "2023-06-28",
+            "hedgeUsd": 4.118993073368881,
+            "costVolPt": 0.04385016688288964
+          },
+          {
+            "date": "2023-07-05",
+            "hedgeUsd": 6.969254203056895,
+            "costVolPt": 0.07419360858584194
+          },
+          {
+            "date": "2023-07-12",
+            "hedgeUsd": 6.700795742517578,
+            "costVolPt": 0.0713356410957086
+          },
+          {
+            "date": "2023-07-19",
+            "hedgeUsd": 5.0543580082941055,
+            "costVolPt": 0.05380791814934851
+          },
+          {
+            "date": "2023-07-26",
+            "hedgeUsd": 6.524522729579047,
+            "costVolPt": 0.0694590657054076
+          },
+          {
+            "date": "2023-08-02",
+            "hedgeUsd": 4.5028372674531685,
+            "costVolPt": 0.04793651314951685
+          },
+          {
+            "date": "2023-08-09",
+            "hedgeUsd": 2.8337151200504644,
+            "costVolPt": 0.030167295428625347
+          },
+          {
+            "date": "2023-08-16",
+            "hedgeUsd": 9.295920800433931,
+            "costVolPt": 0.09896294341076872
+          },
+          {
+            "date": "2023-08-23",
+            "hedgeUsd": 6.670461789251952,
+            "costVolPt": 0.07101271049368466
+          },
+          {
+            "date": "2023-08-30",
+            "hedgeUsd": 5.087456399816451,
+            "costVolPt": 0.054160278535966735
+          },
+          {
+            "date": "2023-09-06",
+            "hedgeUsd": 3.9259160382479994,
+            "costVolPt": 0.041794698456384234
+          },
+          {
+            "date": "2023-09-13",
+            "hedgeUsd": 2.8549990605325353,
+            "costVolPt": 0.03039388098617302
+          },
+          {
+            "date": "2023-09-20",
+            "hedgeUsd": 3.010252035419694,
+            "costVolPt": 0.03204668028362338
+          },
+          {
+            "date": "2023-09-27",
+            "hedgeUsd": 9.50847083922241,
+            "costVolPt": 0.10122571843996207
+          },
+          {
+            "date": "2023-10-04",
+            "hedgeUsd": 3.9567254474753493,
+            "costVolPt": 0.04212269068946598
+          },
+          {
+            "date": "2023-10-11",
+            "hedgeUsd": 5.376811312353015,
+            "costVolPt": 0.0572407064408223
+          },
+          {
+            "date": "2023-10-18",
+            "hedgeUsd": 22.104391483621978,
+            "costVolPt": 0.2353199527497101
+          },
+          {
+            "date": "2023-10-25",
+            "hedgeUsd": 7.616643778892795,
+            "costVolPt": 0.08108561846131108
+          },
+          {
+            "date": "2023-11-01",
+            "hedgeUsd": 12.33380218905678,
+            "costVolPt": 0.13130376154003642
+          },
+          {
+            "date": "2023-11-08",
+            "hedgeUsd": 15.753908002366769,
+            "costVolPt": 0.16771368212000073
+          },
+          {
+            "date": "2023-11-15",
+            "hedgeUsd": 15.060572391354295,
+            "costVolPt": 0.16033253781914833
+          },
+          {
+            "date": "2023-11-22",
+            "hedgeUsd": 9.693147602291702,
+            "costVolPt": 0.1031917588619133
+          },
+          {
+            "date": "2023-11-29",
+            "hedgeUsd": 25.75567041869781,
+            "costVolPt": 0.2741909068365795
+          },
+          {
+            "date": "2023-12-06",
+            "hedgeUsd": 29.04314140908351,
+            "costVolPt": 0.3091888174869044
+          },
+          {
+            "date": "2023-12-13",
+            "hedgeUsd": 20.68087074899266,
+            "costVolPt": 0.22016536990315647
+          },
+          {
+            "date": "2023-12-20",
+            "hedgeUsd": 9.17672956591213,
+            "costVolPt": 0.09769405185604613
+          },
+          {
+            "date": "2023-12-27",
+            "hedgeUsd": 33.27700799902365,
+            "costVolPt": 0.35426191016314923
+          },
+          {
+            "date": "2024-01-03",
+            "hedgeUsd": 28.094733931133163,
+            "costVolPt": 0.2990922173129476
+          },
+          {
+            "date": "2024-01-10",
+            "hedgeUsd": 16.783820483012725,
+            "costVolPt": 0.17867797201965785
+          },
+          {
+            "date": "2024-01-17",
+            "hedgeUsd": 17.887481773635727,
+            "costVolPt": 0.1904273804100006
+          },
+          {
+            "date": "2024-01-24",
+            "hedgeUsd": 23.5507941710951,
+            "costVolPt": 0.25071813334768855
+          },
+          {
+            "date": "2024-01-31",
+            "hedgeUsd": 14.604041242325799,
+            "costVolPt": 0.15547237740723396
+          },
+          {
+            "date": "2024-02-07",
+            "hedgeUsd": 38.2875942032109,
+            "costVolPt": 0.4076038404167519
+          },
+          {
+            "date": "2024-02-14",
+            "hedgeUsd": 12.219192549528778,
+            "costVolPt": 0.1300836449411075
+          },
+          {
+            "date": "2024-02-21",
+            "hedgeUsd": 80.67167236687926,
+            "costVolPt": 0.8588182191615573
+          },
+          {
+            "date": "2024-02-28",
+            "hedgeUsd": 50.62778646149435,
+            "costVolPt": 0.5389756296511767
+          },
+          {
+            "date": "2024-03-06",
+            "hedgeUsd": 49.154365648804756,
+            "costVolPt": 0.5232898182467117
+          },
+          {
+            "date": "2024-03-13",
+            "hedgeUsd": 146.88564590674,
+            "costVolPt": 1.5637219997662173
+          },
+          {
+            "date": "2024-03-20",
+            "hedgeUsd": 68.00097507663838,
+            "costVolPt": 0.7239279241785627
+          },
+          {
+            "date": "2024-03-27",
+            "hedgeUsd": 37.81402064394578,
+            "costVolPt": 0.40256224912606425
+          },
+          {
+            "date": "2024-04-03",
+            "hedgeUsd": 52.81845371478952,
+            "costVolPt": 0.5622971363715819
+          },
+          {
+            "date": "2024-04-10",
+            "hedgeUsd": 87.21582646697178,
+            "costVolPt": 0.928486277418742
+          },
+          {
+            "date": "2024-04-17",
+            "hedgeUsd": 60.650051062891556,
+            "costVolPt": 0.6456711174773556
+          },
+          {
+            "date": "2024-04-24",
+            "hedgeUsd": 65.65342571109385,
+            "costVolPt": 0.698936274614861
+          },
+          {
+            "date": "2024-05-01",
+            "hedgeUsd": 65.5315143647842,
+            "costVolPt": 0.6976384251683156
+          },
+          {
+            "date": "2024-05-08",
+            "hedgeUsd": 65.47709537331755,
+            "costVolPt": 0.697059088953152
+          },
+          {
+            "date": "2024-05-15",
+            "hedgeUsd": 49.262346653339726,
+            "costVolPt": 0.5244393674167879
+          },
+          {
+            "date": "2024-05-22",
+            "hedgeUsd": 49.367091800259104,
+            "costVolPt": 0.5255544681442651
+          },
+          {
+            "date": "2024-05-29",
+            "hedgeUsd": 34.51748141259516,
+            "costVolPt": 0.36746779937684715
+          },
+          {
+            "date": "2024-06-05",
+            "hedgeUsd": 27.23007057724279,
+            "costVolPt": 0.28988714420642714
+          },
+          {
+            "date": "2024-06-12",
+            "hedgeUsd": 22.17792104767391,
+            "costVolPt": 0.23610273718199032
+          },
+          {
+            "date": "2024-06-19",
+            "hedgeUsd": 49.910119046371626,
+            "costVolPt": 0.53133545270526
+          },
+          {
+            "date": "2024-06-26",
+            "hedgeUsd": 49.70911389479378,
+            "costVolPt": 0.5291955827700575
+          },
+          {
+            "date": "2024-07-03",
+            "hedgeUsd": 70.70367143659557,
+            "costVolPt": 0.7527004140339462
+          },
+          {
+            "date": "2024-07-10",
+            "hedgeUsd": 61.743000656671704,
+            "costVolPt": 0.6573064907902434
+          },
+          {
+            "date": "2024-07-17",
+            "hedgeUsd": 50.81210820661359,
+            "costVolPt": 0.5409378906066226
+          },
+          {
+            "date": "2024-07-24",
+            "hedgeUsd": 80.2904401087043,
+            "costVolPt": 0.8547596791629843
+          },
+          {
+            "date": "2024-07-31",
+            "hedgeUsd": 91.75753764143276,
+            "costVolPt": 0.9768366362046362
+          },
+          {
+            "date": "2024-08-07",
+            "hedgeUsd": 71.83903706906588,
+            "costVolPt": 0.7647873419724293
+          },
+          {
+            "date": "2024-08-14",
+            "hedgeUsd": 46.269243833113464,
+            "costVolPt": 0.4925752550410846
+          },
+          {
+            "date": "2024-08-21",
+            "hedgeUsd": 62.96274987202108,
+            "costVolPt": 0.6702917533764216
+          },
+          {
+            "date": "2024-08-28",
+            "hedgeUsd": 37.99556840513115,
+            "costVolPt": 0.4044949786751048
+          },
+          {
+            "date": "2024-09-04",
+            "hedgeUsd": 44.63932100891449,
+            "costVolPt": 0.4752233472873532
+          },
+          {
+            "date": "2024-09-11",
+            "hedgeUsd": 43.40771075657388,
+            "costVolPt": 0.46211181392523404
+          },
+          {
+            "date": "2024-09-18",
+            "hedgeUsd": 18.9342997500586,
+            "costVolPt": 0.20157164361814628
+          },
+          {
+            "date": "2024-09-25",
+            "hedgeUsd": 45.021376023219716,
+            "costVolPt": 0.47929064622117407
+          },
+          {
+            "date": "2024-10-02",
+            "hedgeUsd": 35.53853494632514,
+            "costVolPt": 0.37833777828987414
+          },
+          {
+            "date": "2024-10-09",
+            "hedgeUsd": 45.23110117625869,
+            "costVolPt": 0.48152334795105994
+          },
+          {
+            "date": "2024-10-16",
+            "hedgeUsd": 21.621700837958873,
+            "costVolPt": 0.2301813023591608
+          },
+          {
+            "date": "2024-10-23",
+            "hedgeUsd": 45.90641820460907,
+            "costVolPt": 0.4887126691916031
+          },
+          {
+            "date": "2024-10-30",
+            "hedgeUsd": 85.42763616335262,
+            "costVolPt": 0.9094494784158409
+          },
+          {
+            "date": "2024-11-06",
+            "hedgeUsd": 170.28684053023818,
+            "costVolPt": 1.8128475193340619
+          },
+          {
+            "date": "2024-11-13",
+            "hedgeUsd": 128.4396758857316,
+            "costVolPt": 1.3673490393532393
+          },
+          {
+            "date": "2024-11-20",
+            "hedgeUsd": 97.81499137832422,
+            "costVolPt": 1.0413233572349356
+          },
+          {
+            "date": "2024-11-27",
+            "hedgeUsd": 96.95586982315385,
+            "costVolPt": 1.0321772812654277
+          },
+          {
+            "date": "2024-12-04",
+            "hedgeUsd": 115.03403210842295,
+            "costVolPt": 1.2246346170813982
+          },
+          {
+            "date": "2024-12-11",
+            "hedgeUsd": 133.0724806194199,
+            "costVolPt": 1.4166691661632416
+          },
+          {
+            "date": "2024-12-18",
+            "hedgeUsd": 142.6103707532477,
+            "costVolPt": 1.5182080778897773
+          },
+          {
+            "date": "2024-12-25",
+            "hedgeUsd": 95.33620184882895,
+            "costVolPt": 1.0149345450665708
+          },
+          {
+            "date": "2025-01-01",
+            "hedgeUsd": 142.6860525120721,
+            "costVolPt": 1.5190137742566632
+          },
+          {
+            "date": "2025-01-08",
+            "hedgeUsd": 85.82791557628968,
+            "costVolPt": 0.9137107914951367
+          },
+          {
+            "date": "2025-01-15",
+            "hedgeUsd": 190.64353604671936,
+            "costVolPt": 2.029561769560219
+          },
+          {
+            "date": "2025-01-22",
+            "hedgeUsd": 166.44365806903198,
+            "costVolPt": 1.77193358981695
+          },
+          {
+            "date": "2025-01-29",
+            "hedgeUsd": 139.13945489989345,
+            "costVolPt": 1.4812572414365448
+          },
+          {
+            "date": "2025-02-05",
+            "hedgeUsd": 62.803882665124185,
+            "costVolPt": 0.6686004775207548
+          },
+          {
+            "date": "2025-02-12",
+            "hedgeUsd": 46.655548780906514,
+            "costVolPt": 0.4966877981133061
+          },
+          {
+            "date": "2025-02-19",
+            "hedgeUsd": 128.60931919740463,
+            "costVolPt": 1.369155035963315
+          },
+          {
+            "date": "2025-02-26",
+            "hedgeUsd": 328.0317928330064,
+            "costVolPt": 3.492176025160462
+          },
+          {
+            "date": "2025-03-05",
+            "hedgeUsd": 116.92440594095667,
+            "costVolPt": 1.2447592462203965
+          },
+          {
+            "date": "2025-03-12",
+            "hedgeUsd": 58.72706320578834,
+            "costVolPt": 0.6251992844478382
+          },
+          {
+            "date": "2025-03-19",
+            "hedgeUsd": 69.98668696897532,
+            "costVolPt": 0.7450675076421241
+          },
+          {
+            "date": "2025-03-26",
+            "hedgeUsd": 75.91088287518403,
+            "costVolPt": 0.8081355862979872
+          },
+          {
+            "date": "2025-04-02",
+            "hedgeUsd": 156.6184395242285,
+            "costVolPt": 1.6673358240095613
+          },
+          {
+            "date": "2025-04-09",
+            "hedgeUsd": 73.53955604026463,
+            "costVolPt": 0.7828908054515743
+          },
+          {
+            "date": "2025-04-16",
+            "hedgeUsd": 114.42986223605315,
+            "costVolPt": 1.2182027175231498
+          },
+          {
+            "date": "2025-04-23",
+            "hedgeUsd": 43.767183339043214,
+            "costVolPt": 0.46593870376222307
+          },
+          {
+            "date": "2025-04-30",
+            "hedgeUsd": 81.39702966272932,
+            "costVolPt": 0.8665402613952269
+          },
+          {
+            "date": "2025-05-07",
+            "hedgeUsd": 111.52419286794184,
+            "costVolPt": 1.1872694082340494
+          },
+          {
+            "date": "2025-05-14",
+            "hedgeUsd": 121.17555772121472,
+            "costVolPt": 1.2900163543748278
+          },
+          {
+            "date": "2025-05-21",
+            "hedgeUsd": 92.39060136457837,
+            "costVolPt": 0.9835761352552462
+          },
+          {
+            "date": "2025-05-28",
+            "hedgeUsd": 74.37591811159798,
+            "costVolPt": 0.7917945874558715
+          },
+          {
+            "date": "2025-06-04",
+            "hedgeUsd": 103.43463275981043,
+            "costVolPt": 1.1011491952518508
+          },
+          {
+            "date": "2025-06-11",
+            "hedgeUsd": 78.35248577226952,
+            "costVolPt": 0.8341285152958936
+          },
+          {
+            "date": "2025-06-18",
+            "hedgeUsd": 117.39897626186048,
+            "costVolPt": 1.249811448882218
+          },
+          {
+            "date": "2025-06-25",
+            "hedgeUsd": 51.91448204941884,
+            "costVolPt": 0.5526735930254679
+          },
+          {
+            "date": "2025-07-02",
+            "hedgeUsd": 64.48574501653833,
+            "costVolPt": 0.6865053254944952
+          },
+          {
+            "date": "2025-07-09",
+            "hedgeUsd": 229.68818914578415,
+            "costVolPt": 2.4452251425695364
+          },
+          {
+            "date": "2025-07-16",
+            "hedgeUsd": 68.92999007987834,
+            "costVolPt": 0.7338180750487271
+          },
+          {
+            "date": "2025-07-23",
+            "hedgeUsd": 98.06870468722708,
+            "costVolPt": 1.0440243501081041
+          },
+          {
+            "date": "2025-07-30",
+            "hedgeUsd": 88.85696007968123,
+            "costVolPt": 0.9459575335030768
+          },
+          {
+            "date": "2025-08-06",
+            "hedgeUsd": 149.2274404221746,
+            "costVolPt": 1.58865238408057
+          },
+          {
+            "date": "2025-08-13",
+            "hedgeUsd": 114.67383220120736,
+            "costVolPt": 1.220799984257001
+          },
+          {
+            "date": "2025-08-20",
+            "hedgeUsd": 137.69338229990507,
+            "costVolPt": 1.4658625748991714
+          },
+          {
+            "date": "2025-08-27",
+            "hedgeUsd": 90.06471885826167,
+            "costVolPt": 0.9588151477431783
+          },
+          {
+            "date": "2025-09-03",
+            "hedgeUsd": 103.43139634367118,
+            "costVolPt": 1.101114740863295
+          },
+          {
+            "date": "2025-09-10",
+            "hedgeUsd": 38.92130789557544,
+            "costVolPt": 0.414350258939721
+          },
+          {
+            "date": "2025-09-17",
+            "hedgeUsd": 73.51169152321198,
+            "costVolPt": 0.7825941640877493
+          },
+          {
+            "date": "2025-09-24",
+            "hedgeUsd": 136.78705990998725,
+            "costVolPt": 1.456214006100999
+          },
+          {
+            "date": "2025-10-01",
+            "hedgeUsd": 126.1774477881337,
+            "costVolPt": 1.3432657068882747
+          },
+          {
+            "date": "2025-10-08",
+            "hedgeUsd": 262.91354157610033,
+            "costVolPt": 2.7989371354912858
+          },
+          {
+            "date": "2025-10-15",
+            "hedgeUsd": 165.05943719186575,
+            "costVolPt": 1.7571973872098223
+          },
+          {
+            "date": "2025-10-22",
+            "hedgeUsd": 120.20427966399333,
+            "costVolPt": 1.2796762775307529
+          },
+          {
+            "date": "2025-10-29",
+            "hedgeUsd": 146.51996675545467,
+            "costVolPt": 1.5598290357519953
+          },
+          {
+            "date": "2025-11-05",
+            "hedgeUsd": 109.48807380883363,
+            "costVolPt": 1.1655931978241343
+          },
+          {
+            "date": "2025-11-12",
+            "hedgeUsd": 141.71986138682223,
+            "costVolPt": 1.508727852108141
+          },
+          {
+            "date": "2025-11-19",
+            "hedgeUsd": 139.67764129448287,
+            "costVolPt": 1.4869866910366007
+          },
+          {
+            "date": "2025-11-26",
+            "hedgeUsd": 115.36070368783295,
+            "costVolPt": 1.228112312483617
+          },
+          {
+            "date": "2025-12-03",
+            "hedgeUsd": 111.59261694180421,
+            "costVolPt": 1.187997840402841
+          },
+          {
+            "date": "2025-12-10",
+            "hedgeUsd": 88.94226436343106,
+            "costVolPt": 0.9468656697906662
+          },
+          {
+            "date": "2025-12-17",
+            "hedgeUsd": 52.48551377353645,
+            "costVolPt": 0.5587527089530657
+          },
+          {
+            "date": "2025-12-24",
+            "hedgeUsd": 70.929992764852,
+            "costVolPt": 0.7551097960932087
+          },
+          {
+            "date": "2025-12-31",
+            "hedgeUsd": 79.26733029394723,
+            "costVolPt": 0.8438678093983365
+          },
+          {
+            "date": "2026-01-07",
+            "hedgeUsd": 61.78578080201517,
+            "costVolPt": 0.6577619216392812
+          },
+          {
+            "date": "2026-01-14",
+            "hedgeUsd": 75.1710708346148,
+            "costVolPt": 0.8002596610747387
+          },
+          {
+            "date": "2026-01-21",
+            "hedgeUsd": 35.49241825678213,
+            "costVolPt": 0.37784682710434725
+          },
+          {
+            "date": "2026-01-28",
+            "hedgeUsd": 185.05603610262153,
+            "costVolPt": 1.9700781043433622
+          },
+          {
+            "date": "2026-02-04",
+            "hedgeUsd": 103.2618505197647,
+            "costVolPt": 1.0993097820929916
+          },
+          {
+            "date": "2026-02-11",
+            "hedgeUsd": 64.48207282500485,
+            "costVolPt": 0.6864662319081014
+          },
+          {
+            "date": "2026-02-18",
+            "hedgeUsd": 68.52459847446775,
+            "costVolPt": 0.7295023383544583
+          },
+          {
+            "date": "2026-02-25",
+            "hedgeUsd": 99.40327925917552,
+            "costVolPt": 1.058232025783979
+          },
+          {
+            "date": "2026-03-04",
+            "hedgeUsd": 61.65813425547354,
+            "costVolPt": 0.656403016132966
+          },
+          {
+            "date": "2026-03-11",
+            "hedgeUsd": 76.84766399763129,
+            "costVolPt": 0.818108414079039
+          },
+          {
+            "date": "2026-03-18",
+            "hedgeUsd": 52.83232076567821,
+            "costVolPt": 0.562444762863011
+          },
+          {
+            "date": "2026-03-25",
+            "hedgeUsd": 54.93450068348153,
+            "costVolPt": 0.5848242470164381
+          },
+          {
+            "date": "2026-04-01",
+            "hedgeUsd": 49.138509060466674,
+            "costVolPt": 0.5231210114455268
+          },
+          {
+            "date": "2026-04-08",
+            "hedgeUsd": 70.21547912975389,
+            "costVolPt": 0.7475031938044784
+          },
+          {
+            "date": "2026-04-15",
+            "hedgeUsd": 59.978720700284285,
+            "costVolPt": 0.6385242376672853
+          },
+          {
+            "date": "2026-04-22",
+            "hedgeUsd": 27.627439244110924,
+            "costVolPt": 0.2941174699306575
+          },
+          {
+            "date": "2026-04-29",
+            "hedgeUsd": 43.70678877907005,
+            "costVolPt": 0.46529575256360023
+          },
+          {
+            "date": "2026-05-06",
+            "hedgeUsd": 36.200649643107944,
+            "costVolPt": 0.385386549538667
+          },
+          {
+            "date": "2026-05-13",
+            "hedgeUsd": 45.71021325926415,
+            "costVolPt": 0.48662390151383034
+          },
+          {
+            "date": "2026-05-20",
+            "hedgeUsd": 77.07242915202582,
+            "costVolPt": 0.82050122935066
+          },
+          {
+            "date": "2026-05-27",
+            "hedgeUsd": 73.24279792196441,
+            "costVolPt": 0.7797315641565473
+          },
+          {
+            "date": "2026-06-03",
+            "hedgeUsd": 46.99618370576219,
+            "costVolPt": 0.5003141451440005
+          },
+          {
+            "date": "2026-06-10",
+            "hedgeUsd": 36.68891450725093,
+            "costVolPt": 0.3905845422020074
+          },
+          {
+            "date": "2026-06-17",
+            "hedgeUsd": 37.49924556777958,
+            "costVolPt": 0.39921120206805766
+          },
+          {
+            "date": "2026-06-24",
+            "hedgeUsd": 27.241457046832686,
+            "costVolPt": 0.2900083628107875
+          },
+          {
+            "date": "2026-07-01",
+            "hedgeUsd": 20.806657030925393,
+            "costVolPt": 0.2215044713184976
+          },
+          {
+            "date": "2026-07-08",
+            "hedgeUsd": 33.972762702957134,
+            "costVolPt": 0.36166880775525556
+          },
+          {
+            "date": "2026-07-15",
+            "hedgeUsd": 42.80091714313554,
+            "costVolPt": 0.45565198242302174
+          }
+        ]
+      },
+      "eth": {
+        "meanCostVolPt": 1.2382052312656058,
+        "stdCostVolPt": 1.0403927847364094,
+        "minCostVolPt": 0.045255151686727786,
+        "maxCostVolPt": 5.627743897658098,
+        "validWeeks": 278,
+        "skippedWeeks": 0,
+        "perWeek": [
+          {
+            "date": "2021-03-24",
+            "hedgeUsd": 1.7695927633531237,
+            "costVolPt": 0.6462636863596477
+          },
+          {
+            "date": "2021-03-31",
+            "hedgeUsd": 2.116768993242008,
+            "costVolPt": 0.7730540953118696
+          },
+          {
+            "date": "2021-04-07",
+            "hedgeUsd": 3.231166346512679,
+            "costVolPt": 1.180037304391835
+          },
+          {
+            "date": "2021-04-14",
+            "hedgeUsd": 5.409148828765289,
+            "costVolPt": 1.9754468567795842
+          },
+          {
+            "date": "2021-04-21",
+            "hedgeUsd": 6.523814756160948,
+            "costVolPt": 2.382528150406271
+          },
+          {
+            "date": "2021-04-28",
+            "hedgeUsd": 5.63968856282991,
+            "costVolPt": 2.0596410631949977
+          },
+          {
+            "date": "2021-05-05",
+            "hedgeUsd": 15.382901787655133,
+            "costVolPt": 5.61790883308139
+          },
+          {
+            "date": "2021-05-12",
+            "hedgeUsd": 10.458744397034064,
+            "costVolPt": 3.8195831542128427
+          },
+          {
+            "date": "2021-05-19",
+            "hedgeUsd": 9.177024693412626,
+            "costVolPt": 3.3514930276615673
+          },
+          {
+            "date": "2021-05-26",
+            "hedgeUsd": 4.2961016650010375,
+            "costVolPt": 1.568956743323523
+          },
+          {
+            "date": "2021-06-02",
+            "hedgeUsd": 5.585468885398841,
+            "costVolPt": 2.0398397793428655
+          },
+          {
+            "date": "2021-06-09",
+            "hedgeUsd": 4.361492311608928,
+            "costVolPt": 1.59283771820397
+          },
+          {
+            "date": "2021-06-16",
+            "hedgeUsd": 3.399185864185076,
+            "costVolPt": 1.2413988306819748
+          },
+          {
+            "date": "2021-06-23",
+            "hedgeUsd": 3.2217367823609497,
+            "costVolPt": 1.1765935827539178
+          },
+          {
+            "date": "2021-06-30",
+            "hedgeUsd": 3.969368017203712,
+            "costVolPt": 1.4496320624951928
+          },
+          {
+            "date": "2021-07-07",
+            "hedgeUsd": 2.1619824486711936,
+            "costVolPt": 0.7895662640909483
+          },
+          {
+            "date": "2021-07-14",
+            "hedgeUsd": 2.787165801564219,
+            "costVolPt": 1.0178861954664282
+          },
+          {
+            "date": "2021-07-21",
+            "hedgeUsd": 3.097548203462835,
+            "costVolPt": 1.1312393235907061
+          },
+          {
+            "date": "2021-07-28",
+            "hedgeUsd": 4.22434805930441,
+            "costVolPt": 1.5427519855468066
+          },
+          {
+            "date": "2021-08-04",
+            "hedgeUsd": 7.89360457802164,
+            "costVolPt": 2.8827819026516206
+          },
+          {
+            "date": "2021-08-11",
+            "hedgeUsd": 5.6710874164653555,
+            "costVolPt": 2.0711080737514034
+          },
+          {
+            "date": "2021-08-18",
+            "hedgeUsd": 5.300649099397316,
+            "costVolPt": 1.9358222400188871
+          },
+          {
+            "date": "2021-08-25",
+            "hedgeUsd": 6.3830214211013,
+            "costVolPt": 2.331109755386332
+          },
+          {
+            "date": "2021-09-01",
+            "hedgeUsd": 10.719864341525636,
+            "costVolPt": 3.9149453987946914
+          },
+          {
+            "date": "2021-09-08",
+            "hedgeUsd": 7.455177148250645,
+            "costVolPt": 2.7226661218727135
+          },
+          {
+            "date": "2021-09-15",
+            "hedgeUsd": 7.126170611791965,
+            "costVolPt": 2.6025113713043893
+          },
+          {
+            "date": "2021-09-22",
+            "hedgeUsd": 7.4016438352716705,
+            "costVolPt": 2.703115501580121
+          },
+          {
+            "date": "2021-09-29",
+            "hedgeUsd": 5.381454494652274,
+            "costVolPt": 1.9653327543568104
+          },
+          {
+            "date": "2021-10-06",
+            "hedgeUsd": 3.5189217684493874,
+            "costVolPt": 1.2851269519096147
+          },
+          {
+            "date": "2021-10-13",
+            "hedgeUsd": 6.686587826402416,
+            "costVolPt": 2.4419736491632853
+          },
+          {
+            "date": "2021-10-20",
+            "hedgeUsd": 5.333488519446056,
+            "costVolPt": 1.9478153522750634
+          },
+          {
+            "date": "2021-10-27",
+            "hedgeUsd": 8.835960907576828,
+            "costVolPt": 3.2269349123241367
+          },
+          {
+            "date": "2021-11-03",
+            "hedgeUsd": 5.623842927569598,
+            "costVolPt": 2.053854161898772
+          },
+          {
+            "date": "2021-11-10",
+            "hedgeUsd": 8.56306504574636,
+            "costVolPt": 3.127272046770443
+          },
+          {
+            "date": "2021-11-17",
+            "hedgeUsd": 9.674818340300842,
+            "costVolPt": 3.533289633042573
+          },
+          {
+            "date": "2021-11-24",
+            "hedgeUsd": 13.760529126814987,
+            "costVolPt": 5.025410627755922
+          },
+          {
+            "date": "2021-12-01",
+            "hedgeUsd": 14.621726091685021,
+            "costVolPt": 5.33992385177253
+          },
+          {
+            "date": "2021-12-08",
+            "hedgeUsd": 9.97701573253399,
+            "costVolPt": 3.643653556741494
+          },
+          {
+            "date": "2021-12-15",
+            "hedgeUsd": 7.46227031615238,
+            "costVolPt": 2.725256580497475
+          },
+          {
+            "date": "2021-12-22",
+            "hedgeUsd": 5.810115716789331,
+            "costVolPt": 2.121881869698352
+          },
+          {
+            "date": "2021-12-29",
+            "hedgeUsd": 5.0702000116846735,
+            "costVolPt": 1.8516611380819716
+          },
+          {
+            "date": "2022-01-05",
+            "hedgeUsd": 5.142213562996217,
+            "costVolPt": 1.8779608292325283
+          },
+          {
+            "date": "2022-01-12",
+            "hedgeUsd": 3.967262272244325,
+            "costVolPt": 1.4488630344294315
+          },
+          {
+            "date": "2022-01-19",
+            "hedgeUsd": 6.065156897868077,
+            "costVolPt": 2.215024120995284
+          },
+          {
+            "date": "2022-01-26",
+            "hedgeUsd": 4.192765751137859,
+            "costVolPt": 1.5312179765238567
+          },
+          {
+            "date": "2022-02-02",
+            "hedgeUsd": 5.01577623270676,
+            "costVolPt": 1.8317853153750325
+          },
+          {
+            "date": "2022-02-09",
+            "hedgeUsd": 4.730578126955432,
+            "costVolPt": 1.7276296118806338
+          },
+          {
+            "date": "2022-02-16",
+            "hedgeUsd": 8.507540138547238,
+            "costVolPt": 3.106994086804509
+          },
+          {
+            "date": "2022-02-23",
+            "hedgeUsd": 6.835229082747565,
+            "costVolPt": 2.4962581423303587
+          },
+          {
+            "date": "2022-03-02",
+            "hedgeUsd": 5.195993769167121,
+            "costVolPt": 1.8976016160920612
+          },
+          {
+            "date": "2022-03-09",
+            "hedgeUsd": 2.2381325026974395,
+            "costVolPt": 0.8173766256897584
+          },
+          {
+            "date": "2022-03-16",
+            "hedgeUsd": 3.3078835574560976,
+            "costVolPt": 1.2080547943919515
+          },
+          {
+            "date": "2022-03-23",
+            "hedgeUsd": 3.097331864094522,
+            "costVolPt": 1.1311603154253438
+          },
+          {
+            "date": "2022-03-30",
+            "hedgeUsd": 5.667236920348443,
+            "costVolPt": 2.0697018542717793
+          },
+          {
+            "date": "2022-04-06",
+            "hedgeUsd": 3.7860917773152103,
+            "costVolPt": 1.3826987087511131
+          },
+          {
+            "date": "2022-04-13",
+            "hedgeUsd": 3.3163618863346365,
+            "costVolPt": 1.2111511203877878
+          },
+          {
+            "date": "2022-04-20",
+            "hedgeUsd": 4.4475487849912065,
+            "costVolPt": 1.624265951227346
+          },
+          {
+            "date": "2022-04-27",
+            "hedgeUsd": 2.7540027340607853,
+            "costVolPt": 1.0057748856218105
+          },
+          {
+            "date": "2022-05-04",
+            "hedgeUsd": 5.999401353637152,
+            "costVolPt": 2.1910098837688956
+          },
+          {
+            "date": "2022-05-11",
+            "hedgeUsd": 1.8842692589643475,
+            "costVolPt": 0.6881440875046463
+          },
+          {
+            "date": "2022-05-18",
+            "hedgeUsd": 1.7807549912288922,
+            "costVolPt": 0.650340185023279
+          },
+          {
+            "date": "2022-05-25",
+            "hedgeUsd": 2.3931587437035002,
+            "costVolPt": 0.8739929455967265
+          },
+          {
+            "date": "2022-06-01",
+            "hedgeUsd": 1.6420898966632325,
+            "costVolPt": 0.599699033545237
+          },
+          {
+            "date": "2022-06-08",
+            "hedgeUsd": 2.686880689494315,
+            "costVolPt": 0.9812615959792107
+          },
+          {
+            "date": "2022-06-15",
+            "hedgeUsd": 1.319550406570543,
+            "costVolPt": 0.4819060790414628
+          },
+          {
+            "date": "2022-06-22",
+            "hedgeUsd": 0.9517958443779312,
+            "costVolPt": 0.34760036534277433
+          },
+          {
+            "date": "2022-06-29",
+            "hedgeUsd": 0.6557742346000368,
+            "costVolPt": 0.23949186674410353
+          },
+          {
+            "date": "2022-07-06",
+            "hedgeUsd": 0.769348806187031,
+            "costVolPt": 0.28096983999906183
+          },
+          {
+            "date": "2022-07-13",
+            "hedgeUsd": 1.75240873777625,
+            "costVolPt": 0.6399879985597238
+          },
+          {
+            "date": "2022-07-20",
+            "hedgeUsd": 2.2235624081124,
+            "costVolPt": 0.8120555579095681
+          },
+          {
+            "date": "2022-07-27",
+            "hedgeUsd": 1.0691076636704473,
+            "costVolPt": 0.3904431992193556
+          },
+          {
+            "date": "2022-08-03",
+            "hedgeUsd": 2.293336500756224,
+            "costVolPt": 0.8375373881126672
+          },
+          {
+            "date": "2022-08-10",
+            "hedgeUsd": 1.5350747284574224,
+            "costVolPt": 0.5606165855756622
+          },
+          {
+            "date": "2022-08-17",
+            "hedgeUsd": 1.8371364707370532,
+            "costVolPt": 0.670930969266944
+          },
+          {
+            "date": "2022-08-24",
+            "hedgeUsd": 1.6707645222594603,
+            "costVolPt": 0.6101711430760686
+          },
+          {
+            "date": "2022-08-31",
+            "hedgeUsd": 1.7997749344070315,
+            "costVolPt": 0.6572863586555467
+          },
+          {
+            "date": "2022-09-07",
+            "hedgeUsd": 1.3818216682023543,
+            "costVolPt": 0.50464783970519
+          },
+          {
+            "date": "2022-09-14",
+            "hedgeUsd": 1.7858457369762866,
+            "costVolPt": 0.6521993495616764
+          },
+          {
+            "date": "2022-09-21",
+            "hedgeUsd": 1.1043312908129166,
+            "costVolPt": 0.40330703523601963
+          },
+          {
+            "date": "2022-09-28",
+            "hedgeUsd": 0.4800176065151121,
+            "costVolPt": 0.175304710964218
+          },
+          {
+            "date": "2022-10-05",
+            "hedgeUsd": 0.3857450871490047,
+            "costVolPt": 0.14087593890453354
+          },
+          {
+            "date": "2022-10-12",
+            "hedgeUsd": 0.6013635769729487,
+            "costVolPt": 0.21962083601683913
+          },
+          {
+            "date": "2022-10-19",
+            "hedgeUsd": 1.0387346440099994,
+            "costVolPt": 0.3793508281054271
+          },
+          {
+            "date": "2022-10-26",
+            "hedgeUsd": 1.1375779740304945,
+            "costVolPt": 0.41544888193678836
+          },
+          {
+            "date": "2022-11-02",
+            "hedgeUsd": 2.0178635153908138,
+            "costVolPt": 0.7369333447974077
+          },
+          {
+            "date": "2022-11-09",
+            "hedgeUsd": 0.6301184533523772,
+            "costVolPt": 0.2301222535150509
+          },
+          {
+            "date": "2022-11-16",
+            "hedgeUsd": 0.7747548089933501,
+            "costVolPt": 0.282944137913494
+          },
+          {
+            "date": "2022-11-23",
+            "hedgeUsd": 0.6344844857140343,
+            "costVolPt": 0.23171674928110697
+          },
+          {
+            "date": "2022-11-30",
+            "hedgeUsd": 0.4537045608885368,
+            "costVolPt": 0.16569506166063597
+          },
+          {
+            "date": "2022-12-07",
+            "hedgeUsd": 0.7124343266305273,
+            "costVolPt": 0.26018440160490225
+          },
+          {
+            "date": "2022-12-14",
+            "hedgeUsd": 0.4458035589140072,
+            "costVolPt": 0.16280957819362687
+          },
+          {
+            "date": "2022-12-21",
+            "hedgeUsd": 0.12391720379708115,
+            "costVolPt": 0.045255151686727786
+          },
+          {
+            "date": "2022-12-28",
+            "hedgeUsd": 0.24410283703470137,
+            "costVolPt": 0.08914751607255209
+          },
+          {
+            "date": "2023-01-04",
+            "hedgeUsd": 0.5288942561044252,
+            "costVolPt": 0.19315469565823598
+          },
+          {
+            "date": "2023-01-11",
+            "hedgeUsd": 1.1325003746985862,
+            "costVolPt": 0.41359451853179885
+          },
+          {
+            "date": "2023-01-18",
+            "hedgeUsd": 1.1672886098547075,
+            "costVolPt": 0.42629934732604663
+          },
+          {
+            "date": "2023-01-25",
+            "hedgeUsd": 0.8220639709845868,
+            "costVolPt": 0.3002216686879241
+          },
+          {
+            "date": "2023-02-01",
+            "hedgeUsd": 0.7752459385229634,
+            "costVolPt": 0.28312350075157805
+          },
+          {
+            "date": "2023-02-08",
+            "hedgeUsd": 1.2810689623209366,
+            "costVolPt": 0.4678524727359813
+          },
+          {
+            "date": "2023-02-15",
+            "hedgeUsd": 0.6856253077283101,
+            "costVolPt": 0.25039362050416886
+          },
+          {
+            "date": "2023-02-22",
+            "hedgeUsd": 0.6612205789806698,
+            "costVolPt": 0.2414808975931801
+          },
+          {
+            "date": "2023-03-01",
+            "hedgeUsd": 0.5065359567923315,
+            "costVolPt": 0.18498933850183208
+          },
+          {
+            "date": "2023-03-08",
+            "hedgeUsd": 1.8759108958267754,
+            "costVolPt": 0.6850915735674936
+          },
+          {
+            "date": "2023-03-15",
+            "hedgeUsd": 1.6957903596103425,
+            "costVolPt": 0.6193106978004969
+          },
+          {
+            "date": "2023-03-22",
+            "hedgeUsd": 1.1231370000543919,
+            "costVolPt": 0.4101749696165686
+          },
+          {
+            "date": "2023-03-29",
+            "hedgeUsd": 1.0171858769015865,
+            "costVolPt": 0.3714811159567402
+          },
+          {
+            "date": "2023-04-05",
+            "hedgeUsd": 1.311330068263262,
+            "costVolPt": 0.47890397242823257
+          },
+          {
+            "date": "2023-04-12",
+            "hedgeUsd": 1.8973292201653056,
+            "costVolPt": 0.6929136473967495
+          },
+          {
+            "date": "2023-04-19",
+            "hedgeUsd": 1.1732306455335333,
+            "costVolPt": 0.42846940699277014
+          },
+          {
+            "date": "2023-04-26",
+            "hedgeUsd": 0.8662278499372023,
+            "costVolPt": 0.31635052715012557
+          },
+          {
+            "date": "2023-05-03",
+            "hedgeUsd": 0.9648870361483757,
+            "costVolPt": 0.352381330787263
+          },
+          {
+            "date": "2023-05-10",
+            "hedgeUsd": 0.8020421681811342,
+            "costVolPt": 0.2929096111596106
+          },
+          {
+            "date": "2023-05-17",
+            "hedgeUsd": 0.7292131380747207,
+            "costVolPt": 0.26631210327797583
+          },
+          {
+            "date": "2023-05-24",
+            "hedgeUsd": 0.7946617467146694,
+            "costVolPt": 0.2902142461679684
+          },
+          {
+            "date": "2023-05-31",
+            "hedgeUsd": 1.0791513621830717,
+            "costVolPt": 0.39411120564426566
+          },
+          {
+            "date": "2023-06-07",
+            "hedgeUsd": 1.1439882426697265,
+            "costVolPt": 0.41778994250571605
+          },
+          {
+            "date": "2023-06-14",
+            "hedgeUsd": 1.4237286058851426,
+            "costVolPt": 0.5199524524905659
+          },
+          {
+            "date": "2023-06-21",
+            "hedgeUsd": 0.6072761930041475,
+            "costVolPt": 0.22178015148844585
+          },
+          {
+            "date": "2023-06-28",
+            "hedgeUsd": 0.8440098438073598,
+            "costVolPt": 0.30823640573055916
+          },
+          {
+            "date": "2023-07-05",
+            "hedgeUsd": 0.6821643540638368,
+            "costVolPt": 0.2491296637792983
+          },
+          {
+            "date": "2023-07-12",
+            "hedgeUsd": 1.1621152447135026,
+            "costVolPt": 0.42441000979241855
+          },
+          {
+            "date": "2023-07-19",
+            "hedgeUsd": 0.4031078613665925,
+            "costVolPt": 0.14721690655746772
+          },
+          {
+            "date": "2023-07-26",
+            "hedgeUsd": 0.5621463344906061,
+            "costVolPt": 0.20529851270021662
+          },
+          {
+            "date": "2023-08-02",
+            "hedgeUsd": 0.3336217428965464,
+            "costVolPt": 0.12184024589109828
+          },
+          {
+            "date": "2023-08-09",
+            "hedgeUsd": 0.26236689891926857,
+            "costVolPt": 0.09581763826442598
+          },
+          {
+            "date": "2023-08-16",
+            "hedgeUsd": 0.8517911620183902,
+            "costVolPt": 0.31107818011839583
+          },
+          {
+            "date": "2023-08-23",
+            "hedgeUsd": 0.5336168896858219,
+            "costVolPt": 0.19487942388432575
+          },
+          {
+            "date": "2023-08-30",
+            "hedgeUsd": 0.44083500339636544,
+            "costVolPt": 0.16099503810778854
+          },
+          {
+            "date": "2023-09-06",
+            "hedgeUsd": 0.4836421196348142,
+            "costVolPt": 0.17662840037937988
+          },
+          {
+            "date": "2023-09-13",
+            "hedgeUsd": 0.20562008942264628,
+            "costVolPt": 0.07509343377291068
+          },
+          {
+            "date": "2023-09-20",
+            "hedgeUsd": 0.30325123596851505,
+            "costVolPt": 0.11074879243898891
+          },
+          {
+            "date": "2023-09-27",
+            "hedgeUsd": 1.0024057279123584,
+            "costVolPt": 0.36608333530995235
+          },
+          {
+            "date": "2023-10-04",
+            "hedgeUsd": 0.3773107404870248,
+            "costVolPt": 0.13779567542319007
+          },
+          {
+            "date": "2023-10-11",
+            "hedgeUsd": 0.3553223016011365,
+            "costVolPt": 0.12976539305202944
+          },
+          {
+            "date": "2023-10-18",
+            "hedgeUsd": 1.6767270545660555,
+            "costVolPt": 0.6123486882086545
+          },
+          {
+            "date": "2023-10-25",
+            "hedgeUsd": 0.6457003331690853,
+            "costVolPt": 0.2358128300698948
+          },
+          {
+            "date": "2023-11-01",
+            "hedgeUsd": 0.9334483171671963,
+            "costVolPt": 0.3408997612171531
+          },
+          {
+            "date": "2023-11-08",
+            "hedgeUsd": 2.1343125150071476,
+            "costVolPt": 0.77946107282809
+          },
+          {
+            "date": "2023-11-15",
+            "hedgeUsd": 1.50789866890353,
+            "costVolPt": 0.5506917594847436
+          },
+          {
+            "date": "2023-11-22",
+            "hedgeUsd": 0.856361264596058,
+            "costVolPt": 0.3127472032970897
+          },
+          {
+            "date": "2023-11-29",
+            "hedgeUsd": 1.8412572265775218,
+            "costVolPt": 0.6724358888818971
+          },
+          {
+            "date": "2023-12-06",
+            "hedgeUsd": 2.577533436160462,
+            "costVolPt": 0.9413274594387029
+          },
+          {
+            "date": "2023-12-13",
+            "hedgeUsd": 1.2665304053475044,
+            "costVolPt": 0.46254292264141805
+          },
+          {
+            "date": "2023-12-20",
+            "hedgeUsd": 1.773090248763208,
+            "costVolPt": 0.6475409846516159
+          },
+          {
+            "date": "2023-12-27",
+            "hedgeUsd": 2.1374270311725265,
+            "costVolPt": 0.7805985089320049
+          },
+          {
+            "date": "2024-01-03",
+            "hedgeUsd": 2.8051665153059258,
+            "costVolPt": 1.0244601416650874
+          },
+          {
+            "date": "2024-01-10",
+            "hedgeUsd": 0.9066506650894273,
+            "costVolPt": 0.33111313133472375
+          },
+          {
+            "date": "2024-01-17",
+            "hedgeUsd": 2.0031199608088532,
+            "costVolPt": 0.7315489286020522
+          },
+          {
+            "date": "2024-01-24",
+            "hedgeUsd": 1.6731362972805908,
+            "costVolPt": 0.6110373265845653
+          },
+          {
+            "date": "2024-01-31",
+            "hedgeUsd": 1.1693552226097434,
+            "costVolPt": 0.42705408412482093
+          },
+          {
+            "date": "2024-02-07",
+            "hedgeUsd": 2.6876307808508453,
+            "costVolPt": 0.981535532907083
+          },
+          {
+            "date": "2024-02-14",
+            "hedgeUsd": 2.047991684629336,
+            "costVolPt": 0.747936295373709
+          },
+          {
+            "date": "2024-02-21",
+            "hedgeUsd": 4.884987169445604,
+            "costVolPt": 1.7840205279566443
+          },
+          {
+            "date": "2024-02-28",
+            "hedgeUsd": 5.507680041075827,
+            "costVolPt": 2.011430923740072
+          },
+          {
+            "date": "2024-03-06",
+            "hedgeUsd": 3.2696199564545676,
+            "costVolPt": 1.1940807454758682
+          },
+          {
+            "date": "2024-03-13",
+            "hedgeUsd": 11.927264682739946,
+            "costVolPt": 4.355893741025986
+          },
+          {
+            "date": "2024-03-20",
+            "hedgeUsd": 4.827346861125884,
+            "costVolPt": 1.7629700134489878
+          },
+          {
+            "date": "2024-03-27",
+            "hedgeUsd": 4.767582529441628,
+            "costVolPt": 1.7411437955151499
+          },
+          {
+            "date": "2024-04-03",
+            "hedgeUsd": 4.8546370150235365,
+            "costVolPt": 1.7729365073364292
+          },
+          {
+            "date": "2024-04-10",
+            "hedgeUsd": 7.413906169983628,
+            "costVolPt": 2.7075937644880845
+          },
+          {
+            "date": "2024-04-17",
+            "hedgeUsd": 4.205194220699123,
+            "costVolPt": 1.5357569126682673
+          },
+          {
+            "date": "2024-04-24",
+            "hedgeUsd": 5.513085210482125,
+            "costVolPt": 2.013404917292856
+          },
+          {
+            "date": "2024-05-01",
+            "hedgeUsd": 3.5518848136798047,
+            "costVolPt": 1.297165212669612
+          },
+          {
+            "date": "2024-05-08",
+            "hedgeUsd": 2.86947251997439,
+            "costVolPt": 1.0479450001549893
+          },
+          {
+            "date": "2024-05-15",
+            "hedgeUsd": 7.6285970103818075,
+            "costVolPt": 2.78599987962187
+          },
+          {
+            "date": "2024-05-22",
+            "hedgeUsd": 5.414336017067863,
+            "costVolPt": 1.9773412425974324
+          },
+          {
+            "date": "2024-05-29",
+            "hedgeUsd": 2.072271227920058,
+            "costVolPt": 0.7568032999609443
+          },
+          {
+            "date": "2024-06-05",
+            "hedgeUsd": 3.1530128990764226,
+            "costVolPt": 1.1514952939994751
+          },
+          {
+            "date": "2024-06-12",
+            "hedgeUsd": 2.9207381890726314,
+            "costVolPt": 1.0666674661263942
+          },
+          {
+            "date": "2024-06-19",
+            "hedgeUsd": 3.3588156158962987,
+            "costVolPt": 1.2266554241657075
+          },
+          {
+            "date": "2024-06-26",
+            "hedgeUsd": 4.173602080918703,
+            "costVolPt": 1.5242193130932122
+          },
+          {
+            "date": "2024-07-03",
+            "hedgeUsd": 5.126624452024378,
+            "costVolPt": 1.8722676118254682
+          },
+          {
+            "date": "2024-07-10",
+            "hedgeUsd": 4.331089333410607,
+            "costVolPt": 1.5817344060896459
+          },
+          {
+            "date": "2024-07-17",
+            "hedgeUsd": 3.7661521678063195,
+            "costVolPt": 1.3754166686045597
+          },
+          {
+            "date": "2024-07-24",
+            "hedgeUsd": 4.007609179066135,
+            "costVolPt": 1.4635979165310424
+          },
+          {
+            "date": "2024-07-31",
+            "hedgeUsd": 6.940291431766146,
+            "costVolPt": 2.5346274114528744
+          },
+          {
+            "date": "2024-08-07",
+            "hedgeUsd": 4.776739039159942,
+            "costVolPt": 1.7444877963764174
+          },
+          {
+            "date": "2024-08-14",
+            "hedgeUsd": 1.3317304226646522,
+            "costVolPt": 0.4863542787990068
+          },
+          {
+            "date": "2024-08-21",
+            "hedgeUsd": 3.5636792538043087,
+            "costVolPt": 1.301472598250782
+          },
+          {
+            "date": "2024-08-28",
+            "hedgeUsd": 1.9983908292137011,
+            "costVolPt": 0.7298218272704601
+          },
+          {
+            "date": "2024-09-04",
+            "hedgeUsd": 1.410617876210265,
+            "costVolPt": 0.5151643517105332
+          },
+          {
+            "date": "2024-09-11",
+            "hedgeUsd": 1.955320665608338,
+            "costVolPt": 0.7140923988504588
+          },
+          {
+            "date": "2024-09-18",
+            "hedgeUsd": 1.6433150260360452,
+            "costVolPt": 0.6001464566140572
+          },
+          {
+            "date": "2024-09-25",
+            "hedgeUsd": 2.3582595159556106,
+            "costVolPt": 0.8612475817805232
+          },
+          {
+            "date": "2024-10-02",
+            "hedgeUsd": 1.3230370139170986,
+            "costVolPt": 0.48317940461293724
+          },
+          {
+            "date": "2024-10-09",
+            "hedgeUsd": 1.59410019775394,
+            "costVolPt": 0.5821729674543914
+          },
+          {
+            "date": "2024-10-16",
+            "hedgeUsd": 1.8409392061395558,
+            "costVolPt": 0.6723197463067048
+          },
+          {
+            "date": "2024-10-23",
+            "hedgeUsd": 2.0031245977714116,
+            "costVolPt": 0.7315506220428135
+          },
+          {
+            "date": "2024-10-30",
+            "hedgeUsd": 4.089703261411868,
+            "costVolPt": 1.493579065518415
+          },
+          {
+            "date": "2024-11-06",
+            "hedgeUsd": 7.248293198285434,
+            "costVolPt": 2.647111120223737
+          },
+          {
+            "date": "2024-11-13",
+            "hedgeUsd": 2.5658152051423255,
+            "costVolPt": 0.9370479057853274
+          },
+          {
+            "date": "2024-11-20",
+            "hedgeUsd": 4.8932917312851005,
+            "costVolPt": 1.7870533934040738
+          },
+          {
+            "date": "2024-11-27",
+            "hedgeUsd": 4.931539059054498,
+            "costVolPt": 1.801021499258451
+          },
+          {
+            "date": "2024-12-04",
+            "hedgeUsd": 7.044657684977414,
+            "costVolPt": 2.5727424630786815
+          },
+          {
+            "date": "2024-12-11",
+            "hedgeUsd": 5.749279037382625,
+            "costVolPt": 2.0996640252804317
+          },
+          {
+            "date": "2024-12-18",
+            "hedgeUsd": 7.787203782291021,
+            "costVolPt": 2.8439238264295104
+          },
+          {
+            "date": "2024-12-25",
+            "hedgeUsd": 3.0373272437569288,
+            "costVolPt": 1.1092463429334447
+          },
+          {
+            "date": "2025-01-01",
+            "hedgeUsd": 5.445895942490796,
+            "costVolPt": 1.988867077336049
+          },
+          {
+            "date": "2025-01-08",
+            "hedgeUsd": 3.4026410529771702,
+            "costVolPt": 1.2426606820480575
+          },
+          {
+            "date": "2025-01-15",
+            "hedgeUsd": 3.6521109987281357,
+            "costVolPt": 1.3337682917285272
+          },
+          {
+            "date": "2025-01-22",
+            "hedgeUsd": 6.109414982354741,
+            "costVolPt": 2.231187383766189
+          },
+          {
+            "date": "2025-01-29",
+            "hedgeUsd": 6.697375456630765,
+            "costVolPt": 2.4459133429859743
+          },
+          {
+            "date": "2025-02-05",
+            "hedgeUsd": 3.3383324227853155,
+            "costVolPt": 1.2191748647045368
+          },
+          {
+            "date": "2025-02-12",
+            "hedgeUsd": 0.7171353106096792,
+            "costVolPt": 0.26190122329337234
+          },
+          {
+            "date": "2025-02-19",
+            "hedgeUsd": 5.92538559322089,
+            "costVolPt": 2.163978976338709
+          },
+          {
+            "date": "2025-02-26",
+            "hedgeUsd": 5.812940798764341,
+            "costVolPt": 2.1229136030605407
+          },
+          {
+            "date": "2025-03-05",
+            "hedgeUsd": 2.66089076496453,
+            "costVolPt": 0.9717699520356623
+          },
+          {
+            "date": "2025-03-12",
+            "hedgeUsd": 0.9119255859769689,
+            "costVolPt": 0.33303955750951136
+          },
+          {
+            "date": "2025-03-19",
+            "hedgeUsd": 1.0118350163527956,
+            "costVolPt": 0.36952695625679577
+          },
+          {
+            "date": "2025-03-26",
+            "hedgeUsd": 1.610938155535497,
+            "costVolPt": 0.5883222696509361
+          },
+          {
+            "date": "2025-04-02",
+            "hedgeUsd": 2.5587367126004983,
+            "costVolPt": 0.9344628066717424
+          },
+          {
+            "date": "2025-04-09",
+            "hedgeUsd": 1.0078639780076852,
+            "costVolPt": 0.3680767141826116
+          },
+          {
+            "date": "2025-04-16",
+            "hedgeUsd": 1.3931356500773089,
+            "costVolPt": 0.5087797596504658
+          },
+          {
+            "date": "2025-04-23",
+            "hedgeUsd": 0.4733240194631628,
+            "costVolPt": 0.17286018116462437
+          },
+          {
+            "date": "2025-04-30",
+            "hedgeUsd": 0.8857946539220513,
+            "costVolPt": 0.3234964169477105
+          },
+          {
+            "date": "2025-05-07",
+            "hedgeUsd": 6.229748873071133,
+            "costVolPt": 2.2751338924877866
+          },
+          {
+            "date": "2025-05-14",
+            "hedgeUsd": 3.371526357420623,
+            "costVolPt": 1.2312974473723968
+          },
+          {
+            "date": "2025-05-21",
+            "hedgeUsd": 2.728487433980352,
+            "costVolPt": 0.9964565767826017
+          },
+          {
+            "date": "2025-05-28",
+            "hedgeUsd": 2.4144847924869848,
+            "costVolPt": 0.8817813199547822
+          },
+          {
+            "date": "2025-06-04",
+            "hedgeUsd": 3.8520379884338793,
+            "costVolPt": 1.4067825784309633
+          },
+          {
+            "date": "2025-06-11",
+            "hedgeUsd": 2.846683415509185,
+            "costVolPt": 1.039622310909464
+          },
+          {
+            "date": "2025-06-18",
+            "hedgeUsd": 3.3184739475889673,
+            "costVolPt": 1.2119224551944778
+          },
+          {
+            "date": "2025-06-25",
+            "hedgeUsd": 1.8932347696881449,
+            "costVolPt": 0.6914183346254806
+          },
+          {
+            "date": "2025-07-02",
+            "hedgeUsd": 2.7604614401603245,
+            "costVolPt": 1.0081336357814192
+          },
+          {
+            "date": "2025-07-09",
+            "hedgeUsd": 6.443734205881202,
+            "costVolPt": 2.353282352897791
+          },
+          {
+            "date": "2025-07-16",
+            "hedgeUsd": 5.573068839164867,
+            "costVolPt": 2.03531122353265
+          },
+          {
+            "date": "2025-07-23",
+            "hedgeUsd": 4.191866380917566,
+            "costVolPt": 1.5308895222455585
+          },
+          {
+            "date": "2025-07-30",
+            "hedgeUsd": 5.88850253503208,
+            "costVolPt": 2.1505091082182317
+          },
+          {
+            "date": "2025-08-06",
+            "hedgeUsd": 11.390267766918752,
+            "costVolPt": 4.1597799155349895
+          },
+          {
+            "date": "2025-08-13",
+            "hedgeUsd": 7.920621740147538,
+            "costVolPt": 2.8926486986467475
+          },
+          {
+            "date": "2025-08-20",
+            "hedgeUsd": 10.880231774386912,
+            "costVolPt": 3.9735123473487644
+          },
+          {
+            "date": "2025-08-27",
+            "hedgeUsd": 5.597154350636913,
+            "costVolPt": 2.044107366777657
+          },
+          {
+            "date": "2025-09-03",
+            "hedgeUsd": 4.184217203607286,
+            "costVolPt": 1.5280960063426154
+          },
+          {
+            "date": "2025-09-10",
+            "hedgeUsd": 6.206161233522915,
+            "costVolPt": 2.266519574435271
+          },
+          {
+            "date": "2025-09-17",
+            "hedgeUsd": 6.244779568426827,
+            "costVolPt": 2.2806231738582157
+          },
+          {
+            "date": "2025-09-24",
+            "hedgeUsd": 6.055523927713875,
+            "costVolPt": 2.211506114518669
+          },
+          {
+            "date": "2025-10-01",
+            "hedgeUsd": 7.983042042528812,
+            "costVolPt": 2.915444889700427
+          },
+          {
+            "date": "2025-10-08",
+            "hedgeUsd": 15.409832063128427,
+            "costVolPt": 5.627743897658098
+          },
+          {
+            "date": "2025-10-15",
+            "hedgeUsd": 7.363112023582726,
+            "costVolPt": 2.6890435008464446
+          },
+          {
+            "date": "2025-10-22",
+            "hedgeUsd": 6.4324079548539395,
+            "costVolPt": 2.349145952199789
+          },
+          {
+            "date": "2025-10-29",
+            "hedgeUsd": 7.317112828580763,
+            "costVolPt": 2.6722443762415184
+          },
+          {
+            "date": "2025-11-05",
+            "hedgeUsd": 5.390076143271063,
+            "costVolPt": 1.9684814214028477
+          },
+          {
+            "date": "2025-11-12",
+            "hedgeUsd": 5.573334925622103,
+            "costVolPt": 2.0354083995712875
+          },
+          {
+            "date": "2025-11-19",
+            "hedgeUsd": 4.501321897862613,
+            "costVolPt": 1.6439041475801945
+          },
+          {
+            "date": "2025-11-26",
+            "hedgeUsd": 4.720424338178886,
+            "costVolPt": 1.7239213999681857
+          },
+          {
+            "date": "2025-12-03",
+            "hedgeUsd": 4.939799137384191,
+            "costVolPt": 1.8040381191167125
+          },
+          {
+            "date": "2025-12-10",
+            "hedgeUsd": 4.327379299662425,
+            "costVolPt": 1.5803794841345653
+          },
+          {
+            "date": "2025-12-17",
+            "hedgeUsd": 2.2804907546934428,
+            "costVolPt": 0.832846060606986
+          },
+          {
+            "date": "2025-12-24",
+            "hedgeUsd": 1.6428608856821332,
+            "costVolPt": 0.5999806023987134
+          },
+          {
+            "date": "2025-12-31",
+            "hedgeUsd": 3.215766736921773,
+            "costVolPt": 1.1744132937896103
+          },
+          {
+            "date": "2026-01-07",
+            "hedgeUsd": 2.571344494757379,
+            "costVolPt": 0.9390672286281737
+          },
+          {
+            "date": "2026-01-14",
+            "hedgeUsd": 3.347547239174791,
+            "costVolPt": 1.2225401594391885
+          },
+          {
+            "date": "2026-01-21",
+            "hedgeUsd": 1.9256424947882498,
+            "costVolPt": 0.7032537898349822
+          },
+          {
+            "date": "2026-01-28",
+            "hedgeUsd": 6.3521700423567875,
+            "costVolPt": 2.3198426852617193
+          },
+          {
+            "date": "2026-02-04",
+            "hedgeUsd": 2.610646393137369,
+            "costVolPt": 0.9534204686809057
+          },
+          {
+            "date": "2026-02-11",
+            "hedgeUsd": 1.9915726081274032,
+            "costVolPt": 0.727331780529256
+          },
+          {
+            "date": "2026-02-18",
+            "hedgeUsd": 2.0525914825659197,
+            "costVolPt": 0.7496161634385926
+          },
+          {
+            "date": "2026-02-25",
+            "hedgeUsd": 2.7726308664345227,
+            "costVolPt": 1.0125779680864084
+          },
+          {
+            "date": "2026-03-04",
+            "hedgeUsd": 1.5845443891632995,
+            "costVolPt": 0.5786831407474644
+          },
+          {
+            "date": "2026-03-11",
+            "hedgeUsd": 2.7445094618031147,
+            "costVolPt": 1.0023078974808595
+          },
+          {
+            "date": "2026-03-18",
+            "hedgeUsd": 1.569692498843791,
+            "costVolPt": 0.5732591598259401
+          },
+          {
+            "date": "2026-03-25",
+            "hedgeUsd": 1.7269096733309521,
+            "costVolPt": 0.6306756190516188
+          },
+          {
+            "date": "2026-04-01",
+            "hedgeUsd": 2.1684130196870637,
+            "costVolPt": 0.791914739184302
+          },
+          {
+            "date": "2026-04-08",
+            "hedgeUsd": 2.2231973287705684,
+            "costVolPt": 0.811922229199058
+          },
+          {
+            "date": "2026-04-15",
+            "hedgeUsd": 1.9061521881533836,
+            "costVolPt": 0.6961358372331298
+          },
+          {
+            "date": "2026-04-22",
+            "hedgeUsd": 1.1298774266944083,
+            "costVolPt": 0.4126366054563081
+          },
+          {
+            "date": "2026-04-29",
+            "hedgeUsd": 0.9296103847123632,
+            "costVolPt": 0.3394981300466232
+          },
+          {
+            "date": "2026-05-06",
+            "hedgeUsd": 1.0891075975558535,
+            "costVolPt": 0.39774727011487643
+          },
+          {
+            "date": "2026-05-13",
+            "hedgeUsd": 0.9893413427984655,
+            "costVolPt": 0.36131215978382275
+          },
+          {
+            "date": "2026-05-20",
+            "hedgeUsd": 1.6881929972236602,
+            "costVolPt": 0.6165361049538784
+          },
+          {
+            "date": "2026-05-27",
+            "hedgeUsd": 1.3522053193723491,
+            "costVolPt": 0.4938318083742725
+          },
+          {
+            "date": "2026-06-03",
+            "hedgeUsd": 1.4752563636269689,
+            "costVolPt": 0.5387706344800649
+          },
+          {
+            "date": "2026-06-10",
+            "hedgeUsd": 0.7265760160038924,
+            "costVolPt": 0.26534901376598863
+          },
+          {
+            "date": "2026-06-17",
+            "hedgeUsd": 0.8264667293429888,
+            "costVolPt": 0.30182957696251494
+          },
+          {
+            "date": "2026-06-24",
+            "hedgeUsd": 0.6362389306297983,
+            "costVolPt": 0.23235748090154384
+          },
+          {
+            "date": "2026-07-01",
+            "hedgeUsd": 0.7660242105527951,
+            "costVolPt": 0.27975568187481337
+          },
+          {
+            "date": "2026-07-08",
+            "hedgeUsd": 0.9134243650689345,
+            "costVolPt": 0.33358691875616175
+          },
+          {
+            "date": "2026-07-15",
+            "hedgeUsd": 1.0561100946806519,
+            "costVolPt": 0.38569642525925957
+          }
+        ]
+      },
+      "hedgeRebalancesPerWeek": 7
+    },
+    "c2_4_costRealTable": {
+      "btc": {
+        "C_options_volpt": 2.1975411288961793,
+        "C_hedge_volpt_mean": 0.5381563804629919,
+        "C_real_volpt": 2.735697509359171
+      },
+      "eth": {
+        "C_options_volpt": 2.5427694937166536,
+        "C_hedge_volpt_mean": 1.2382052312656058,
+        "C_real_volpt": 3.7809747249822596
+      },
+      "labPlaceholderVolPtPerWeek": 1.8
+    }
+  },
+  "g0c3_cvarSizingCapital": {
+    "btc": {
+      "populationN": 278,
+      "tailCount": 14,
+      "esValue_volpt": -49.665816707304636,
+      "absCvar_volpt": 49.665816707304636,
+      "vegaNotionalPct_f05_main": 0.00020134572756415063,
+      "vegaNotionalPct_f10_reference": 0.00040269145512830125,
+      "minLotQtyUsed": 0.1,
+      "requiredCapitalFullStraddleUsd": 466527.65438030934,
+      "requiredCapitalMinLotUsd": 46652.76543803093,
+      "meanVrp_fullPeriod_volpt": 12.526410372514327,
+      "tailUnitPremium_disclosureOnly": 0.19713182048036634,
+      "descriptiveStatsOnly": {
+        "n": 278,
+        "meanVrp": 12.526410372514327,
+        "stdVrp": 23.33096778404608,
+        "positiveWeekRatioPct": 77.33812949640287
+      }
+    },
+    "eth": {
+      "populationN": 278,
+      "tailCount": 14,
+      "esValue_volpt": -84.05472642880423,
+      "absCvar_volpt": 84.05472642880423,
+      "vegaNotionalPct_f05_main": 0.00011897010941401575,
+      "vegaNotionalPct_f10_reference": 0.0002379402188280315,
+      "minLotQtyUsed": 1,
+      "requiredCapitalFullStraddleUsd": 23015.781136008743,
+      "requiredCapitalMinLotUsd": 23015.781136008743,
+      "meanVrp_fullPeriod_volpt": 10.477412213893482,
+      "tailUnitPremium_disclosureOnly": 0.07966759007398849,
+      "descriptiveStatsOnly": {
+        "n": 278,
+        "meanVrp": 10.477412213893482,
+        "stdVrp": 31.28917209185385,
+        "positiveWeekRatioPct": 71.94244604316546
+      }
+    },
+    "note": "§3-6 C3-5: 単一比率のみの報告禁止。C3-1〜C3-4全項目をセットで出力している。テール1単位あたりプレミアム(C3-4)は開示のみ・採否に使わない（spec §0-4・D17）。"
+  },
+  "g0c4_dependencyDisclosure": {
+    "c4_1_vegaRatioDecomposition": {
+      "actualVegaRatio": 0.029150349689434054,
+      "indexRatio": 0.029171717798068427,
+      "residualDaysRatio": 1,
+      "theoreticalRatio": 0.029171717798068427,
+      "residualAttributedToOther": -0.000021368108634373106
+    },
+    "c4_2_priceRatioHistoricalRange": {
+      "n": 1950,
+      "min": 0.0182962787229716,
+      "p5": 0.024088733323861054,
+      "median": 0.05436544372427411,
+      "p95": 0.07623053859033654,
+      "max": 0.08757728612096088,
+      "dateRange": {
+        "start": "2021-03-24",
+        "end": "2026-07-25"
+      }
+    },
+    "c4_2_requiredCapitalRatioRange": {
+      "method": "必要資本比(ETH/BTC) = vegaRatio(価格比クォンタイル×√残存比+観測残差) × (BTC vegaNotionalPct(f0.5) / ETH vegaNotionalPct(f0.5))。√残存比・観測残差(相対IV等)・両資産のvegaNotionalPctは現時点スナップショット値に固定し、価格比のみ歴史的分位に差し替える算術（新規のモデル推定はしない・spec §3-7 C4-2）。",
+      "atMin": {
+        "priceRatioQuantile": 0.0182962787229716,
+        "vegaRatioAtQuantile": 0.018274910614337225,
+        "requiredCapitalRatio_ethOverBtc": 0.03092856846091175
+      },
+      "atP5": {
+        "priceRatioQuantile": 0.024088733323861054,
+        "vegaRatioAtQuantile": 0.02406736521522668,
+        "requiredCapitalRatio_ethOverBtc": 0.040731753409996116
+      },
+      "atMedian": {
+        "priceRatioQuantile": 0.05436544372427411,
+        "vegaRatioAtQuantile": 0.05434407561563974,
+        "requiredCapitalRatio_ethOverBtc": 0.09197223989728584
+      },
+      "atP95": {
+        "priceRatioQuantile": 0.07623053859033654,
+        "vegaRatioAtQuantile": 0.07620917048170217,
+        "requiredCapitalRatio_ethOverBtc": 0.12897685774416046
+      },
+      "atMax": {
+        "priceRatioQuantile": 0.08757728612096088,
+        "vegaRatioAtQuantile": 0.08755591801232651,
+        "requiredCapitalRatio_ethOverBtc": 0.14818016139995369
+      },
+      "atCurrentSnapshot": {
+        "priceRatioQuantile": 0.029171717798068427,
+        "vegaRatioAtQuantile": 0.029150349689434054,
+        "requiredCapitalRatio_ethOverBtc": 0.04933422685645657
+      }
+    },
+    "c4_3_limitations": [
+      "現時点(runTimestampUTC)のvega/gamma/spread/流動性スナップショットを、必要資本の算出に用いている。過去時点のvega・過去のスプレッドはDeribit APIから取得不可（事実）。",
+      "必要資本比は定数ではなく、ETH/BTC価格比・相対IV・残存日数の関数である（C4-1/C4-2参照）。",
+      "本スクリプトを再実行すると異なる代表満期/strike/greeksが選ばれる可能性があり、その場合C2〜C4の数値も変動する（VRP系列自体の定義・CVaR/f/母集団の定義は不変）。"
+    ]
+  },
+  "scopeConstraintNote": "f=0.5固定・週次リスク予算2.0%固定・下側5%ES固定・母集団=主系列全期間(テール窓含む)固定。感度分析としても他の値は出力していない（spec §0-4）。"
+}

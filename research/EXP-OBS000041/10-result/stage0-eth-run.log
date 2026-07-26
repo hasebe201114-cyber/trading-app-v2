@@ -1,0 +1,84 @@
+======================================================================
+=== vrp-eth-stage0-economics.ts 実行 2026-07-26T03:34:10.910Z ===
+Git commit: 4f5a5d8397c154b1b4a35270021a0f2409d98a6a
+Node version: v22.23.1
+
+REPRODUCTION COMMAND:
+  node --experimental-strip-types scripts/vrp-eth-stage0-economics.ts
+  ⚠ 代表満期・ATM選定・vega/gamma/spread/流動性は実行時点のDeribitライブスナップショット依存。
+  再実行すると異なる満期/strike/greeksを選ぶ可能性があり、C2〜C4以降の数値も変わる（VRP系列の定義・CVaR/f/母集団の定義は不変）。
+
+EXECUTION LOG:
+[2026-07-26T03:34:10.914Z] === EXP-OBS000041 Stage 0: vrp-eth-stage0-economics.ts (G0-C0〜C4) ===
+[2026-07-26T03:34:10.914Z] 実行UTC時刻: 2026-07-26T03:34:10.910Z
+[2026-07-26T03:34:10.920Z] Git commit: 4f5a5d8397c154b1b4a35270021a0f2409d98a6a / Node v22.23.1
+[2026-07-26T03:34:10.924Z] 
+>>> 0. 読み取り専用参照: /home/runner/work/trading-app-v2/trading-app-v2/research/EXP-OBS000037/10-result/stage1-vrp-prediction-unit.json
+[2026-07-26T03:34:10.924Z]   Stage1 runTimestampUTC=2026-07-12T21:55:37.014Z mainSeries.weeklyPoints件数=277 最終date(生配列)=2026-07-08 最終date(vrp非null)=2026-07-01
+[2026-07-26T03:34:10.924Z]   注記: Stage1配列の最終要素(2026-07-08)はStage1実行時点(2026-07-12T21:55:37.014Z)でRV_forwardに必要な未来価格が未確定だったため vrp=null（構造的境界点であり、本スクリプトの実行時点が十分後であれば同一日付でも非nullが得られ得る）。C0の主比較は vrp非null の最終date(2026-07-01)基準で行い、生配列最終dateでの切り詰め結果も参考として併記する。
+[2026-07-26T03:34:10.924Z] 
+>>> 1. DVOL(BTC) 日次取得
+[2026-07-26T03:34:11.253Z]   DVOL(BTC) page#1: rowsReturned=1000 continuation=1698624000000
+[2026-07-26T03:34:11.725Z]   DVOL(BTC) page#2: rowsReturned=951 continuation=null
+[2026-07-26T03:34:11.730Z]   総取得件数=1951 最古=2021-03-24 最新=2026-07-26
+[2026-07-26T03:34:11.730Z] 
+>>> 1b. DVOL(ETH) 日次取得（実起点探索のため2019-01-01floorから）
+[2026-07-26T03:34:11.950Z]   DVOL(ETH) page#1: rowsReturned=1000 continuation=1698624000000
+[2026-07-26T03:34:12.418Z]   DVOL(ETH) page#2: rowsReturned=951 continuation=null
+[2026-07-26T03:34:12.421Z]   総取得件数=1951 実測最古=2021-03-24 最新=2026-07-26
+[2026-07-26T03:34:12.421Z] 
+>>> 1c. BTC-PERPETUAL / ETH-PERPETUAL 日次価格取得
+[2026-07-26T03:34:12.421Z]   GET https://www.deribit.com/api/v2/public/get_tradingview_chart_data?instrument_name=BTC-PERPETUAL&start_timestamp=1616544000000&end_timestamp=1785110400000&resolution=1D
+[2026-07-26T03:34:12.821Z]   BTC-PERPETUAL price: status=ok ticks=1951
+[2026-07-26T03:34:12.823Z]   GET https://www.deribit.com/api/v2/public/get_tradingview_chart_data?instrument_name=ETH-PERPETUAL&start_timestamp=1616544000000&end_timestamp=1785110400000&resolution=1D
+[2026-07-26T03:34:13.245Z]   ETH-PERPETUAL price: status=ok ticks=1951
+[2026-07-26T03:34:13.248Z] 
+>>> 2. ETH主系列アンカー決定: BTCアンカー=2021-03-24 ETH実起点=2021-03-24 → 採用アンカー=2021-03-24（BTCアンカーとの日数差=0, 7の倍数=true）
+[2026-07-26T03:34:13.248Z] 
+>>> 3. 週次VRP主系列構築（BTC: アンカー2021-03-24 / ETH: アンカー2021-03-24）
+[2026-07-26T03:34:13.259Z]   BTC主系列: 週次候補点数=279 VRP構築可能=278
+[2026-07-26T03:34:13.259Z]   ETH主系列: 週次候補点数=279 VRP構築可能=278
+[2026-07-26T03:34:13.266Z]   ETH参考系列（実起点アンカー=2021-03-24・判定不使用）: 週次候補点数=279 VRP構築可能=278
+[2026-07-26T03:34:13.266Z] 
+>>> 4. 先読み排除自己点検: BTC違反件数=0 ETH違反件数=0
+[2026-07-26T03:34:13.266Z] 
+>>> 5. G0-C0: BTC回帰再現（Stage1 mainSeries.weeklyPointsの最終dateに切り詰め）
+[2026-07-26T03:34:13.267Z]   C0-1(n): mine=276 expected=276
+[2026-07-26T03:34:13.267Z]   C0-2(平均VRP): mine=12.564168 expected=12.564168 absDiff=0.00000035
+[2026-07-26T03:34:13.267Z]   C0-3(日付列一致): mine件数=276 stage1件数=276 不一致件数=0
+[2026-07-26T03:34:13.267Z]   参考(生配列最終date切り詰め): n=277 meanVrp=12.541295504477095
+[2026-07-26T03:34:13.267Z]   C0-4(先読み違反): BTC=0 ETH=0
+[2026-07-26T03:34:13.267Z] 
+>>> 6. G0-C1: BTC→ETH 同時点スナップショット（連続取得・各取得UTC時刻を個別記録）
+[2026-07-26T03:34:20.854Z]   BTC ATM選定: method=deltaRange strike=65000 residualDays=12.1846
+[2026-07-26T03:34:21.361Z]   BTC取得完了: 2026-07-26T03:34:21.361Z
+[2026-07-26T03:34:26.901Z]   ETH ATM選定: method=deltaRange strike=1900 residualDays=12.1846
+[2026-07-26T03:34:27.406Z]   ETH取得開始: 2026-07-26T03:34:21.361Z / ETH取得完了: 2026-07-26T03:34:27.406Z
+[2026-07-26T03:34:27.406Z]   C1-2(同時性): BTC完了=2026-07-26T03:34:21.361Z ETH開始=2026-07-26T03:34:21.361Z 差分=0.0000分 同一UTC日=true
+[2026-07-26T03:34:27.406Z]   C1-4(残存日数不揃い): BTC residualDays=12.1846 ETH residualDays=12.1846 ratio=1 sqrtRatio=1
+[2026-07-26T03:34:27.406Z] 
+>>> 7. G0-C2: C_real構築（C_options + C_hedge・資産別実測）
+[2026-07-26T03:34:27.570Z]   公式手数料表到達確認: status=200 fetchSucceeded=true
+[2026-07-26T03:34:27.570Z]   BTC C_options=2.1975411288961793 vol pt/週 ETH C_options=2.5427694937166536 vol pt/週
+[2026-07-26T03:34:27.570Z]   BTC perpスプレッド=0.07748784409445768bps スリッページ($100k)=0.03874392204722884bps
+[2026-07-26T03:34:27.570Z]   ETH perpスプレッド=0.26568540191535006bps スリッページ($100k)=0.13284270095707093bps
+[2026-07-26T03:34:27.570Z]   BTC hedgeCostRateFraction=0.0005077487844094457 ETH hedgeCostRateFraction=0.0005265685401914746
+[2026-07-26T03:34:27.578Z]   BTC C_hedge mean=0.5381563804629919 validWeeks=278 skipped=0
+[2026-07-26T03:34:27.578Z]   ETH C_hedge mean=1.2382052312656058 validWeeks=278 skipped=0
+[2026-07-26T03:34:27.578Z]   BTC C_real=2.735697509359171 ETH C_real=3.7809747249822596（lab仮置き=1.8）
+[2026-07-26T03:34:27.578Z] 
+>>> 8. G0-C3: CVaR・サイジング・必要資本（f=0.5固定・下側5%ES・全期間母集団）
+[2026-07-26T03:34:27.579Z]   BTC |CVaR|=49.665816707304636 vegaNotionalPct(f0.5)=0.00020134572756415063 必要資本(最小ロット)=$46652.76543803093
+[2026-07-26T03:34:27.579Z]   ETH |CVaR|=84.05472642880423 vegaNotionalPct(f0.5)=0.00011897010941401575 必要資本(最小ロット)=$23015.781136008743
+[2026-07-26T03:34:27.579Z] 
+>>> 9. G0-C4: スナップショット依存性の開示
+[2026-07-26T03:34:27.580Z]   C4-1: actualVegaRatio=0.029150349689434054 theoreticalRatio(index×√residual)=0.029171717798068427 residual=-0.000021368108634373106
+[2026-07-26T03:34:27.581Z]   C4-2: 価格比サンプル数=1950 min=0.0182962787229716 p5=0.024088733323861054 median=0.05436544372427411 p95=0.07623053859033654 max=0.08757728612096088
+[2026-07-26T03:34:27.581Z] 
+>>> 10. 日次VRP水準系列構築（BTC・ETH・Stage1相関測定用の永続化のみ）
+[2026-07-26T03:34:27.616Z]   BTC日次VRP件数=1942（2021-03-24〜2026-07-17）
+[2026-07-26T03:34:27.616Z]   ETH日次VRP件数=1942（2021-03-24〜2026-07-17）
+[2026-07-26T03:34:27.624Z] 
+>>> 保存: /home/runner/work/trading-app-v2/trading-app-v2/research/EXP-OBS000041/10-result/stage0-eth-vrp-series.json
+[2026-07-26T03:34:27.625Z] >>> 保存: /home/runner/work/trading-app-v2/trading-app-v2/research/EXP-OBS000041/10-result/stage0-economics-snapshot.json
+[2026-07-26T03:34:27.625Z] >>> 保存: /home/runner/work/trading-app-v2/trading-app-v2/research/EXP-OBS000041/10-result/stage0-economics-params.json

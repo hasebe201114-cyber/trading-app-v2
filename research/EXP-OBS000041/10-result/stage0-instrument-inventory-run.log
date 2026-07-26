@@ -1,0 +1,73 @@
+======================================================================
+=== probe-deribit-instrument-inventory.ts 実行 2026-07-26T03:32:12.707Z ===
+Git commit: 4f5a5d8397c154b1b4a35270021a0f2409d98a6a
+Node version: v22.23.1
+
+REPRODUCTION COMMAND:
+  node --experimental-strip-types scripts/probe-deribit-instrument-inventory.ts
+
+EXECUTION LOG:
+[2026-07-26T03:32:12.710Z] === EXP-OBS000041 Stage 0: probe-deribit-instrument-inventory.ts (G0-E1 + G0-E2) ===
+[2026-07-26T03:32:12.710Z] 実行UTC時刻: 2026-07-26T03:32:12.707Z
+[2026-07-26T03:32:12.719Z] Git commit: 4f5a5d8397c154b1b4a35270021a0f2409d98a6a / Node v22.23.1
+[2026-07-26T03:32:12.722Z] BTC vegaNotionalPct(f=0.5)参照値: 0.00020083800084379173 (research/EXP-OBS000037/10-result/stage2-vrp-pipeline-accounting.json#cvarSizing.vegaNotionalPct_f05_main（読み取り専用・OBS000037側は一切変更していない）runTimestampUTC=2026-07-13T00:15:15.142Z)
+[2026-07-26T03:32:12.722Z] 
+>>> 1. get_currencies（全通貨コード実測列挙）
+[2026-07-26T03:32:13.071Z]   status=200 count=18 codes=XRP,USYC,USDT,USDE,USDC,STETH,SOL,PAXG,MATIC,LINK,EURR,ETH,BUIDL,BTC,BNB,BCH,AVAX,ADA
+[2026-07-26T03:32:13.254Z] 
+>>> 1b. get_instruments?currency=any プローブ（受理されるか実測）
+[2026-07-26T03:32:13.557Z]   status=200 rowsReturned=4226 apiError=none
+[2026-07-26T03:32:13.738Z] 
+>>> 2. 通貨別 get_instruments(kind=option/future) 全件取得
+[2026-07-26T03:32:14.414Z]   XRP: option=200/0件 future=200/0件
+[2026-07-26T03:32:15.095Z]   USYC: option=200/0件 future=200/0件
+[2026-07-26T03:32:15.774Z]   USDT: option=200/0件 future=200/0件
+[2026-07-26T03:32:16.454Z]   USDE: option=200/0件 future=200/0件
+[2026-07-26T03:32:17.192Z]   USDC: option=200/2676件 future=200/67件
+[2026-07-26T03:32:17.868Z]   STETH: option=200/0件 future=200/0件
+[2026-07-26T03:32:18.548Z]   SOL: option=200/0件 future=200/0件
+[2026-07-26T03:32:19.228Z]   PAXG: option=200/0件 future=200/0件
+[2026-07-26T03:32:19.905Z]   MATIC: option=200/0件 future=200/0件
+[2026-07-26T03:32:20.582Z]   LINK: option=200/0件 future=200/0件
+[2026-07-26T03:32:21.259Z]   EURR: option=200/0件 future=200/0件
+[2026-07-26T03:32:21.949Z]   ETH: option=200/680件 future=200/13件
+[2026-07-26T03:32:22.627Z]   BUIDL: option=200/0件 future=200/0件
+[2026-07-26T03:32:23.328Z]   BTC: option=200/870件 future=200/13件
+[2026-07-26T03:32:24.009Z]   BNB: option=200/0件 future=200/0件
+[2026-07-26T03:32:24.687Z]   BCH: option=200/0件 future=200/0件
+[2026-07-26T03:32:25.366Z]   AVAX: option=200/0件 future=200/0件
+[2026-07-26T03:32:26.051Z]   ADA: option=200/0件 future=200/0件
+[2026-07-26T03:32:26.051Z] 
+>>> 3. BTC/ETH原資産分類（price_indexがbtc/eth始まり または base_currency一致）
+[2026-07-26T03:32:26.060Z]   BTC原資産option件数=1420 / ETH原資産option件数=1112 / その他=1694
+[2026-07-26T03:32:26.064Z]   BTC原資産系列数=2
+[2026-07-26T03:32:26.064Z]     series[btc_usdc|USDC|1|0.01] currency=USDC instruments=550
+[2026-07-26T03:32:26.064Z]     series[btc_usd|BTC|1|0.1] currency=BTC instruments=870
+[2026-07-26T03:32:26.064Z]   ETH原資産系列数=2
+[2026-07-26T03:32:26.064Z]     series[eth_usdc|USDC|1|0.1] currency=USDC instruments=432
+[2026-07-26T03:32:26.064Z]     series[eth_usd|ETH|1|1] currency=ETH instruments=680
+[2026-07-26T03:32:26.065Z] 
+>>> 4. 標準系列の同定（規則: price_index='btc_usd'/'eth_usd' かつ settlement_currency='BTC'/'ETH' かつ contract_size=1）
+[2026-07-26T03:32:26.065Z]   BTC標準系列: btc_usd|BTC|1|0.1
+[2026-07-26T03:32:26.065Z]   ETH標準系列: eth_usd|ETH|1|1
+[2026-07-26T03:32:26.065Z] 
+>>> 5. 各BTC原資産系列: 代表満期・ATM選定・V_min実測
+[2026-07-26T03:32:32.869Z]   series[btc_usdc|USDC|1|0.01]: rep.expiry=2026-08-07T08:00:00.000Z residualDays=12.1860 atm.method=deltaRange V_min=0.9281598
+[2026-07-26T03:32:39.659Z]   series[btc_usd|BTC|1|0.1]: rep.expiry=2026-08-07T08:00:00.000Z residualDays=12.1860 atm.method=deltaRange V_min=9.281539
+[2026-07-26T03:32:39.659Z] 
+>>> 6. 物理サニティ（候補系列 vs BTC標準系列）
+[2026-07-26T03:32:39.659Z]   physicalSanity[btc_usdc|USDC|1|0.01]: nominalRatio=0.100001 residualRatio=1.000000 expectedRatio=0.100001 actualVMinRatio=0.100001 diffAbs=0.000005
+[2026-07-26T03:32:39.659Z] 
+>>> 8. G0-E2: 満期短縮開示（BTC標準系列・ETH標準系列 × 残存日数帯5区分）
+[2026-07-26T03:32:39.659Z]   --- BTC標準系列 ---
+[2026-07-26T03:32:46.455Z]   band[[10,14)]: shortestExpiry=2026-08-07T08:00:00.000Z residualDays=12.1860 atm.method=deltaRange vMin=9.281381999999999
+[2026-07-26T03:32:51.563Z]   band[[14,21)]: shortestExpiry=2026-08-14T08:00:00.000Z residualDays=19.1860 atm.method=deltaRange vMin=11.673361
+[2026-07-26T03:33:08.569Z]   band[[21,35)]: shortestExpiry=2026-08-28T08:00:00.000Z residualDays=33.1860 atm.method=deltaRange vMin=15.378352000000001
+[2026-07-26T03:33:29.318Z]   band[>=35]: shortestExpiry=2026-09-25T08:00:00.000Z residualDays=61.1860 atm.method=deltaRange vMin=21.163578
+[2026-07-26T03:33:29.318Z]   --- ETH標準系列 ---
+[2026-07-26T03:33:34.078Z]   band[[10,14)]: shortestExpiry=2026-08-07T08:00:00.000Z residualDays=12.1860 atm.method=deltaRange vMin=2.73744
+[2026-07-26T03:33:38.498Z]   band[[14,21)]: shortestExpiry=2026-08-14T08:00:00.000Z residualDays=19.1860 atm.method=deltaRange vMin=3.4409
+[2026-07-26T03:33:50.345Z]   band[[21,35)]: shortestExpiry=2026-08-28T08:00:00.000Z residualDays=33.1860 atm.method=deltaRange vMin=4.527760000000001
+[2026-07-26T03:34:10.762Z]   band[>=35]: shortestExpiry=2026-09-25T08:00:00.000Z residualDays=61.1860 atm.method=deltaRange vMin=6.14691
+[2026-07-26T03:34:10.775Z] 
+>>> 保存: /home/runner/work/trading-app-v2/trading-app-v2/research/EXP-OBS000041/10-result/stage0-instrument-inventory.json

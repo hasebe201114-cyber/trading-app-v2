@@ -1,0 +1,35 @@
+{
+  "anchorDateBtc": "2021-03-24",
+  "weeklyStepDays": 7,
+  "rvForwardReturnCount": 7,
+  "annualizationRv": 19.1049731745428,
+  "minResidualDaysForRepresentativeMaturity": 7,
+  "atmDeltaRange": [
+    0.35,
+    0.65
+  ],
+  "optionPremiumCapRate": 0.125,
+  "hedgeRebalancesPerWeek": 7,
+  "cvarTailFraction": 0.05,
+  "weeklyRiskBudget": 0.02,
+  "fFraction_main": 0.5,
+  "fFraction_reference": 1,
+  "slippageNotionalUsdPrimary": 100000,
+  "slippageNotionalUsdReference": 10000,
+  "orderBookDepth": 50,
+  "tailWindows": {
+    "T2": {
+      "start": "2022-05-01",
+      "end": "2022-06-30",
+      "label": "LUNA/UST崩壊"
+    },
+    "T3": {
+      "start": "2022-10-25",
+      "end": "2022-12-15",
+      "label": "FTX破綻"
+    }
+  },
+  "officialFeePageUrl": "https://www.deribit.com/kb/fees",
+  "requestSleepMs": 180,
+  "c1SamenessMaxMinutes": 30
+}
