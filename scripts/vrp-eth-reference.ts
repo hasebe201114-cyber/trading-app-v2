@@ -230,25 +230,24 @@ async function fetchOptionInstruments(currency: string): Promise<OptionInstrumen
 }
 interface TickerGreeks { delta: number; gamma: number; vega: number; theta: number }
 interface TickerSnapshot { instrumentName: string; indexPrice: number; markPrice: number; bestBid: number; bestAsk: number; greeks: TickerGreeks }
-async function fetchTicker(instrumentName: string): Promise<TickerSnapshot | null> {
+interface TickerFetchDiag { instrumentName: string; httpStatus: number; hasResult: boolean; hasGreeks: boolean; error?: string; apiError?: string }
+async function fetchTicker(instrumentName: string): Promise<{ ticker: TickerSnapshot | null; diag: TickerFetchDiag }> {
   const url = `${BASE}/public/ticker?instrument_name=${instrumentName}`;
   const r = await fetchWithMeta(url);
-  const resultObj = r.json && typeof r.json === 'object' ? (r.json as Record<string, unknown>).result as Record<string, unknown> | undefined : undefined;
-  if (!resultObj) return null;
+  const top = r.json && typeof r.json === 'object' ? (r.json as Record<string, unknown>) : undefined;
+  const resultObj = top?.result as Record<string, unknown> | undefined;
+  const apiError = top?.error ? JSON.stringify(top.error) : undefined;
+  if (!resultObj) return { ticker: null, diag: { instrumentName, httpStatus: r.status, hasResult: false, hasGreeks: false, error: r.error, apiError } };
   const greeks = resultObj.greeks as Record<string, number> | undefined;
-  if (!greeks) return null;
+  if (!greeks) return { ticker: null, diag: { instrumentName, httpStatus: r.status, hasResult: true, hasGreeks: false, apiError } };
   return {
-    instrumentName, indexPrice: resultObj.index_price as number, markPrice: resultObj.mark_price as number,
-    bestBid: resultObj.best_bid_price as number, bestAsk: resultObj.best_ask_price as number,
-    greeks: { delta: greeks.delta, gamma: greeks.gamma, vega: greeks.vega, theta: greeks.theta },
+    ticker: {
+      instrumentName, indexPrice: resultObj.index_price as number, markPrice: resultObj.mark_price as number,
+      bestBid: resultObj.best_bid_price as number, bestAsk: resultObj.best_ask_price as number,
+      greeks: { delta: greeks.delta, gamma: greeks.gamma, vega: greeks.vega, theta: greeks.theta },
+    },
+    diag: { instrumentName, httpStatus: r.status, hasResult: true, hasGreeks: true },
   };
-}
-function instrumentNameFor(currency: string, expiryMs: number, strike: number, cp: 'C' | 'P'): string {
-  const dt = new Date(expiryMs);
-  const dd = String(dt.getUTCDate()).padStart(2, '0');
-  const mon = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'][dt.getUTCMonth()];
-  const yy = String(dt.getUTCFullYear()).slice(2);
-  return `${currency}-${dd}${mon}${yy}-${strike}-${cp}`;
 }
 async function selectRepresentativeMaturityAndAtm(currency: string, nowMs: number) {
   const instruments = await fetchOptionInstruments(currency);
@@ -258,23 +257,33 @@ async function selectRepresentativeMaturityAndAtm(currency: string, nowMs: numbe
   const chosen = residuals.find(r => r.days >= PARAMS.minResidualDaysForRepresentativeMaturity);
   if (!chosen) throw new Error(`${currency}: 代表満期（残存>=7日）が見つからない`);
   const expiryTimestamp = chosen.e;
-  const callStrikes = instruments.filter(i => i.expiration_timestamp === expiryTimestamp && i.option_type === 'call').map(i => i.strike).sort((a, b) => a - b);
-  log(`  代表満期選定: expiry=${new Date(expiryTimestamp).toISOString()} residualDays=${chosen.days.toFixed(4)} candidateStrikes=${callStrikes.length}`);
+  // ⚠ instrument_nameは手動組立てせず、get_instrumentsが返した実際の値をそのまま使う
+  // （手動組立て版は前回実行で全滅した。日付フォーマットや通貨固有の命名規則のズレを避けるため）。
+  const callInstruments = instruments
+    .filter(i => i.expiration_timestamp === expiryTimestamp && i.option_type === 'call')
+    .sort((a, b) => a.strike - b.strike);
+  const putByStrike = new Map(
+    instruments.filter(i => i.expiration_timestamp === expiryTimestamp && i.option_type === 'put').map(i => [i.strike, i.instrument_name]),
+  );
+  log(`  代表満期選定: expiry=${new Date(expiryTimestamp).toISOString()} residualDays=${chosen.days.toFixed(4)} candidateStrikes=${callInstruments.length}`);
+  log(`  callInstrumentNames: ${callInstruments.map(i => i.instrument_name).join(', ')}`);
 
   const candidates: { strike: number; delta: number; indexPrice: number; ticker: TickerSnapshot }[] = [];
   const allTickers: { strike: number; delta: number; indexPrice: number; ticker: TickerSnapshot }[] = [];
   const candidateLog: { strike: number; delta: number; instrumentName: string }[] = [];
-  for (const strike of callStrikes) {
-    const instrumentName = instrumentNameFor(currency, expiryTimestamp, strike, 'C');
-    const t = await fetchTicker(instrumentName);
+  const diagLog: TickerFetchDiag[] = [];
+  for (const inst of callInstruments) {
+    const { ticker: t, diag } = await fetchTicker(inst.instrument_name);
     await sleep(150);
+    diagLog.push(diag);
     if (!t) continue;
-    candidateLog.push({ strike, delta: t.greeks.delta, instrumentName });
-    allTickers.push({ strike, delta: t.greeks.delta, indexPrice: t.indexPrice, ticker: t });
+    candidateLog.push({ strike: inst.strike, delta: t.greeks.delta, instrumentName: inst.instrument_name });
+    allTickers.push({ strike: inst.strike, delta: t.greeks.delta, indexPrice: t.indexPrice, ticker: t });
     if (t.greeks.delta >= PARAMS.atmDeltaRange[0] && t.greeks.delta <= PARAMS.atmDeltaRange[1]) {
-      candidates.push({ strike, delta: t.greeks.delta, indexPrice: t.indexPrice, ticker: t });
+      candidates.push({ strike: inst.strike, delta: t.greeks.delta, indexPrice: t.indexPrice, ticker: t });
     }
   }
+  log(`  ticker取得診断: ${diagLog.map(d => `${d.instrumentName}[status=${d.httpStatus},result=${d.hasResult},greeks=${d.hasGreeks}${d.apiError ? `,apiError=${d.apiError}` : ''}${d.error ? `,error=${d.error}` : ''}]`).join(' | ')}`);
   log(`  strike/delta一覧: ${candidateLog.map(c => `${c.strike}:${c.delta.toFixed(3)}`).join(', ')}`);
 
   let best: { strike: number; delta: number; indexPrice: number; ticker: TickerSnapshot };
@@ -289,17 +298,20 @@ async function selectRepresentativeMaturityAndAtm(currency: string, nowMs: numbe
     // その場合は「index価格に最も近いstrike」を素朴なATM近似として採用する（delta条件は課さない）。
     // spec §2-2のBTC定義（delta band必須）そのままではなく、探索的参考値としての緩和である旨を
     // selectionMethodとして出力に明記する（判定には使わない・粒度検証が目的のため許容）。
-    if (allTickers.length === 0) throw new Error(`${currency}: 代表満期にオプションtickerが1件も取得できない`);
+    if (allTickers.length === 0) {
+      throw new Error(`${currency}: 代表満期にオプションtickerが1件も取得できない。診断: ${JSON.stringify(diagLog)}`);
+    }
     allTickers.sort((a, b) => Math.abs(a.strike - a.indexPrice) - Math.abs(b.strike - b.indexPrice));
     best = allTickers[0];
     selectionMethod = 'nearestStrikeFallback';
     log(`  ⚠ |delta|∈[0.35,0.65]の候補なし → フォールバック: index最近接strike=${best.strike} (delta=${best.delta.toFixed(4)})`);
   }
   log(`  ATM選定(${selectionMethod}): strike=${best.strike} delta=${best.delta} indexPrice=${best.indexPrice}`);
-  const putInstrumentName = instrumentNameFor(currency, expiryTimestamp, best.strike, 'P');
-  const putTicker = await fetchTicker(putInstrumentName);
-  if (!putTicker) throw new Error(`put ticker取得失敗: ${putInstrumentName}`);
-  return { expiryTimestamp, residualDays: chosen.days, strike: best.strike, indexPriceAtSelection: best.indexPrice, callTicker: best.ticker, putTicker, candidateLog, selectionMethod };
+  const putInstrumentName = putByStrike.get(best.strike);
+  if (!putInstrumentName) throw new Error(`${currency}: strike=${best.strike}に対応するput instrumentが見つからない`);
+  const { ticker: putTicker, diag: putDiag } = await fetchTicker(putInstrumentName);
+  if (!putTicker) throw new Error(`put ticker取得失敗: ${putInstrumentName} 診断=${JSON.stringify(putDiag)}`);
+  return { expiryTimestamp, residualDays: chosen.days, strike: best.strike, indexPriceAtSelection: best.indexPrice, callTicker: best.ticker, putTicker, candidateLog, selectionMethod, diagLog };
 }
 
 // ============================================================
@@ -433,6 +445,7 @@ async function main(): Promise<void> {
         ? '⚠ |delta|∈[0.35,0.65]の候補が代表満期に1つも無かったため、index価格に最も近いstrikeを素朴なATM近似として採用（delta条件を課していない）。ETHはBTCよりストライク刻みが価格に対し粗いことが原因と見られる（構造的事象）。'
         : 'BTC版と同一の|delta|∈[0.35,0.65]条件で選定。',
       candidateStrikeDeltaLog: atm.candidateLog,
+      tickerFetchDiagnostics: atm.diagLog,
       selectedExpiryIso: new Date(atm.expiryTimestamp).toISOString(),
       residualDaysAtSelection: atm.residualDays,
       selectedStrike: atm.strike,
