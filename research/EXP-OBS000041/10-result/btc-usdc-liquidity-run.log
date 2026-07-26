@@ -1,0 +1,44 @@
+======================================================================
+=== probe-btc-usdc-liquidity.ts 実行 2026-07-26T04:02:15.655Z ===
+Git commit: 0975909cf1a2abd0995b0e928c3c2e5a683c71a2
+Node version: v22.23.1
+
+REPRODUCTION COMMAND:
+  node --experimental-strip-types scripts/probe-btc-usdc-liquidity.ts
+
+EXECUTION LOG:
+[2026-07-26T04:02:15.658Z] === EXP-OBS000041 追加調査: probe-btc-usdc-liquidity.ts ===
+[2026-07-26T04:02:15.658Z] 実行UTC時刻: 2026-07-26T04:02:15.655Z
+[2026-07-26T04:02:15.667Z] Git commit: 0975909cf1a2abd0995b0e928c3c2e5a683c71a2 / Node v22.23.1
+[2026-07-26T04:02:15.690Z] stage0-economics-snapshot.json の c2_2_spreadSlippage キー: btc,eth / btcUsdc含有=false
+[2026-07-26T04:02:15.690Z] 
+>>> 1. get_instruments(currency=USDC / currency=BTC, kind=option, expired=false)
+[2026-07-26T04:02:16.691Z]   USDC: status=200 count=2678
+[2026-07-26T04:02:16.691Z]   BTC: status=200 count=870
+[2026-07-26T04:02:16.694Z]   btc_usdc系列 instrumentCount=550 / btc_usd標準系列 instrumentCount=870
+[2026-07-26T04:02:16.694Z] 
+>>> 2. D5/D6 代表満期・ATM選定（btc_usdc / btc_usd標準）
+[2026-07-26T04:02:16.695Z]   btc_usdc 代表満期: 2026-08-07T08:00:00.000Z (残存12.1651日)
+[2026-07-26T04:02:16.695Z]   btc_usd標準 代表満期: 2026-08-07T08:00:00.000Z (残存12.1651日)
+[2026-07-26T04:02:28.793Z]   btc_usdc ATM: method=deltaRange strike=64000
+[2026-07-26T04:02:28.793Z]   btc_usd標準 ATM: method=deltaRange strike=64000
+[2026-07-26T04:02:28.793Z] 
+>>> 3. 板の厚み get_order_book depth=20
+[2026-07-26T04:02:29.094Z]   btcUsdcCall(BTC_USDC-7AUG26-64000-C): httpStatus=200 bidsLevels=4 asksLevels=3
+[2026-07-26T04:02:29.398Z]   btcUsdcPut(BTC_USDC-7AUG26-64000-P): httpStatus=200 bidsLevels=4 asksLevels=3
+[2026-07-26T04:02:29.703Z]   btcStandardCall(BTC-7AUG26-64000-C): httpStatus=200 bidsLevels=10 asksLevels=8
+[2026-07-26T04:02:30.004Z]   btcStandardPut(BTC-7AUG26-64000-P): httpStatus=200 bidsLevels=9 asksLevels=7
+[2026-07-26T04:02:30.005Z] 
+>>> 4. btc_usdc系列 全550instrumentのticker取得（openInterest/volume/best板数量）
+[2026-07-26T04:05:15.739Z]   取得完了: 新規fetch=548件 / ATM選定時のキャッシュ再利用=2件 / 合計=550件
+[2026-07-26T04:05:15.740Z]   満期数=8
+[2026-07-26T04:05:15.740Z] 
+>>> 5. get_last_trades_by_instrument (count=50, include_old=true)
+[2026-07-26T04:05:16.043Z]   btcUsdcCall(BTC_USDC-7AUG26-64000-C): httpStatus=200 tradesReturned=0 lastTradeUTC=null
+[2026-07-26T04:05:16.345Z]   btcUsdcPut(BTC_USDC-7AUG26-64000-P): httpStatus=200 tradesReturned=0 lastTradeUTC=null
+[2026-07-26T04:05:16.645Z]   btcStandardCall(BTC-7AUG26-64000-C): httpStatus=200 tradesReturned=5 lastTradeUTC=2026-07-25T15:16:34.185Z
+[2026-07-26T04:05:16.946Z]   btcStandardPut(BTC-7AUG26-64000-P): httpStatus=200 tradesReturned=24 lastTradeUTC=2026-07-25T23:49:31.617Z
+[2026-07-26T04:05:16.946Z] 
+>>> 6. スプレッド実測・約定可能名目の目安（ベスト価格・板全体累積）
+[2026-07-26T04:05:16.949Z] 
+>>> 保存: /home/runner/work/trading-app-v2/trading-app-v2/research/EXP-OBS000041/10-result/btc-usdc-liquidity.json
