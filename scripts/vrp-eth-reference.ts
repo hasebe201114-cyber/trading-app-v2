@@ -262,6 +262,7 @@ async function selectRepresentativeMaturityAndAtm(currency: string, nowMs: numbe
   log(`  代表満期選定: expiry=${new Date(expiryTimestamp).toISOString()} residualDays=${chosen.days.toFixed(4)} candidateStrikes=${callStrikes.length}`);
 
   const candidates: { strike: number; delta: number; indexPrice: number; ticker: TickerSnapshot }[] = [];
+  const allTickers: { strike: number; delta: number; indexPrice: number; ticker: TickerSnapshot }[] = [];
   const candidateLog: { strike: number; delta: number; instrumentName: string }[] = [];
   for (const strike of callStrikes) {
     const instrumentName = instrumentNameFor(currency, expiryTimestamp, strike, 'C');
@@ -269,18 +270,36 @@ async function selectRepresentativeMaturityAndAtm(currency: string, nowMs: numbe
     await sleep(150);
     if (!t) continue;
     candidateLog.push({ strike, delta: t.greeks.delta, instrumentName });
+    allTickers.push({ strike, delta: t.greeks.delta, indexPrice: t.indexPrice, ticker: t });
     if (t.greeks.delta >= PARAMS.atmDeltaRange[0] && t.greeks.delta <= PARAMS.atmDeltaRange[1]) {
       candidates.push({ strike, delta: t.greeks.delta, indexPrice: t.indexPrice, ticker: t });
     }
   }
-  if (candidates.length === 0) throw new Error(`${currency}: ATM候補（|delta|∈[0.35,0.65]）が見つからない`);
-  candidates.sort((a, b) => Math.abs(a.strike - a.indexPrice) - Math.abs(b.strike - b.indexPrice));
-  const best = candidates[0];
-  log(`  ATM選定: strike=${best.strike} delta=${best.delta} indexPrice=${best.indexPrice}`);
+  log(`  strike/delta一覧: ${candidateLog.map(c => `${c.strike}:${c.delta.toFixed(3)}`).join(', ')}`);
+
+  let best: { strike: number; delta: number; indexPrice: number; ticker: TickerSnapshot };
+  let selectionMethod: 'deltaRange' | 'nearestStrikeFallback';
+  if (candidates.length > 0) {
+    candidates.sort((a, b) => Math.abs(a.strike - a.indexPrice) - Math.abs(b.strike - b.indexPrice));
+    best = candidates[0];
+    selectionMethod = 'deltaRange';
+  } else {
+    // ⚠ フォールバック: ETHはストライク刻みがBTCより価格に対し粗く、|delta|∈[0.35,0.65]の
+    // 候補がその代表満期に1つも存在しない場合がある（構造的事象・バグではない）。
+    // その場合は「index価格に最も近いstrike」を素朴なATM近似として採用する（delta条件は課さない）。
+    // spec §2-2のBTC定義（delta band必須）そのままではなく、探索的参考値としての緩和である旨を
+    // selectionMethodとして出力に明記する（判定には使わない・粒度検証が目的のため許容）。
+    if (allTickers.length === 0) throw new Error(`${currency}: 代表満期にオプションtickerが1件も取得できない`);
+    allTickers.sort((a, b) => Math.abs(a.strike - a.indexPrice) - Math.abs(b.strike - b.indexPrice));
+    best = allTickers[0];
+    selectionMethod = 'nearestStrikeFallback';
+    log(`  ⚠ |delta|∈[0.35,0.65]の候補なし → フォールバック: index最近接strike=${best.strike} (delta=${best.delta.toFixed(4)})`);
+  }
+  log(`  ATM選定(${selectionMethod}): strike=${best.strike} delta=${best.delta} indexPrice=${best.indexPrice}`);
   const putInstrumentName = instrumentNameFor(currency, expiryTimestamp, best.strike, 'P');
   const putTicker = await fetchTicker(putInstrumentName);
   if (!putTicker) throw new Error(`put ticker取得失敗: ${putInstrumentName}`);
-  return { expiryTimestamp, residualDays: chosen.days, strike: best.strike, indexPriceAtSelection: best.indexPrice, callTicker: best.ticker, putTicker, candidateLog };
+  return { expiryTimestamp, residualDays: chosen.days, strike: best.strike, indexPriceAtSelection: best.indexPrice, callTicker: best.ticker, putTicker, candidateLog, selectionMethod };
 }
 
 // ============================================================
@@ -409,6 +428,11 @@ async function main(): Promise<void> {
     atmEconomicsSnapshot: {
       note: '現時点(runTimestampUTC)の1スナップショット。過去のvega/premiumは取得不可のため全期間には適用していない（BTC版と同一の限界）。' +
         'C_hedgeはgamma簡易推定のみ（日次リバランスの厳密シミュレーションではない）。realSpreadBps/slippageBpsはBTC Stage 0実測値を暫定使用（ETH実測ではない）。',
+      selectionMethod: atm.selectionMethod,
+      selectionMethodNote: atm.selectionMethod === 'nearestStrikeFallback'
+        ? '⚠ |delta|∈[0.35,0.65]の候補が代表満期に1つも無かったため、index価格に最も近いstrikeを素朴なATM近似として採用（delta条件を課していない）。ETHはBTCよりストライク刻みが価格に対し粗いことが原因と見られる（構造的事象）。'
+        : 'BTC版と同一の|delta|∈[0.35,0.65]条件で選定。',
+      candidateStrikeDeltaLog: atm.candidateLog,
       selectedExpiryIso: new Date(atm.expiryTimestamp).toISOString(),
       residualDaysAtSelection: atm.residualDays,
       selectedStrike: atm.strike,
