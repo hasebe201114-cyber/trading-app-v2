@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#3B82F6" />
+  <title>ファンディングキャリー バックテストデータ — EXP-OBS000032</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+  <script>
+    // アプリ本体（index.html）と同じテーマ判定。localStorage.theme を共有する。
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('theme') === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  </script>
+  <style>*,*::before,*::after{box-sizing:border-box}body{margin:0}</style>
+<style>
+  :root {
+    --ground: #F4F6F8;
+    --surface: #FFFFFF;
+    --sunken: #EDF0F4;
+    --ink: #131820;
+    --ink-2: #3D4653;
+    --muted: #5B6675;
+    --hairline: #DEE3EA;
+    --btc: #B45309;
+    --eth: #2563EB;
+    --pos: #2563EB;
+    --neg: #DC2626;
+    --tail: #DC2626;
+    --grid: #E7EBF0;
+    --tip-bg: #131820;
+    --tip-ink: #F4F6F8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0E1218;
+      --surface: #161C24;
+      --sunken: #11161D;
+      --ink: #E3E9F1;
+      --ink-2: #BAC3CF;
+      --muted: #8A94A4;
+      --hairline: #252D38;
+      --btc: #C77F0A;
+      --eth: #5B93F0;
+      --pos: #5B93F0;
+      --neg: #EF4444;
+      --tail: #EF4444;
+      --grid: #222A34;
+      --tip-bg: #E3E9F1;
+      --tip-ink: #0E1218;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0E1218; --surface: #161C24; --sunken: #11161D;
+    --ink: #E3E9F1; --ink-2: #BAC3CF; --muted: #8A94A4; --hairline: #252D38;
+    --btc: #C77F0A; --eth: #5B93F0; --pos: #5B93F0; --neg: #EF4444; --tail: #EF4444;
+    --grid: #222A34; --tip-bg: #E3E9F1; --tip-ink: #0E1218;
+  }
+  :root[data-theme="light"] {
+    --ground: #F4F6F8; --surface: #FFFFFF; --sunken: #EDF0F4;
+    --ink: #131820; --ink-2: #3D4653; --muted: #5B6675; --hairline: #DEE3EA;
+    --btc: #B45309; --eth: #2563EB; --pos: #2563EB; --neg: #DC2626; --tail: #DC2626;
+    --grid: #E7EBF0; --tip-bg: #131820; --tip-ink: #F4F6F8;
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Inter", "Noto Sans JP", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 40px 20px 96px; }
+  .measure { max-width: 62ch; }
+
+  .eyebrow {
+    font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 10px;
+  }
+  h1 {
+    font-size: clamp(28px, 5.2vw, 42px); line-height: 1.18; font-weight: 700;
+    letter-spacing: -.02em; text-wrap: balance; margin: 0 0 14px;
+  }
+  h2 {
+    font-size: clamp(19px, 3vw, 23px); line-height: 1.35; font-weight: 700;
+    letter-spacing: -.01em; text-wrap: balance; margin: 0 0 6px;
+  }
+  h3 { font-size: 15px; font-weight: 700; margin: 0 0 4px; letter-spacing: -.005em; }
+  p { margin: 0 0 14px; color: var(--ink-2); }
+  .lede { font-size: 16px; color: var(--ink-2); }
+  strong { color: var(--ink); font-weight: 700; }
+  code {
+    font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: .88em; background: var(--sunken); padding: .1em .38em;
+    border-radius: 3px; color: var(--ink);
+  }
+  .num { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+         font-variant-numeric: tabular-nums; }
+
+  header.page { border-bottom: 1px solid var(--hairline); padding-bottom: 26px; margin-bottom: 34px; }
+  .provenance {
+    display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 18px;
+    font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11.5px; color: var(--muted); line-height: 1.7;
+  }
+  .provenance span::before { content: "· "; opacity: .5; }
+  .provenance span:first-child::before { content: ""; }
+
+  section { margin: 0 0 52px; }
+  .sec-head { margin-bottom: 18px; }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 1px;
+           background: var(--hairline); border: 1px solid var(--hairline); margin: 0 0 30px; }
+  .stat { background: var(--surface); padding: 16px 16px 14px; }
+  .stat .k { font-size: 11.5px; color: var(--muted); line-height: 1.45; margin-bottom: 8px; }
+  .stat .v { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+             font-variant-numeric: tabular-nums; font-size: 24px; font-weight: 600;
+             letter-spacing: -.02em; line-height: 1.05; }
+  .stat .v .sep { color: var(--muted); font-weight: 400; margin: 0 4px; font-size: .7em; }
+  .stat .u { font-size: 12px; font-weight: 400; color: var(--muted); margin-left: 3px; }
+  .stat .n { font-size: 11px; color: var(--muted); margin-top: 7px; line-height: 1.5; }
+
+  .panel { background: var(--surface); border: 1px solid var(--hairline); padding: 18px 16px 14px; margin-bottom: 14px; }
+  .panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px; margin-bottom: 4px; }
+  .panel-title { font-size: 14px; font-weight: 700; }
+  .panel-sub { font-size: 11.5px; color: var(--muted); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 8px 0 4px; font-size: 12px; color: var(--ink-2); }
+  .legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: 3px; }
+  .legend i.sq { height: 10px; width: 10px; border-radius: 2px; vertical-align: -1px; }
+  .chart-host { position: relative; }
+  .chart-host svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+  .tip {
+    position: absolute; pointer-events: none; opacity: 0; transition: opacity .1s;
+    background: var(--tip-bg); color: var(--tip-ink); padding: 7px 10px; font-size: 11.5px;
+    line-height: 1.6; border-radius: 4px; white-space: nowrap; z-index: 5;
+    font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums; box-shadow: 0 4px 14px rgba(0,0,0,.18);
+  }
+  .tip.on { opacity: 1; }
+  .tip b { font-weight: 700; }
+
+  .callout { border-left: 3px solid var(--pos); background: var(--surface);
+             padding: 14px 16px; margin: 0 0 18px; }
+  .callout.warn { border-left-color: var(--btc); }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .lbl { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+                  font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase;
+                  color: var(--muted); display: block; margin-bottom: 6px; }
+
+  .table-scroll { overflow-x: auto; border: 1px solid var(--hairline); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { padding: 8px 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--hairline); }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
+             font-weight: 600; background: var(--sunken); position: sticky; top: 0; }
+  tbody tr:last-child td { border-bottom: none; }
+  td.n { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+  .pos { color: var(--pos); }
+  .neg { color: var(--neg); }
+  tr.total td { font-weight: 700; background: var(--sunken); }
+
+  details { border: 1px solid var(--hairline); background: var(--surface); margin-top: 14px; }
+  summary { cursor: pointer; padding: 12px 16px; font-size: 13px; font-weight: 700; list-style: none; }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "▸ "; color: var(--muted); }
+  details[open] summary::before { content: "▾ "; }
+  details[open] summary { border-bottom: 1px solid var(--hairline); }
+  details .table-scroll { border: 0; max-height: 420px; overflow-y: auto; }
+
+  ul.notes { margin: 0 0 14px; padding-left: 1.1em; color: var(--ink-2); }
+  ul.notes li { margin-bottom: 9px; }
+  ul.notes li::marker { color: var(--muted); }
+
+  .backlink { margin: 0 0 22px; font-size: 13px; }
+  .backlink a { color: var(--muted); text-decoration: none; }
+  .backlink a:hover { color: var(--pos); text-decoration: underline; }
+
+  .toggle { display: inline-flex; border: 1px solid var(--hairline); border-radius: 6px; overflow: hidden; margin-bottom: 16px; }
+  .toggle button {
+    font-family: inherit; font-size: 13px; font-weight: 700; padding: 7px 18px; border: 0; cursor: pointer;
+    background: var(--surface); color: var(--ink-2);
+  }
+  .toggle button.on.btc { background: var(--btc); color: #fff; }
+  .toggle button.on.eth { background: var(--eth); color: #fff; }
+  .toggle button:not(:last-child) { border-right: 1px solid var(--hairline); }
+
+  .gate-table td.ok { color: var(--pos); font-weight: 700; }
+
+  a { color: var(--pos); }
+  :focus-visible { outline: 2px solid var(--pos); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  @media (max-width: 560px) {
+    .wrap { padding: 28px 14px 72px; }
+    .stat .v { font-size: 20px; }
+    th, td { padding: 7px 9px; font-size: 12px; }
+  }
+</style>
+
+
+</head>
+<body>
+<div class="wrap">
+
+  <p class="backlink"><a href="/forward">← フォワード較正モニターへ戻る</a></p>
+
+  <header class="page">
+    <p class="eyebrow">EXP-OBS000032 · Stage 1 バックテスト（Binance・清算込みスリーブ）</p>
+    <h1>BTC/ETH ファンディングキャリーの<br>バックテストデータ</h1>
+    <p class="lede measure">
+      現物ロング × perpショートの等ノーション・デルタニュートラルで、Funding金利とベーシスを収穫する戦略です。
+      2019年9月から2026年7月までの日次バックテスト（コロナショック・LUNA崩壊・FTX破綻の3テール窓を含む）を、
+      3倍レバレッジ・CVaR基準サイジング・清算シミュレーション込みで掲載します。
+    </p>
+    <div class="provenance">
+      <span>scripts/carry-net-expectation.ts</span>
+      <span>scripts/carry-liquidation-sim.ts</span>
+      <span id="prov-commit">commit —</span>
+      <span>spec 00-spec-stage1.md</span>
+      <span>判定 22-verdict-stage1-final.md（採用可・スリーブ候補）</span>
+      <span>本ページ生成 __GENERATED_AT__</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="stats">
+      <div class="stat">
+        <div class="k">Stage1-A 平均日次ネットキャリー</div>
+        <div class="v"><span class="pos">+1.59</span><span class="sep">/</span><span class="pos">+2.37</span><span class="u">bps</span></div>
+        <div class="n">BTC / ETH・無レバ・全期間・bootstrap p=0（G1A）</div>
+      </div>
+      <div class="stat">
+        <div class="k">Stage1-B（3倍・w*サイジング）年率ネット</div>
+        <div class="v"><span class="pos">+30.7</span><span class="sep">/</span><span class="pos">+58.2</span><span class="u">%</span></div>
+        <div class="n">BTC / ETH・清算込み・全コスト後（G2B）</div>
+      </div>
+      <div class="stat">
+        <div class="k">清算回数（3倍・全期間）</div>
+        <div class="v">1<span class="sep">/</span>8<span class="u">回</span></div>
+        <div class="n">BTC / ETH・すべて急騰局面（暴落テール窓の外）</div>
+      </div>
+      <div class="stat">
+        <div class="k">②モメンタムとの相関</div>
+        <div class="v">0.074</div>
+        <div class="n">確認期間 n=1,637・G3C基準 |ρ|&lt;0.3 に対し十分低い</div>
+      </div>
+    </div>
+
+    <div class="measure">
+      <p>
+        「ネットキャリー」は、Funding金利の受け払いとベーシス（現物・先物の価格差）の変動から、
+        往復コスト・資本コスト・（反転時の）4レッグ組み替えコストをすべて差し引いた後の日次損益です。
+        価格の方向は当てにいきません——ロング・ショートを同量持つため、方向性の損益はほぼ相殺されます。
+      </p>
+      <p>
+        Stage1-Aは無レバレッジでの「シグナルの有意性」検証、Stage1-Bはそこに3倍レバレッジ・
+        CVaR基準のポジションサイズ（w*）・実際の清算シミュレーションを載せた「実運用に近い」検証です。
+        両者は同一のW=7 SMAシグナルを共有しており、方向は常に一致しています。
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head measure">
+      <p class="eyebrow">資産別・日次系列</p>
+      <h2>テール窓での挙動と、その後の積み上がり</h2>
+      <p>
+        下の日次ネットキャリー（Stage1-A・無レバ）に、コロナショック・LUNA崩壊・FTX破綻の3つのテール窓を
+        赤帯で重ねています。赤い縦の目盛りは、3倍レバレッジ（Stage1-B）での清算発生日です
+        （無レバの本系列自体には清算は反映されません＝清算はレバをかけた場合にのみ起きます）。
+      </p>
+    </div>
+
+    <div class="toggle" id="asset-toggle">
+      <button class="on btc" data-asset="BTC">BTC</button>
+      <button class="eth" data-asset="ETH">ETH</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title" id="daily-title">日次ネットキャリー（Stage1-A・無レバ）</div>
+        <div class="panel-sub" id="daily-sub">bps / 日次</div>
+      </div>
+      <div class="legend">
+        <span><i class="sq" style="background:var(--pos)"></i>プラスの日</span>
+        <span><i class="sq" style="background:var(--neg)"></i>マイナスの日</span>
+        <span><i class="sq" style="background:var(--tail);opacity:.16"></i>テール窓（T1/T2/T3/平時）</span>
+        <span><i style="background:var(--tail);height:10px;width:2px;vertical-align:-1px"></i>清算発生日（3倍）</span>
+      </div>
+      <div class="chart-host" id="host-daily">
+        <svg id="chart-daily" role="img" aria-label="日次ネットキャリーの棒グラフ。テール窓を赤帯で、3倍レバでの清算発生日を赤の目盛りで重ねる。"></svg>
+        <div class="tip" id="tip-daily"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">累積ネットキャリー（Stage1-A・無レバ・単純累積和）</div>
+        <div class="panel-sub" id="cum-sub">bps建て</div>
+      </div>
+      <div class="chart-host" id="host-cum">
+        <svg id="chart-cum" role="img" aria-label="累積ネットキャリーの推移。"></svg>
+        <div class="tip" id="tip-cum"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head measure">
+      <p class="eyebrow">テール窓別内訳</p>
+      <h2>暴落局面ではむしろマイナス、平時に厚く稼ぐ</h2>
+      <p>
+        コロナショック（T1）・LUNA崩壊（T2）・FTX破綻（T3）はいずれも<strong>累積をマイナスに押し下げ</strong>ますが、
+        単独窓が全期間の累積を負転させるほどの規模ではありません（G1A判定の要件）。
+        逆に平時（calm）は年率40〜100%規模まで跳ね上がっており、この戦略の収益源が
+        「平時にコツコツ・危機にやや目減り」という非対称なプロファイルであることが分かります。
+      </p>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">窓</th><th scope="col">資産</th><th scope="col">日数</th>
+            <th scope="col">平均日次(bps)</th><th scope="col">年率(%)</th>
+            <th scope="col">累積(bps)</th><th scope="col">bootstrap p</th>
+          </tr>
+        </thead>
+        <tbody id="period-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head measure">
+      <p class="eyebrow">レバレッジ別（3倍が採否判定・5/10倍は情報開示のみ）</p>
+      <h2>高レバほど清算は増えるが、破滅はしない</h2>
+      <p>
+        清算回数はレバレッジに対して単調に増加します（BTC 1→2→3件・ETH 8→14→24件）。
+        これは分離証拠金・現物益の非消滅という会計設計上、物理的に正しい方向の挙動です。
+        <strong>採否判定に使うのは3倍のみ</strong>（spec §3）——5倍・10倍は「高レバほど有利に見える」ことを
+        理由に採用へ倒さないための参考情報として並記しています。
+      </p>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">資産</th><th scope="col">レバ</th><th scope="col">清算回数</th>
+            <th scope="col">累積(bps)</th><th scope="col">年率ネット(%)</th>
+            <th scope="col">最大DD(bps)</th><th scope="col">日次CVaR97.5(bps)</th>
+            <th scope="col">w*</th><th scope="col">純Sharpe</th>
+          </tr>
+        </thead>
+        <tbody id="leverage-tbody"></tbody>
+      </table>
+    </div>
+    <p class="measure" style="margin-top:14px;font-size:13px;color:var(--muted)">
+      w*（サイジング倍率）は「制約1: 日次CVaR97.5予算2%」と「制約2: 最悪テール窓maxDD予算20%」のうち
+      厳しい方 × f=0.5 で決まります。両資産とも制約1（日次CVaR）が拘束しており、
+      全レバでw*が3.6〜3.8とほぼ同水準になるのはこのためです。
+    </p>
+  </section>
+
+  <section>
+    <div class="sec-head measure">
+      <p class="eyebrow">②モメンタムとの合成</p>
+      <h2>低相関ゆえ、合成するとSharpeが上がりDDも下がる</h2>
+      <p>
+        確認期間（2022-01〜2026-06・n=1,637）でスリーブと②単体モメンタムの相関は
+        <strong>|ρ|=0.074</strong>——ほぼ無相関です。凍結逆ボラウェイト（スリーブ38.3% / モメンタム61.7%、
+        選定期2019-09〜2021-12から算出・確認期間では最適化していません）で合成すると、
+        Sharpeは②単体の0.555から1.419へ、最大DDは8.25%から6.47%へ改善します。
+      </p>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th scope="col">系列</th><th scope="col">Sharpe（年率）</th><th scope="col">最大DD(%)</th><th scope="col">累積(%)</th></tr>
+        </thead>
+        <tbody id="composite-tbody"></tbody>
+      </table>
+    </div>
+    <div class="callout" style="margin-top:14px">
+      <span class="lbl">G3C / G4C 判定</span>
+      <p>
+        G3C（|ρ|&lt;0.3）: <strong id="g3c-text"></strong>。
+        G4C（合成Sharpe−②単体≥+0.15 かつ 合成DD−②単体≤+2pt）: <strong id="g4c-text"></strong>。
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head measure">
+      <p class="eyebrow">ライブとの接続</p>
+      <h2>いまのフォワード較正は、この線のどこにいるか</h2>
+      <p>
+        バックテストは2026-07-05で終わり、フォワード較正（Bitgetペーパートレード）は2026-07-04に始まりました
+        （30日ウォームアップ込み）。つなぎ目付近の直近データを並べています。
+      </p>
+    </div>
+
+    <div class="toggle" id="asset-toggle-2">
+      <button class="on btc" data-asset="BTC">BTC</button>
+      <button class="eth" data-asset="ETH">ETH</button>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th scope="col">日付</th><th scope="col">区分</th><th scope="col">日次純損益(bps)</th><th scope="col">累積(bps)</th><th scope="col">累積収益率(%)</th></tr>
+        </thead>
+        <tbody id="live-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="callout" style="margin-top:18px">
+      <span class="lbl">読み方の注意</span>
+      <p>
+        <strong>この表はページ生成時点のスナップショットです</strong>（ライブ側は日次で伸びます）。
+        最新の状況・F1〜F4ゲート状態は<a href="/forward">フォワード較正モニター</a>を参照してください。
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head measure">
+      <p class="eyebrow">方法論と限界</p>
+      <h2>この数字を信じる前に知っておくこと</h2>
+    </div>
+    <ul class="notes measure">
+      <li>
+        <strong>本バックテストはBinanceデータが元</strong>です。本番運用の想定取引所であるBitgetとの代表性は
+        Stage 0のG0-2で符号一致65〜72%・相関0.36〜0.47と<strong>「弱代表」</strong>と評価されており、
+        このBacktestの数字をそのままBitgetでの成績と扱うことはできません。90日以上のBitgetフォワード較正
+        （F1〜F4）に合格して初めて本番反映の前提が整う設計です。
+      </li>
+      <li>
+        <strong>mark価格は未取得のためlast価格で代用</strong>しています（保守側の代用＝薄商い時の瞬間乖離を
+        過大計上しうる方向）。清算回数・被害幅はやや過大計上側に振れている可能性があります。
+      </li>
+      <li>
+        <strong>清算はショートperpレッグが「急騰」して起きます。</strong> 暴落テール窓（T1/T2/T3）の外で
+        清算が発生しているのは実装バグではなく、正しいモデル挙動です——価格が急落する局面ではショートperpは
+        含み益を得るため清算されません。
+      </li>
+      <li>
+        <strong>証拠金は反転をまたいで累積し、引き出さない前提</strong>です。実運用で余剰証拠金を都度引き出す
+        運用をすると、清算頻度はこのバックテストよりやや高くなる可能性があります。ただしサイジング（w*）は
+        清算回数でなく日次CVaR・テール窓maxDDで決まるため、採否の結論自体はこの前提にあまり依存しません。
+      </li>
+      <li>
+        <strong>MMR（維持証拠金率）0.5%は業界標準の仮置き</strong>です（Bitget契約APIがMMR相当フィールドを
+        配信していないため）。実測値ではありません。
+      </li>
+      <li>
+        <strong>②モメンタムとの合成は本番構成（simulatePortfolio）を実際に呼び出しています。</strong>
+        手製の簡易モデルではなく、②単体の本番実装（horizon=10・k=30・momentumLookback=30）をそのまま使用。
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="sec-head measure">
+      <p class="eyebrow">全データ</p>
+      <h2>日次系列の全数（Stage1-A・無レバ）</h2>
+      <p>集計値だけでなく、元の日次系列をそのまま確認できるようにしています。</p>
+    </div>
+    <details>
+      <summary id="all-btc-summary">BTC 日次系列を開く</summary>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th scope="col">日付</th><th scope="col">日次ネットキャリー(bps)</th><th scope="col">累積(bps)</th></tr>
+          </thead>
+          <tbody id="all-btc-tbody"></tbody>
+        </table>
+      </div>
+    </details>
+    <details>
+      <summary id="all-eth-summary">ETH 日次系列を開く</summary>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th scope="col">日付</th><th scope="col">日次ネットキャリー(bps)</th><th scope="col">累積(bps)</th></tr>
+          </thead>
+          <tbody id="all-eth-tbody"></tbody>
+        </table>
+      </div>
+    </details>
+    <p class="measure" style="margin-top:20px;font-size:13px;color:var(--muted)">
+      出典: <code>research/EXP-OBS000032/10-result/stage1-carry-daily-returns-{btc,eth}.json</code>
+      （リポジトリ内）。本ページはその生データをそのまま描画したもので、
+      値の再計算・平滑化・外れ値除去は一切していません（累積列のみ単純累積和）。
+    </p>
+  </section>
+
+</div>
+
+<script type="application/json" id="carry-data">__DATA__</script>
+
+<script>
+(function () {
+  "use strict";
+  var D = JSON.parse(document.getElementById("carry-data").textContent);
+  var TW = D.tailWindows;
+  var activeAsset = "BTC";
+  document.getElementById("prov-commit").textContent = "commit " + D.meta.gitCommit;
+
+  var css = function (n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); };
+  var fmt = function (v, d) { return v === null || v === undefined ? "—" : (v >= 0 ? "+" : "") + v.toFixed(d === undefined ? 2 : d); };
+  var SVGNS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs) {
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) if (attrs[k] !== null && attrs[k] !== undefined) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  function cell(txt, cls) {
+    var td = document.createElement("td");
+    td.className = "n" + (cls ? " " + cls : "");
+    td.textContent = txt;
+    return td;
+  }
+
+  function xScale(i, n, L, R) { return L + (R - L) * (n < 2 ? 0.5 : i / (n - 1)); }
+  function makeY(min, max, T, B) {
+    var span = (max - min) || 1;
+    return function (v) { return B - (v - min) / span * (B - T); };
+  }
+  function niceTicks(min, max, count) {
+    var span = max - min, step = Math.pow(10, Math.floor(Math.log(span / count) / Math.LN10));
+    [1, 2, 2.5, 5, 10].some(function (m) { if (step * m >= span / count) { step = step * m; return true; } return false; });
+    var out = [], t = Math.ceil(min / step) * step;
+    for (; t <= max + 1e-9; t += step) out.push(Math.round(t * 1000) / 1000);
+    return out;
+  }
+  function yearTickIndices(rows) {
+    var seen = {}, out = [];
+    rows.forEach(function (p, i) { var y = p.d.slice(0, 4); if (!seen[y]) { seen[y] = 1; out.push({ i: i, label: y }); } });
+    return out;
+  }
+  function windowIndexRange(rows, w) {
+    var s = -1, e = -1;
+    rows.forEach(function (p, i) {
+      if (p.d >= w.start && p.d <= w.end) { if (s === -1) s = i; e = i; }
+    });
+    return s === -1 ? null : { s: s, e: e };
+  }
+
+  function bindTip(host, tip, svg, hitFn) {
+    function move(ev) {
+      var r = svg.getBoundingClientRect();
+      var cx = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left;
+      var res = hitFn(cx / r.width);
+      if (!res) { tip.classList.remove("on"); return; }
+      tip.innerHTML = res.html;
+      tip.classList.add("on");
+      var hr = host.getBoundingClientRect();
+      var px = res.xFrac * r.width;
+      var tw = tip.offsetWidth;
+      var left = Math.max(4, Math.min(px - tw / 2, hr.width - tw - 4));
+      tip.style.left = left + "px";
+      tip.style.top = "6px";
+    }
+    svg.addEventListener("mousemove", move);
+    svg.addEventListener("touchstart", move, { passive: true });
+    svg.addEventListener("touchmove", move, { passive: true });
+    svg.addEventListener("mouseleave", function () { tip.classList.remove("on"); });
+    svg.addEventListener("touchend", function () { tip.classList.remove("on"); });
+  }
+
+  function drawTailBands(svg, rows, L, R, T, B, w) {
+    ["T1", "T2", "T3", "calm"].forEach(function (key) {
+      var win = TW[key];
+      var rg = windowIndexRange(rows, win);
+      if (!rg) return;
+      var x1 = xScale(rg.s, rows.length, L, w - R), x2 = xScale(rg.e, rows.length, L, w - R);
+      svg.appendChild(el("rect", {
+        x: x1, y: T, width: Math.max(2, x2 - x1), height: B - T,
+        fill: css(key === "calm" ? "--pos" : "--tail"), "fill-opacity": key === "calm" ? .07 : .14
+      }));
+    });
+  }
+
+  function drawLiquidationTicks(svg, rows, dates, L, R, T, B, w) {
+    var idxByDate = {};
+    rows.forEach(function (p, i) { idxByDate[p.d] = i; });
+    dates.forEach(function (d) {
+      // 清算日がバックテスト日次系列に存在しない場合は直近の日を使う
+      var i = idxByDate[d];
+      if (i === undefined) return;
+      var x = xScale(i, rows.length, L, w - R);
+      svg.appendChild(el("line", { x1: x, x2: x, y1: T, y2: T + 8, stroke: css("--tail"), "stroke-width": 2 }));
+    });
+  }
+
+  // ── チャート1: 日次ネットキャリー ──────
+  function drawDaily(w) {
+    var svg = document.getElementById("chart-daily"), host = document.getElementById("host-daily");
+    var narrow = w < 520;
+    var h = narrow ? 200 : 240, L = narrow ? 32 : 42, R = 8, T = 14, B = h - 24;
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    var a = D.assets[activeAsset];
+    var rows = a.daily;
+    var vals = rows.map(function (p) { return p.pnl; });
+    var hiRaw = Math.max.apply(null, vals), loRaw = Math.min.apply(null, vals);
+    var hi = Math.ceil(hiRaw / 20) * 20, lo = Math.floor(loRaw / 20) * 20;
+    var y = makeY(lo, hi, T, B), n = rows.length;
+
+    drawTailBands(svg, rows, L, R, T, B, w);
+
+    niceTicks(lo, hi, narrow ? 3 : 4).forEach(function (t) {
+      svg.appendChild(el("line", { x1: L, x2: w - R, y1: y(t), y2: y(t), stroke: css("--grid"), "stroke-width": 1 }));
+      var tx = el("text", { x: L - 6, y: y(t) + 3.5, "text-anchor": "end", "font-size": narrow ? 9 : 10, fill: css("--muted") });
+      tx.textContent = t;
+      svg.appendChild(tx);
+    });
+
+    var col = activeAsset === "BTC" ? "--btc" : "--eth";
+    rows.forEach(function (p, i) {
+      var x = xScale(i, n, L, w - R);
+      var y0 = y(0), y1 = y(p.pnl);
+      svg.appendChild(el("line", {
+        x1: x, x2: x, y1: Math.min(y0, y1), y2: Math.max(y0, y1),
+        stroke: css(p.pnl >= 0 ? "--pos" : "--neg"), "stroke-width": Math.max(0.6, (w - R - L) / n * 0.7), "stroke-opacity": .8
+      }));
+    });
+    svg.appendChild(el("line", { x1: L, x2: w - R, y1: y(0), y2: y(0), stroke: css("--ink-2"), "stroke-width": 1 }));
+
+    var liq = a.leverages["3"];
+    drawLiquidationTicks(svg, rows, liq.liquidationDates, L, R, T, B, w);
+
+    yearTickIndices(rows).forEach(function (o) {
+      var tx = el("text", { x: xScale(o.i, n, L, w - R), y: h - 7, "text-anchor": "middle", "font-size": narrow ? 9 : 10, fill: css("--muted") });
+      tx.textContent = o.label;
+      svg.appendChild(tx);
+    });
+
+    bindTip(host, document.getElementById("tip-daily"), svg, function (frac) {
+      var px = frac * w;
+      var i = Math.round((px - L) / ((w - R - L) || 1) * (n - 1));
+      if (i < 0 || i >= n) return null;
+      var p = rows[i];
+      return { xFrac: xScale(i, n, L, w - R) / w, html: "<b>" + p.d + "</b><br>ネットキャリー <b>" + fmt(p.pnl, 2) + " bps</b>" };
+    });
+  }
+
+  // ── チャート2: 累積 ─────────────────────
+  function drawCum(w) {
+    var svg = document.getElementById("chart-cum"), host = document.getElementById("host-cum");
+    var narrow = w < 520;
+    var h = narrow ? 190 : 230, L = narrow ? 40 : 52, R = 8, T = 12, B = h - 24;
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    var a = D.assets[activeAsset];
+    var rows = a.daily;
+    var vals = rows.map(function (p) { return p.cum; });
+    var hi = Math.ceil(Math.max.apply(null, vals) / 500) * 500;
+    var lo = Math.min(0, Math.floor(Math.min.apply(null, vals) / 100) * 100);
+    var n = rows.length;
+    var y = makeY(lo, hi, T, B);
+
+    drawTailBands(svg, rows, L, R, T, B, w);
+
+    niceTicks(lo, hi, narrow ? 3 : 4).forEach(function (t) {
+      svg.appendChild(el("line", { x1: L, x2: w - R, y1: y(t), y2: y(t), stroke: css("--grid"), "stroke-width": 1 }));
+      var tx = el("text", { x: L - 6, y: y(t) + 3.5, "text-anchor": "end", "font-size": narrow ? 9 : 10, fill: css("--muted") });
+      tx.textContent = t;
+      svg.appendChild(tx);
+    });
+
+    var col = activeAsset === "BTC" ? "--btc" : "--eth";
+    var area = rows.map(function (p, i) { return xScale(i, n, L, w - R) + "," + y(p.cum); });
+    svg.appendChild(el("polygon", {
+      points: (L + "," + y(0)) + " " + area.join(" ") + " " + ((w - R) + "," + y(0)),
+      fill: css(col), "fill-opacity": .12
+    }));
+    svg.appendChild(el("polyline", { points: area.join(" "), fill: "none", stroke: css(col), "stroke-width": 2, "stroke-linejoin": "round" }));
+
+    yearTickIndices(rows).forEach(function (o) {
+      var tx = el("text", { x: xScale(o.i, n, L, w - R), y: h - 7, "text-anchor": "middle", "font-size": narrow ? 9 : 10, fill: css("--muted") });
+      tx.textContent = o.label;
+      svg.appendChild(tx);
+    });
+
+    var cursor = el("line", { y1: T, y2: B, stroke: css("--muted"), "stroke-width": 1, "stroke-dasharray": "3 3", opacity: 0 });
+    svg.appendChild(cursor);
+
+    bindTip(host, document.getElementById("tip-cum"), svg, function (frac) {
+      var i = Math.round((frac * w - L) / ((w - R - L) || 1) * (n - 1));
+      if (i < 0 || i >= n) { cursor.setAttribute("opacity", 0); return null; }
+      var p = rows[i], x = xScale(i, n, L, w - R);
+      cursor.setAttribute("x1", x); cursor.setAttribute("x2", x); cursor.setAttribute("opacity", 1);
+      return { xFrac: x / w, html: "<b>" + p.d + "</b><br>累積 " + p.cum.toFixed(1) + " bps" };
+    });
+  }
+
+  // ── テーブル ────────────────────────────
+  var PERIOD_LABEL = { FULL: "全期間", T1: "T1 コロナショック", T2: "T2 LUNA崩壊", T3: "T3 FTX破綻", calm: "平時参照", "H1-2019": "前半(2019-2021)", H2: "後半(2022-2026)", "H2-2021": "後半(2022-2026)" };
+
+  (function fillPeriods() {
+    var tb = document.getElementById("period-tbody");
+    ["BTC", "ETH"].forEach(function (assetKey) {
+      D.assets[assetKey].periods.forEach(function (p) {
+        var tr = document.createElement("tr");
+        var th = document.createElement("th");
+        th.scope = "row"; th.textContent = PERIOD_LABEL[p.period] || p.period;
+        th.style.textAlign = "left"; th.style.fontWeight = "600";
+        tr.appendChild(th);
+        var assetTd = document.createElement("td");
+        assetTd.textContent = assetKey; assetTd.style.textAlign = "left"; assetTd.style.color = "var(--muted)";
+        tr.appendChild(assetTd);
+        tr.appendChild(cell(p.n));
+        tr.appendChild(cell(fmt(p.meanBps, 3), p.meanBps >= 0 ? "pos" : "neg"));
+        tr.appendChild(cell(fmt(p.annPct, 2), p.annPct >= 0 ? "pos" : "neg"));
+        tr.appendChild(cell(fmt(p.cumBps, 1), p.cumBps >= 0 ? "pos" : "neg"));
+        tr.appendChild(cell(p.pValue.toFixed(4)));
+        tb.appendChild(tr);
+      });
+    });
+  })();
+
+  (function fillLeverage() {
+    var tb = document.getElementById("leverage-tbody");
+    ["BTC", "ETH"].forEach(function (assetKey) {
+      ["3", "5", "10"].forEach(function (lev) {
+        var r = D.assets[assetKey].leverages[lev];
+        var tr = document.createElement("tr");
+        if (lev === "3") tr.style.fontWeight = "700";
+        var th = document.createElement("th");
+        th.scope = "row"; th.textContent = assetKey;
+        th.style.textAlign = "left";
+        tr.appendChild(th);
+        tr.appendChild(cell(lev + "x"));
+        tr.appendChild(cell(r.liquidationCount + "回"));
+        tr.appendChild(cell(fmt(r.cumulativePnl_bps, 1), r.cumulativePnl_bps >= 0 ? "pos" : "neg"));
+        tr.appendChild(cell(fmt(r.wStarAnnualizedNetCarryPct, 2), r.wStarAnnualizedNetCarryPct >= 0 ? "pos" : "neg"));
+        tr.appendChild(cell(r.maxDrawdown_bps.toFixed(1)));
+        tr.appendChild(cell(r.cvar97_5_bps.toFixed(2)));
+        tr.appendChild(cell(r.wStar.toFixed(3)));
+        tr.appendChild(cell(r.netSharpe.toFixed(3)));
+        tb.appendChild(tr);
+      });
+    });
+  })();
+
+  (function fillComposite() {
+    var tb = document.getElementById("composite-tbody");
+    var C = D.composite;
+    var rows = [
+      ["スリーブ（キャリー・3倍w*）", C.sleeve],
+      ["②単体（モメンタム）", C.momentum],
+      ["合成（凍結逆ボラ " + (C.frozenWeights.sleeve * 100).toFixed(1) + "% / " + (C.frozenWeights.momentum * 100).toFixed(1) + "%）", C.frozenComposite],
+      ["合成（素朴50/50・参考）", C.naive5050],
+    ];
+    rows.forEach(function (r) {
+      var tr = document.createElement("tr");
+      if (r[0].indexOf("合成（凍結") === 0) tr.style.fontWeight = "700";
+      var th = document.createElement("th");
+      th.scope = "row"; th.textContent = r[0]; th.style.textAlign = "left";
+      tr.appendChild(th);
+      tr.appendChild(cell(r[1].sharpe_annualized_sqrt365.toFixed(3)));
+      tr.appendChild(cell(r[1].maxDrawdown_pct.toFixed(2)));
+      tr.appendChild(cell(fmt(r[1].cumReturn_pct, 2)));
+      tb.appendChild(tr);
+    });
+    document.getElementById("g3c-text").textContent =
+      (C.g3c.condition_met ? "✅ 達成" : "❌ 未達") + "（|ρ|=" + C.g3c.abs_correlation_full.toFixed(3) + "）";
+    document.getElementById("g4c-text").textContent =
+      (C.g4c.frozenWeight.any_condition_met ? "✅ 達成" : "❌ 未達") +
+      "（sharpeDiff=" + fmt(C.g4c.frozenWeight.sharpeDiff, 3) + "・ddDiff=" + fmt(C.g4c.frozenWeight.ddDiff_pt, 2) + "pt）";
+  })();
+
+  function fillLive(assetKey) {
+    var tb = document.getElementById("live-tbody");
+    while (tb.firstChild) tb.removeChild(tb.firstChild);
+    D.assets[assetKey].live.forEach(function (p) {
+      var tr = document.createElement("tr");
+      tr.appendChild(cell(p.d));
+      var td = document.createElement("td");
+      td.style.textAlign = "left"; td.style.color = "var(--muted)";
+      td.textContent = p.phase === "warmup" ? "ウォームアップ" : "ライブ";
+      if (p.liq) { td.textContent += " ⚠清算"; td.style.color = "var(--neg)"; td.style.fontWeight = "700"; }
+      tr.appendChild(td);
+      tr.appendChild(cell(fmt(p.net, 3), p.net >= 0 ? "pos" : "neg"));
+      tr.appendChild(cell(fmt(p.cum, 2), p.cum >= 0 ? "pos" : "neg"));
+      tr.appendChild(cell(fmt(p.ret, 4) + "%", p.ret >= 0 ? "pos" : "neg"));
+      tb.appendChild(tr);
+    });
+  }
+
+  (function fillAll() {
+    ["btc", "eth"].forEach(function (lower) {
+      var assetKey = lower.toUpperCase();
+      var tb = document.getElementById("all-" + lower + "-tbody");
+      var summary = document.getElementById("all-" + lower + "-summary");
+      var rows = D.assets[assetKey].daily;
+      summary.textContent = assetKey + " 日次系列 全" + rows.length + "点を開く";
+      var frag = document.createDocumentFragment();
+      rows.forEach(function (p) {
+        var tr = document.createElement("tr");
+        tr.appendChild(cell(p.d));
+        tr.appendChild(cell(fmt(p.pnl, 3), p.pnl >= 0 ? "pos" : "neg"));
+        tr.appendChild(cell(fmt(p.cum, 1), p.cum >= 0 ? "pos" : "neg"));
+        frag.appendChild(tr);
+      });
+      tb.appendChild(frag);
+    });
+  })();
+
+  // ── 資産トグル ──────────────────────────
+  function bindToggle(id, onChange) {
+    var box = document.getElementById(id);
+    box.querySelectorAll("button").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        box.querySelectorAll("button").forEach(function (b) { b.classList.remove("on"); });
+        btn.classList.add("on");
+        onChange(btn.getAttribute("data-asset"));
+      });
+    });
+  }
+  bindToggle("asset-toggle", function (asset) {
+    activeAsset = asset;
+    document.getElementById("daily-title").textContent = asset + " 日次ネットキャリー（Stage1-A・無レバ）";
+    renderCharts();
+  });
+  bindToggle("asset-toggle-2", function (asset) { fillLive(asset); });
+
+  fillLive("BTC");
+
+  // ── 描画とリサイズ ──────────────────────
+  function renderCharts() {
+    var w = Math.max(280, Math.round(document.getElementById("host-daily").clientWidth));
+    drawDaily(w);
+    drawCum(Math.max(280, Math.round(document.getElementById("host-cum").clientWidth)));
+  }
+  renderCharts();
+
+  var t = null;
+  window.addEventListener("resize", function () {
+    clearTimeout(t);
+    t = setTimeout(renderCharts, 140);
+  });
+  if (window.matchMedia) {
+    var mq = window.matchMedia("(prefers-color-scheme: dark)");
+    if (mq.addEventListener) mq.addEventListener("change", renderCharts);
+  }
+  new MutationObserver(renderCharts).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+})();
+</script>
+</body>
+</html>

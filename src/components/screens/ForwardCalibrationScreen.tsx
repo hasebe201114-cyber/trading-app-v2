@@ -4,7 +4,7 @@ import {
   Area, Bar, Cell, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ReferenceLine, ResponsiveContainer,
 } from 'recharts';
-import { AlertTriangle, CheckCircle, Clock, TrendingUp } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Clock, TrendingUp, ExternalLink } from 'lucide-react';
 import { useForwardData, type LedgerRow, type Projection90d, type AssetGateMetrics } from '../../hooks/useForwardData';
 import { SectionBox } from '../../ui/components/SectionBox';
 import { formatJST } from '../../ui/utils/formatters';
@@ -765,6 +765,24 @@ export const ForwardCalibrationScreen = () => {
           Day90到達時のC品質チームによる正式な較正監査で、順キャリー/反転局面を分解した再検証が行われます。
         </InfoNote>
         <GateSection metrics={gateMetrics} asset={asset} />
+      </SectionBox>
+
+      {/* バックテストデータへの導線 */}
+      <SectionBox title="バックテストデータ">
+        <InfoNote>
+          いま見ているのは<span className="font-600">ライブ蓄積中</span>の断面です。
+          「そもそもこのキャリーは過去どれくらい稼げていたのか」を確認したいときは、
+          Stage 1で検証した<span className="font-600">2019年9月〜2026年7月の日次系列（BTC 2,493点・ETH 2,413点）</span>を
+          別ページにまとめてあります。コロナショック・LUNA崩壊・FTX破綻のテール窓での挙動、
+          3倍レバレッジでの清算シミュレーション、②モメンタムとの合成効果まで、生データをそのまま掲載しています。
+        </InfoNote>
+        <a
+          href="/reports/obs000032-carry-backtest.html"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded border border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-300 text-sm font-600 hover:bg-blue-100 dark:hover:bg-blue-950/40 transition-colors"
+        >
+          <ExternalLink size={15} />
+          ファンディングキャリーのバックテストデータを開く
+        </a>
       </SectionBox>
 
       {/* 累積収益率グラフ */}
