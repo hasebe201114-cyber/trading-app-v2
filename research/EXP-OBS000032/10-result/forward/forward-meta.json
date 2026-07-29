@@ -10,8 +10,8 @@
   "warmupBackfillDays": 30,
   "liveDaysRequiredForGate": 90,
   "currentLiveDaysCount": {
-    "BTC": 24,
-    "ETH": 24
+    "BTC": 25,
+    "ETH": 25
   },
   "wStar": {
     "BTC": 3.629,
@@ -774,6 +774,34 @@
           "fetchWindow": {
             "start": "2026-07-04",
             "end": "2026-07-27"
+          }
+        }
+      }
+    },
+    {
+      "runTimestampUTC": "2026-07-29T04:11:44.645Z",
+      "anchorDateKey": "2026-07-28",
+      "gitCommit": "d5322824d9a057dae55d9987fad59f887537237e",
+      "nodeVersion": "v22.23.1",
+      "perAsset": {
+        "BTC": {
+          "mode": "append",
+          "newRowsCount": 1,
+          "markAvailable": true,
+          "markError": null,
+          "fetchWindow": {
+            "start": "2026-07-04",
+            "end": "2026-07-28"
+          }
+        },
+        "ETH": {
+          "mode": "append",
+          "newRowsCount": 1,
+          "markAvailable": true,
+          "markError": null,
+          "fetchWindow": {
+            "start": "2026-07-04",
+            "end": "2026-07-28"
           }
         }
       }
