@@ -17,6 +17,27 @@ const ACCENT = '#8B5CF6';   // VRP（violet）
 const IV_COLOR = '#F59E0B'; // DVOL（IV）
 const RV_COLOR = '#3B82F6'; // 実現RV
 
+// Stage 2 実測コスト後の凍結バックテスト値（research/EXP-OBS000037/10-result/stage2-vrp-pipeline-accounting.json・
+// gitCommit 5e5fef29・確認2026-07-13）。C品質チーム確定済み（20-verdict-stage2.md）で以後変化しない値のためハードコード。
+// 年率換算は equitySeries の複利equityCompound比から (endEquity/startEquity)^(52/n)-1 で導出（戦略の再計算ではなく
+// 既存equity系列2点の比率＋annualizeのみ）。年率換算そのものはC品質チームの正式宣言でなく、SC-1/SC-2生数値からの機械的換算。
+const BACKTEST_CONFIRM = {
+  meanWeeklyNetVolPt: 6.461139290632751,
+  sharpeAnnualizedSqrt52: 2.3760662223595332,
+  annualizedReturnPctCompound: 6.933012041729314,
+  weeks: 157,
+  windowStart: '2023-07-01',
+  windowEnd: '2026-07-01',
+};
+const BACKTEST_FULL = {
+  meanWeeklyNetVolPt: 9.702913618064535,
+  sharpeAnnualizedSqrt52: 2.98868218478209,
+  annualizedReturnPctCompound: 10.590366352495838,
+  weeks: 276,
+  windowStart: '2021-03-24',
+  windowEnd: '2026-07-01',
+};
+
 // ── 小ヘルパー ────────────────────────────────────────────
 const signed = (v: number, digits: number, suffix = '') =>
   `${v >= 0 ? '+' : ''}${v.toFixed(digits)}${suffix}`;
@@ -330,6 +351,46 @@ export const VrpForwardScreen = () => {
           <br /><br />
           <span className="font-600">なぜ直近{meta.rvForwardDays}日はVRPが空欄なのか</span>：実現RVは「その日から{meta.rvForwardDays}日先まで」を見ないと確定しません。
           そのため直近{meta.rvForwardDays}日分は必ず未確定になります（データ欠損ではありません）。
+        </InfoNote>
+      </SectionBox>
+
+      {/* バックテスト参照値（確認期間・OOS） */}
+      <SectionBox title="バックテスト参照値 — 確認期間（OOS）の期待収益率">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <StatTile
+            label="年率換算（複利・確認期間）"
+            value={`+${BACKTEST_CONFIRM.annualizedReturnPctCompound.toFixed(2)}%`}
+            sub={`${BACKTEST_CONFIRM.windowStart} 〜 ${BACKTEST_CONFIRM.windowEnd}（${BACKTEST_CONFIRM.weeks}週・未見データ）`}
+            tone="pos"
+          />
+          <StatTile
+            label="週次ネット平均（実測コスト後）"
+            value={`+${BACKTEST_CONFIRM.meanWeeklyNetVolPt.toFixed(2)}`}
+            sub="vol pt / 週（SC-1・確認期間）"
+          />
+          <StatTile
+            label="年率Sharpe（√52）"
+            value={BACKTEST_CONFIRM.sharpeAnnualizedSqrt52.toFixed(3)}
+            sub="SC-2・確認期間（OOS）"
+          />
+          <StatTile
+            label="参考：全期間ベース"
+            value={`+${BACKTEST_FULL.annualizedReturnPctCompound.toFixed(2)}%`}
+            sub={`Sharpe ${BACKTEST_FULL.sharpeAnnualizedSqrt52.toFixed(3)}（${BACKTEST_FULL.weeks}週・選定期間を含む）`}
+          />
+        </div>
+        <InfoNote>
+          <span className="font-600">これは何の数字か</span>：Stage 2でC品質チームが確定した「実測コスト控除後・確認期間（OOS＝未見データ）」の
+          週次ネットpayoff（SC-1・SC-2、単位は資本比のvol pt換算）を、本番と同じサイジング式
+          （<span className="font-mono text-[10px]">vegaNotionalPct=0.0002008・f=0.5・下側5%CVaR基準</span>）で年率換算したものです。
+          確認期間は選定期間（2021-03-24〜2023-06-30）でパラメータを固定した<span className="font-600">後</span>の未見データのみを使っており、
+          過学習の影響を受けにくい数字です。全期間ベース（選定期間を含む）はやや高めに出るため参考併記です。
+          <br /><br />
+          <span className="font-600 text-amber-600 dark:text-amber-400">⚠ あくまでバックテストの数値です。</span>
+          上の「フォワード較正進捗」で追跡している実際のライブ成績（Deribitペーパートレード）とは別物で、
+          本番反映にはF1〜F4ゲートの90日合格が必要です。年率換算はSC-1/SC-2の生数値を機械的に換算したものであり、
+          C品質チームが「年率○%」という形で宣言した文言そのものではありません。
+          詳細は<a href="/reports/obs000037-vrp-backtest.html" className="underline hover:text-violet-500">バックテストデータのページ</a>を参照してください。
         </InfoNote>
       </SectionBox>
 
