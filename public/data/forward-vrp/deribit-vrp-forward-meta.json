@@ -9,7 +9,7 @@
   "warmupDays": 7,
   "rvForwardDays": 7,
   "liveDaysRequiredForGate": 90,
-  "currentLiveDaysCount": 18,
+  "currentLiveDaysCount": 19,
   "currentWarmupDaysCount": 7,
   "fixedParams": {
     "dvolSpikeThresholdVolPts": 5,
@@ -25,18 +25,18 @@
   "sleeveReturnJoinNote": "⚠ sleeve_return = net_pnl_pct（週次コホートVRP純益の日次観測値・資本比%）。定義注意: 各日のsleeve_returnはフル週次VRP水準（vrp = DVOL_t − rv_forward_7d_t）からの純益であり、§5-1テール相関用の日次スリーブ損益（vegaNotionalPct × ΔVRP_daily = dvol_daily_change_vol_pts × VEGA）とは別定義。§5-1突合はΔVRPを別途計算すること（dvol_daily_change_vol_pts × VEGA_NOTIONAL_PCT × 100）。OBS000032フォワードledgerとの突合はdate（UTC日）キーで可能だが、スリーブ損益の定義を揃えた上で行うこと。F1/F3判定用の累積損益計算は is_cohort_anchor=1 行のみを7日ごとに非重複サンプリングして週次系列を構築する（Σ全行は約7倍の過大計上になるため厳禁）。",
   "runHistory": [
     {
-      "runTimestampUTC": "2026-07-29T05:23:44.749Z",
-      "anchorDateKey": "2026-07-28",
-      "gitCommit": "41faac003e435fe0901b97506925c1116e6c1756",
+      "runTimestampUTC": "2026-07-30T05:10:58.344Z",
+      "anchorDateKey": "2026-07-29",
+      "gitCommit": "4454eac3d5f5caaa18e383b4420bbbbf7d1b1bd0",
       "nodeVersion": "v22.23.1",
       "mode": "append",
       "newRowsAppended": 1,
       "backfillCount": 1,
-      "rowCountBefore": 24,
-      "rowCountAfter": 25,
+      "rowCountBefore": 25,
+      "rowCountAfter": 26,
       "dvolFetchWindow": {
-        "start": "2026-07-20",
-        "end": "2026-07-28"
+        "start": "2026-07-21",
+        "end": "2026-07-29"
       },
       "dvolRowsFetched": 10,
       "priceSource": "deribit-tradingview",
