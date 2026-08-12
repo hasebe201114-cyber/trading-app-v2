@@ -192,35 +192,88 @@ function ProjectionBandChart({
 }
 
 // ── 日次PnLバーチャート ───────────────────────────────────
+// バーは「キャリー損益」（反転コストを除いた基礎損益）と「反転コスト」（signal反転日のみ発生する
+// 4レッグ往復コスト）に分解して積み上げる（合計＝daily_net_pnl_bps）。SMA7ファンディングは
+// 右軸の折れ線で重ね、signalがいつ反転したかを視覚的に追えるようにする。
+const CARRY_POS_COLOR = '#10B981';
+const CARRY_NEG_COLOR = '#EF4444';
+const REVERSAL_COST_COLOR = '#F59E0B';
+const SMA7_LINE_COLOR = '#8B5CF6';
+
+function DailyPnlLegend() {
+  const items: { color: string; label: string }[] = [
+    { color: CARRY_POS_COLOR, label: 'キャリー損益（プラス）' },
+    { color: CARRY_NEG_COLOR, label: 'キャリー損益（マイナス）' },
+    { color: REVERSAL_COST_COLOR, label: '反転コスト（signal反転日のみ）' },
+    { color: SMA7_LINE_COLOR, label: 'SMA7ファンディング（右軸）' },
+  ];
+  return (
+    <div className="flex flex-wrap gap-x-3 gap-y-1 mb-1.5">
+      {items.map(it => (
+        <span key={it.label} className="flex items-center gap-1 text-[10px] text-fg-3">
+          <span className="inline-block w-2 h-2 rounded-sm" style={{ background: it.color }} />
+          {it.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function DailyPnlChart({ rows }: { rows: LedgerRow[] }) {
   const liveRows = rows.filter(r => r.phase === 'live');
-  const data = liveRows.map((r, i) => ({
-    day: i + 1,
-    date: r.date_utc.slice(5),
-    pnl: parseFloat(r.daily_net_pnl_bps.toFixed(3)),
-  }));
+  const data = liveRows.map((r, i) => {
+    const reversalCost = r.reversal_cost_bps > 0 ? -r.reversal_cost_bps : 0;
+    return {
+      day: i + 1,
+      date: r.date_utc.slice(5),
+      pnl: parseFloat(r.daily_net_pnl_bps.toFixed(3)),
+      carryPnl: parseFloat((r.daily_net_pnl_bps - reversalCost).toFixed(3)),
+      reversalCost: parseFloat(reversalCost.toFixed(3)),
+      sma7: parseFloat(r.sma7_funding_bps.toFixed(3)),
+      reversalFlag: r.reversal_flag,
+    };
+  });
 
   if (data.length === 0) return <div className="flex items-center justify-center h-24 text-fg-3 text-sm">ライブデータなし</div>;
 
   return (
-    <ResponsiveContainer width="100%" height={140}>
-      <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="var(--fg-4)" vertical={false} />
-        <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'var(--fg-3)' }} tickLine={false} />
-        <YAxis tick={{ fontSize: 10, fill: 'var(--fg-3)' }} tickLine={false} axisLine={false}
-          tickFormatter={v => `${v >= 0 ? '+' : ''}${v.toFixed(1)}`} width={44} />
-        <Tooltip
-          contentStyle={{ background: 'var(--surface)', border: '1px solid var(--fg-4)', borderRadius: 4, fontSize: 12 }}
-          formatter={(v: number) => [`${v >= 0 ? '+' : ''}${v.toFixed(3)} bps`, '日次純損益']}
-        />
-        <ReferenceLine y={0} stroke="var(--fg-3)" />
-        <Bar dataKey="pnl" isAnimationActive={false}>
-          {data.map((entry, i) => (
-            <Cell key={i} fill={entry.pnl >= 0 ? '#10B981' : '#EF4444'} />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
+    <>
+      <DailyPnlLegend />
+      <ResponsiveContainer width="100%" height={160}>
+        <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--fg-4)" vertical={false} />
+          <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'var(--fg-3)' }} tickLine={false} />
+          <YAxis yAxisId="pnl" tick={{ fontSize: 10, fill: 'var(--fg-3)' }} tickLine={false} axisLine={false}
+            tickFormatter={v => `${v >= 0 ? '+' : ''}${v.toFixed(1)}`} width={44} />
+          <YAxis yAxisId="sma7" orientation="right" tick={{ fontSize: 10, fill: 'var(--fg-3)' }} tickLine={false} axisLine={false}
+            tickFormatter={v => `${v >= 0 ? '+' : ''}${v.toFixed(1)}`} width={44} />
+          <Tooltip
+            contentStyle={{ background: 'var(--surface)', border: '1px solid var(--fg-4)', borderRadius: 4, fontSize: 12 }}
+            formatter={(v: number, name: string) => {
+              if (name === 'carryPnl') return [`${v >= 0 ? '+' : ''}${v.toFixed(3)} bps`, 'キャリー損益'];
+              if (name === 'reversalCost') return [`${v.toFixed(3)} bps`, '反転コスト'];
+              if (name === 'sma7') return [`${v >= 0 ? '+' : ''}${v.toFixed(3)} bps`, 'SMA7ファンディング'];
+              return [v, name];
+            }}
+            labelFormatter={(label, payload) => {
+              const p = payload?.[0]?.payload as (typeof data)[number] | undefined;
+              const total = p ? `${p.pnl >= 0 ? '+' : ''}${p.pnl.toFixed(3)} bps` : '';
+              const flip = p?.reversalFlag ? '（signal反転）' : '';
+              return `${label}${flip} — 純損益 ${total}`;
+            }}
+          />
+          <ReferenceLine yAxisId="pnl" y={0} stroke="var(--fg-3)" />
+          <Bar yAxisId="pnl" dataKey="carryPnl" stackId="pnl" isAnimationActive={false}>
+            {data.map((entry, i) => (
+              <Cell key={i} fill={entry.carryPnl >= 0 ? CARRY_POS_COLOR : CARRY_NEG_COLOR} />
+            ))}
+          </Bar>
+          <Bar yAxisId="pnl" dataKey="reversalCost" stackId="pnl" fill={REVERSAL_COST_COLOR} isAnimationActive={false} />
+          <Line yAxisId="sma7" type="monotone" dataKey="sma7" stroke={SMA7_LINE_COLOR} strokeWidth={1.5}
+            dot={false} isAnimationActive={false} />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </>
   );
 }
 
@@ -860,7 +913,11 @@ export const ForwardCalibrationScreen = () => {
 
       {/* 日次PnL */}
       <SectionBox title={`日次純損益 (bps) — ${asset}`}>
-        <p className="text-xs text-fg-3 mb-2">ライブ期間のみ表示。上=収益、下=損失（単位はbps＝1万分の1）</p>
+        <p className="text-xs text-fg-3 mb-2">
+          ライブ期間のみ表示。上=収益、下=損失（単位はbps＝1万分の1）。バーは基礎的なキャリー損益と
+          signal反転日のみ発生する反転コスト（4レッグ往復）を積み上げて表示し、右軸の折れ線はsignal判定に
+          使うSMA7ファンディングレートの推移を示す。
+        </p>
         <DailyPnlChart rows={ledger} />
       </SectionBox>
 

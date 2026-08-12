@@ -9,6 +9,10 @@ export interface LedgerRow {
   sleeve_daily_return_pct: number;
   sleeve_cumulative_return_pct: number;
   funding_rate_daily_bps: number;
+  sma7_funding_bps: number;
+  signal_pos: number;
+  reversal_flag: 0 | 1;
+  reversal_cost_bps: number;
   basis_bps: number | null;
   liquidation_flag: 0 | 1;
   margin_call_flag: 0 | 1;
