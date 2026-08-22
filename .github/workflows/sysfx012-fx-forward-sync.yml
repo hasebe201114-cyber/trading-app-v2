@@ -31,18 +31,13 @@ jobs:
       # そちら側の週次Routineが生成する。本ワークフローはその最新コピーを取得するのみで、
       # 検出・シミュレーションロジックは一切持たない(表示専用の派生物)。
       #
-      # 暫定対応(2026-08-22、サブエージェントレビューで発覚): フォワードテスト関連の
-      # 変更(research/EXP-FX000006/・research/method-notes/sysfx012_forward_test_ledger.json含む)は
-      # 現時点でminmax側のmainブランチへまだマージされておらず、featureブランチ
-      # `claude/previous-request-check-petp7l`にのみ存在する。ref未指定(=main)だと
-      # cpステップが対象ファイル無しで毎週失敗し続けるため、暫定的にこのブランチを
-      # 明示指定する。**minmax側でmainへマージされ次第、この`ref:`行を削除して
-      # デフォルトブランチ(main)を追うように戻すこと。**
+      # 2026-08-22: フォワードテスト関連の変更がminmax側のmainブランチへマージ済みに
+      # なったため、ref固定(featureブランチ`claude/previous-request-check-petp7l`)を解除し
+      # デフォルトブランチ(main)を追う設定に戻した。
       - name: Checkout minmax-fx-day-trading-lab (source of forward test ledger)
         uses: actions/checkout@v4
         with:
           repository: hasebe201114-cyber/minmax-fx-day-trading-lab
-          ref: claude/previous-request-check-petp7l
           path: minmax-fx-day-trading-lab
           fetch-depth: 1
 
