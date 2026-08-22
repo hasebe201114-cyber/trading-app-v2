@@ -1,7 +1,7 @@
 import {
   AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer,
 } from 'recharts';
-import { AlertTriangle, ExternalLink, Info, Target } from 'lucide-react';
+import { AlertTriangle, Download, ExternalLink, Info, Target } from 'lucide-react';
 import { useSysFx012ForwardData, type SysFx012Trade } from '../../hooks/useSysFx012ForwardData';
 import { SectionBox } from '../../ui/components/SectionBox';
 import { formatJST } from '../../ui/utils/formatters';
@@ -251,6 +251,16 @@ export const SysFx012ForwardScreen = () => {
           通貨拡大（EUR_USD追加）・CALM_RATIO調整・DD改善用のコスト比率フィルターなど、改善ループ上限5回すべてを試したが、この結果を上回る設計は見つからなかった。
           フォワードテストは、この凍結済み設計の実データでの再現性を確認するために実施している。
         </InfoNote>
+        <div className="flex flex-wrap gap-2">
+          <a href="/data/forward-fx-sysfx012/sysfx012-train-trades.csv" download="sysfx012-train-trades.csv"
+            className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded border border-fg-3 text-fg-2 hover:border-[#F97316] hover:text-[#F97316] transition-colors">
+            <Download size={13} />Trainトレード記録（CSV・300件）
+          </a>
+          <a href="/data/forward-fx-sysfx012/sysfx012-validation-trades.csv" download="sysfx012-validation-trades.csv"
+            className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded border border-fg-3 text-fg-2 hover:border-[#F97316] hover:text-[#F97316] transition-colors">
+            <Download size={13} />Validationトレード記録（CSV・85件）
+          </a>
+        </div>
       </SectionBox>
 
       <SectionBox title="現在の状況">
