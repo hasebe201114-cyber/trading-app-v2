@@ -1,13 +1,37 @@
 import {
   AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer,
 } from 'recharts';
-import { AlertTriangle, ExternalLink, Info } from 'lucide-react';
+import { AlertTriangle, ExternalLink, Info, Target } from 'lucide-react';
 import { useSysFx012ForwardData, type SysFx012Trade } from '../../hooks/useSysFx012ForwardData';
 import { SectionBox } from '../../ui/components/SectionBox';
 import { formatJST } from '../../ui/utils/formatters';
 
 const ACCENT = '#F97316'; // SYS-FX012（orange、carryのblue・VRPのvioletと区別）
 const INITIAL_CAPITAL = 1000;
+
+// minmax-fx-day-trading-lab側の凍結済みバックテスト結果(候補①=N_BREAKOUT単独+
+// H1トレンド判定不能除外フィルター、4通貨、Train/Validation合計KPI13/18)。
+// 確認済み・以後変化しない値のためハードコード(VrpForwardScreenのBACKTEST_CONFIRM
+// と同じ扱い)。出典: research/method-notes/vol_breakout_trendfilter_candidate1_validation_backtest.json
+// (2026-08-21確認、train_reference/validationフィールド)。
+const BACKTEST_TRAIN = {
+  period: '2023-11-01 〜 2025-03-31', nTradesEffective: 300, winRate: 0.62,
+  monthlySharpe: 2.397, profitFactor: 1.759, payoffRatio: 1.078,
+  maxDdPct: 8.69, permP: 0.031, kpiPass: '7/9',
+};
+const BACKTEST_VALIDATION = {
+  period: '2025-04-01 〜 2025-11-30', nTradesEffective: 85, winRate: 0.6235,
+  monthlySharpe: 1.704, profitFactor: 2.279, payoffRatio: 1.376,
+  maxDdPct: 7.28, permP: 0.0999, kpiPass: '6/9',
+};
+
+// フォワードテストのチェックポイント日程(00-spec.md「フォワードテスト仕様」節で事前登録済み)。
+const FORWARD_CUTOFF_ISO = '2026-08-15';
+const CHECKPOINTS = [
+  { days: 30, label: '30日', dateIso: '2026-09-14' },
+  { days: 60, label: '60日', dateIso: '2026-10-14' },
+  { days: 90, label: '90日', dateIso: '2026-11-13' },
+] as const;
 
 // ── 小ヘルパー ────────────────────────────────────────────
 const signed = (v: number, digits: number, suffix = '') =>
@@ -45,38 +69,72 @@ function InfoNote({ children, tone = 'neutral' }: { children: React.ReactNode; t
   return <div className={cls}>{children}</div>;
 }
 
-// ── 残高推移チャート ──────────────────────────────────────
-function EquityChart({ points }: { points: { time: string; balance: number }[] }) {
-  if (points.length < 2) {
-    return <div className="flex items-center justify-center h-40 text-fg-3 text-sm">データ蓄積中（まだ決済済みトレードなし）</div>;
-  }
-  const data = points.map(p => ({ time: p.time.slice(0, 16), balance: p.balance }));
-
+// ── チェックポイント進捗バー(cutoff→90日、30/60/90日の目盛り) ──────
+function CheckpointProgress({ elapsedDays }: { elapsedDays: number }) {
+  const horizon = 90;
+  const pct = Math.min(100, (elapsedDays / horizon) * 100);
+  const nextCheckpoint = CHECKPOINTS.find(c => elapsedDays < c.days);
   return (
-    <ResponsiveContainer width="100%" height={230}>
-      <AreaChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-        <defs>
-          <linearGradient id="sysfx012Fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={ACCENT} stopOpacity={0.25} />
-            <stop offset="100%" stopColor={ACCENT} stopOpacity={0} />
-          </linearGradient>
-        </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="var(--fg-4)" />
-        <XAxis dataKey="time" tick={{ fontSize: 10, fill: 'var(--fg-3)' }} tickLine={false}
-          tickFormatter={v => String(v).slice(5, 10)} />
-        <YAxis tick={{ fontSize: 11, fill: 'var(--fg-3)' }} tickLine={false} axisLine={false}
-          width={56} domain={['auto', 'auto']} tickFormatter={v => `$${Math.round(v).toLocaleString('en-US')}`} />
-        <Tooltip
-          contentStyle={{ background: 'var(--surface)', border: '1px solid var(--fg-4)', borderRadius: 4, fontSize: 12 }}
-          formatter={(v: number) => [fmtUsd(v), '残高']}
-          labelFormatter={l => String(l)}
-        />
-        <ReferenceLine y={INITIAL_CAPITAL} stroke="var(--fg-3)" strokeDasharray="3 4"
-          label={{ value: '初期資金 $1,000', position: 'insideTopRight', fontSize: 9, fill: 'var(--fg-3)' }} />
-        <Area type="stepAfter" dataKey="balance" stroke="none" fill="url(#sysfx012Fill)" isAnimationActive={false} />
-        <Line type="stepAfter" dataKey="balance" stroke={ACCENT} strokeWidth={2} dot={false} isAnimationActive={false} />
-      </AreaChart>
-    </ResponsiveContainer>
+    <div>
+      <div className="relative h-2 rounded-full bg-fg-4/50 overflow-visible">
+        <div className="h-2 rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: ACCENT }} />
+        {CHECKPOINTS.map(c => (
+          <div key={c.days} className="absolute top-1/2 -translate-y-1/2 w-0.5 h-3 bg-fg-1/40"
+            style={{ left: `${(c.days / horizon) * 100}%` }} title={`${c.label}チェックポイント (${c.dateIso})`} />
+        ))}
+      </div>
+      <div className="flex justify-between mt-1">
+        {CHECKPOINTS.map(c => (
+          <span key={c.days} className={`text-[10px] font-mono ${elapsedDays >= c.days ? 'text-fg-2' : 'text-fg-3'}`}>
+            {c.label}{elapsedDays >= c.days && '✓'}
+          </span>
+        ))}
+      </div>
+      <p className="text-[11px] text-fg-3 mt-1.5">
+        開始から{elapsedDays}日経過
+        {nextCheckpoint
+          ? `（次の${nextCheckpoint.label}チェックポイントまであと${nextCheckpoint.days - elapsedDays}日、${nextCheckpoint.dateIso}予定）`
+          : '（全チェックポイント到達済み）'}
+      </p>
+    </div>
+  );
+}
+
+// ── 残高推移チャート ──────────────────────────────────────
+function EquityChart({ points, elapsedDays }: { points: { time: string; balance: number }[]; elapsedDays: number }) {
+  return (
+    <div className="space-y-3">
+      <CheckpointProgress elapsedDays={elapsedDays} />
+      {points.length < 2 ? (
+        <div className="flex items-center justify-center h-32 text-fg-3 text-sm">データ蓄積中（まだ決済済みトレードなし）</div>
+      ) : (
+        <ResponsiveContainer width="100%" height={230}>
+          <AreaChart data={points.map(p => ({ time: p.time.slice(0, 16), balance: p.balance }))}
+            margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id="sysfx012Fill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={ACCENT} stopOpacity={0.25} />
+                <stop offset="100%" stopColor={ACCENT} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--fg-4)" />
+            <XAxis dataKey="time" tick={{ fontSize: 10, fill: 'var(--fg-3)' }} tickLine={false}
+              tickFormatter={v => String(v).slice(5, 10)} />
+            <YAxis tick={{ fontSize: 11, fill: 'var(--fg-3)' }} tickLine={false} axisLine={false}
+              width={56} domain={['auto', 'auto']} tickFormatter={v => `$${Math.round(v).toLocaleString('en-US')}`} />
+            <Tooltip
+              contentStyle={{ background: 'var(--surface)', border: '1px solid var(--fg-4)', borderRadius: 4, fontSize: 12 }}
+              formatter={(v: number) => [fmtUsd(v), '残高']}
+              labelFormatter={l => String(l)}
+            />
+            <ReferenceLine y={INITIAL_CAPITAL} stroke="var(--fg-3)" strokeDasharray="3 4"
+              label={{ value: '初期資金 $1,000', position: 'insideTopRight', fontSize: 9, fill: 'var(--fg-3)' }} />
+            <Area type="stepAfter" dataKey="balance" stroke="none" fill="url(#sysfx012Fill)" isAnimationActive={false} />
+            <Line type="stepAfter" dataKey="balance" stroke={ACCENT} strokeWidth={2} dot={false} isAnimationActive={false} />
+          </AreaChart>
+        </ResponsiveContainer>
+      )}
+    </div>
   );
 }
 
@@ -157,6 +215,44 @@ export const SysFx012ForwardScreen = () => {
         cutoff={data.cutoff}以降のみを対象とし、設計パラメータは完全凍結（一切変更しない）。
       </InfoNote>
 
+      <SectionBox title="バックテストの結果と評価">
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="text-fg-3 border-b border-fg-3/50">
+                <th className="text-left py-1.5 pr-2">指標</th>
+                <th className="text-right py-1.5 pr-2">Train</th>
+                <th className="text-right py-1.5">Validation</th>
+              </tr>
+            </thead>
+            <tbody className="font-mono tabular-nums">
+              {[
+                ['期間', BACKTEST_TRAIN.period, BACKTEST_VALIDATION.period],
+                ['実効n', `${BACKTEST_TRAIN.nTradesEffective}`, `${BACKTEST_VALIDATION.nTradesEffective}`],
+                ['勝率', `${(BACKTEST_TRAIN.winRate * 100).toFixed(1)}%`, `${(BACKTEST_VALIDATION.winRate * 100).toFixed(1)}%`],
+                ['月次シャープ', BACKTEST_TRAIN.monthlySharpe.toFixed(3), BACKTEST_VALIDATION.monthlySharpe.toFixed(3)],
+                ['Profit Factor', BACKTEST_TRAIN.profitFactor.toFixed(3), BACKTEST_VALIDATION.profitFactor.toFixed(3)],
+                ['ペイオフレシオ', BACKTEST_TRAIN.payoffRatio.toFixed(3), BACKTEST_VALIDATION.payoffRatio.toFixed(3)],
+                ['最大DD', `${BACKTEST_TRAIN.maxDdPct.toFixed(2)}%`, `${BACKTEST_VALIDATION.maxDdPct.toFixed(2)}%`],
+                ['permutation p値', BACKTEST_TRAIN.permP.toFixed(4), BACKTEST_VALIDATION.permP.toFixed(4)],
+                ['必須KPI達成', BACKTEST_TRAIN.kpiPass, BACKTEST_VALIDATION.kpiPass],
+              ].map(([label, t, v]) => (
+                <tr key={label} className="border-b border-fg-4/30">
+                  <td className="py-1.5 pr-2 font-sans text-fg-2">{label}</td>
+                  <td className="py-1.5 pr-2 text-right">{t}</td>
+                  <td className="py-1.5 text-right">{v}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <InfoNote>
+          Train+Validation合計で必須KPI13/18。未達3項目（ペイオフレシオ・実効n・permutation有意性、いずれもValidation側）はサンプル数不足に起因。
+          通貨拡大（EUR_USD追加）・CALM_RATIO調整・DD改善用のコスト比率フィルターなど、改善ループ上限5回すべてを試したが、この結果を上回る設計は見つからなかった。
+          フォワードテストは、この凍結済み設計の実データでの再現性を確認するために実施している。
+        </InfoNote>
+      </SectionBox>
+
       <SectionBox title="現在の状況">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           <StatTile label="現在の残高" value={fmtUsd(bt.final_balance)}
@@ -171,8 +267,34 @@ export const SysFx012ForwardScreen = () => {
         <p className="text-[11px] text-fg-3">開始（cutoff）から{elapsedDays}日経過 / 最新データ: {formatJST(data.generated_at)}</p>
       </SectionBox>
 
+      <SectionBox title="フォワードテストのポイント">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div className="border border-fg-3 rounded p-2.5">
+            <div className="flex items-center gap-1.5 text-xs font-700 mb-1"><Target size={12} />実効n</div>
+            <p className="text-[11px] text-fg-2 leading-relaxed">
+              現在{bt.n_trades_closed}件。Trainの実効n=300・Validationの実効n=85が判断基準。
+              実運用ペース（週あたり平均4.1件、4通貨プール）だと90日でも50件前後の見込みで、機械的なKPI判定にはまだ使えない。
+            </p>
+          </div>
+          <div className="border border-fg-3 rounded p-2.5">
+            <div className="flex items-center gap-1.5 text-xs font-700 mb-1"><Target size={12} />K6m（乖離率）</div>
+            <p className="text-[11px] text-fg-2 leading-relaxed">
+              バックテストとフォワードテストのKPI乖離率≤30%が基準。90日チェックポイントで初めて評価する。
+              母数が育つまでは参考程度にとどめる。
+            </p>
+          </div>
+          <div className="border border-fg-3 rounded p-2.5">
+            <div className="flex items-center gap-1.5 text-xs font-700 mb-1"><Target size={12} />質的傾向の再現</div>
+            <p className="text-[11px] text-fg-2 leading-relaxed">
+              勝率62%前後・ペイオフレシオ1.1〜1.4・DDの小ささ（Validation実績7.28%）が実データでも保たれるか。
+              大きく下回る場合は懸念シグナル。
+            </p>
+          </div>
+        </div>
+      </SectionBox>
+
       <SectionBox title="残高推移">
-        <EquityChart points={bt.equity_curve} />
+        <EquityChart points={bt.equity_curve} elapsedDays={elapsedDays} />
       </SectionBox>
 
       <SectionBox title="質的指標（決済済みトレードベース）">
