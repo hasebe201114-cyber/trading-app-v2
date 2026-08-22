@@ -12,6 +12,7 @@ on:
       - "OBS000032 Forward Calibration (Daily)"
       - "OBS000037 VRP Forward Calibration (Daily)"
       - "Carry Executor Status Sync"
+      - "SYS-FX012 FX Forward Test Sync (Weekly)"
     types:
       - completed
     branches:

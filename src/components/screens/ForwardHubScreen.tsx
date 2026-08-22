@@ -1,18 +1,26 @@
 import { useSearchParams } from 'react-router-dom';
 import { ForwardCalibrationScreen } from './ForwardCalibrationScreen';
 import { VrpForwardScreen } from './VrpForwardScreen';
+import { SysFx012ForwardScreen } from './SysFx012ForwardScreen';
 
 // フォワード較正中の実験。追加時はここに1行足せば画面タブが増える。
 const EXPERIMENTS = [
   { key: 'carry', label: 'OBS000032 キャリー', color: '#3B82F6' },
   { key: 'vrp', label: 'OBS000037 VRP', color: '#8B5CF6' },
+  { key: 'fx-sysfx012', label: 'SYS-FX012 FXフォワード', color: '#F97316' },
 ] as const;
 
 type ExperimentKey = typeof EXPERIMENTS[number]['key'];
 
+const SCREENS: Record<ExperimentKey, React.ReactNode> = {
+  carry: <ForwardCalibrationScreen />,
+  vrp: <VrpForwardScreen />,
+  'fx-sysfx012': <SysFx012ForwardScreen />,
+};
+
 /**
  * フォワード較正モニターのハブ画面。
- * 稼働中の2実験（OBS000032キャリー / OBS000037 VRP）を1画面で切り替える。
+ * 稼働中の3実験（OBS000032キャリー / OBS000037 VRP / SYS-FX012 FXフォワード）を1画面で切り替える。
  * 選択状態は `?exp=vrp` としてURLに載せるため、スマホからのブックマーク・共有で直接開ける。
  */
 export const ForwardHubScreen = () => {
@@ -38,7 +46,7 @@ export const ForwardHubScreen = () => {
           ))}
         </div>
       </div>
-      {active === 'vrp' ? <VrpForwardScreen /> : <ForwardCalibrationScreen />}
+      {SCREENS[active]}
     </div>
   );
 };

@@ -1,0 +1,78 @@
+name: SYS-FX012 FX Forward Test Sync (Weekly)
+
+on:
+  schedule:
+    # minmax-fx-day-trading-lab側の週次フォワードテストRoutineは毎週月曜09:00 JST(00:00 UTC)に
+    # 実行される。本ワークフローはその後追いで、十分なマージンを取って月曜12:00 JST(03:00 UTC)に実行する。
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Set to 'true' to run without committing results"
+        required: false
+        default: "false"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      contents: write   # 結果をコミット・push するために必要
+
+    steps:
+      - name: Checkout trading-app-v2
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      # minmax-fx-day-trading-lab は同一オーナー(hasebe201114-cyber)のpublicリポジトリ。
+      # SYS-FX012のフォワードテスト結果(research/method-notes/sysfx012_forward_test_ledger.json)は
+      # そちら側の週次Routineが生成する。本ワークフローはその最新コピーを取得するのみで、
+      # 検出・シミュレーションロジックは一切持たない(表示専用の派生物)。
+      - name: Checkout minmax-fx-day-trading-lab (source of forward test ledger)
+        uses: actions/checkout@v4
+        with:
+          repository: hasebe201114-cyber/minmax-fx-day-trading-lab
+          path: minmax-fx-day-trading-lab
+          fetch-depth: 1
+
+      - name: Sync SYS-FX012 forward test ledger to public folder (web app)
+        run: |
+          mkdir -p public/data/forward-fx-sysfx012
+          cp minmax-fx-day-trading-lab/research/method-notes/sysfx012_forward_test_ledger.json \
+             public/data/forward-fx-sysfx012/sysfx012-forward-ledger.json
+
+      - name: Commit and push results
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet public/data/forward-fx-sysfx012/; then
+            echo "No changes to SYS-FX012 forward test ledger — skipping commit"
+          else
+            git add public/data/forward-fx-sysfx012/
+            TRADES=$(node -e "
+              const fs = require('fs');
+              const d = JSON.parse(fs.readFileSync('public/data/forward-fx-sysfx012/sysfx012-forward-ledger.json', 'utf-8'));
+              console.log(d.backtest?.n_trades_closed ?? '?');
+            " 2>/dev/null || echo "?")
+            git commit -m "chore(sysfx012): FX forward test weekly sync — closed trades ${TRADES}"
+
+            if ! git pull --rebase origin main; then
+              git rebase --abort || true
+              echo "::warning::git pull --rebase failed (conflict). Aborted rebase. Will retry on next scheduled run."
+              exit 1
+            fi
+            git push origin main
+            echo "Committed and pushed SYS-FX012 forward test sync (closed trades ${TRADES})"
+          fi
+
+      - name: Upload results as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sysfx012-fx-forward-sync-${{ github.run_id }}
+          path: public/data/forward-fx-sysfx012/
+          retention-days: 30
