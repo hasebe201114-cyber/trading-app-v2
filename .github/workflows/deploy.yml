@@ -35,6 +35,16 @@ jobs:
         run: npm install
 
       - name: Build project
+        env:
+          # 04a21ff のセキュリティ修正 (apiKey ハードコード削除) を受け、
+          # VITE_FIREBASE_* を Actions 経由で注入する。
+          # - VITE_FIREBASE_API_KEY: GitHub Secrets 必須 (Hasebe-san 作業: Settings > Secrets and variables > Actions > VITE_FIREBASE_API_KEY)
+          # - VITE_FIREBASE_PROJECT_ID / VITE_FIREBASE_AUTH_DOMAIN: 公開情報 (Firebase Console で誰でも参照可能) なので固定値で OK
+          # Secrets 未登録の間は build は通るが Firebase 認証が動かない (フォワード画面白い状態のまま)。
+          # apiKey 登録後にこの workflow の再実行 (空 commit 等) で build を通す。
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_PROJECT_ID: trading-app-v2-94de8
+          VITE_FIREBASE_AUTH_DOMAIN: trading-app-v2-94de8.firebaseapp.com
         run: npm run build
 
       # FIREBASE_SERVICE_ACCOUNT シークレット未設定の間はデプロイをスキップする
