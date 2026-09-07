@@ -213,9 +213,15 @@ export const SysFx012ForwardScreen = () => {
       </div>
 
       <InfoNote tone="warn">
-        <div className="flex items-center gap-1.5 font-700 mb-1"><AlertTriangle size={14} />検証中（採用GOではない）</div>
-        Train+Validation合計で必須KPI13/18未達（実効n・ペイオフレシオ・permutation有意性がサンプル数不足で未達）、
-        C品質チームの正式な採用可否レビューも未実施の状態のまま、司令塔の明示指示によりフォワードテスト（ペーパートレード、実発注なし）を実施中。
+        <div className="flex items-center gap-1.5 font-700 mb-1"><AlertTriangle size={14} />既にREJECT確定済み。本フォワードテストは採用トラックではない</div>
+        下表のTrain/Validation（17ヶ月/8ヶ月、実効nは300/85未満）は必須KPI13/18未達のまま「実効n不足で判断できない」状態だったが、
+        別途実施された<strong>実効n=300超を満たす拡張Train評価（41ヶ月、EXP-FX000020）で2026-08-28にREJECTが正式確定済み</strong>
+        （構造的な壁＝スプレッドコスト倍率K5m≥3.0が届かない。サンプルを増やしても解消しない）。
+        さらに先読み修正（OBS000009不具合1、2026-08-28）後の再計算（2026-08-29）でも結論は変わらずREJECT確定のまま。
+        なお同再計算では最大DDが14.00%→20.04%へ悪化し必須KPI 6/9→5/9に転落しており、
+        「先読みはDD・見栄えを実際より良くしていた」ことが裏付けられている。
+        本ページのフォワードテスト（ペーパートレード、実発注なし）は、このREJECT確定を覆すものではなく、
+        C品質チームの正式レビューも未実施のまま、司令塔の明示指示により実データ蓄積のみを目的として継続中。
         cutoff={data.cutoff}以降のみを対象とし、設計パラメータは完全凍結（一切変更しない）。
       </InfoNote>
 
