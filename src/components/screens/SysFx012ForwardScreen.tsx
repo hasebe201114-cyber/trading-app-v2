@@ -13,16 +13,20 @@ const INITIAL_CAPITAL = 1000;
 // H1トレンド判定不能除外フィルター、4通貨、Train/Validation合計KPI13/18)。
 // 確認済み・以後変化しない値のためハードコード(VrpForwardScreenのBACKTEST_CONFIRM
 // と同じ扱い)。出典: research/method-notes/vol_breakout_trendfilter_candidate1_validation_backtest.json
-// (2026-08-21確認、train_reference/validationフィールド)。
+// (2026-08-29再評価版のtrain_reference/validationフィールド。OBS000009不具合1＝先読み
+// (エントリー起点がH1バー始値になっていた)の修正〔bar_close_anchored=True、2026-08-28〕を
+// 反映した数値。修正前(2026-08-21確認)はTrain: Sharpe2.397/PF1.759/ペイオフ1.078/DD8.69%/
+// permP0.031/n=300、Validation: Sharpe1.704/PF2.279/ペイオフ1.376/DD7.28%/permP0.0999/n=85
+// だった。必須KPI通過数(7/9・6/9)自体は不変)。
 const BACKTEST_TRAIN = {
-  period: '2023-11-01 〜 2025-03-31', nTradesEffective: 300, winRate: 0.62,
-  monthlySharpe: 2.397, profitFactor: 1.759, payoffRatio: 1.078,
-  maxDdPct: 8.69, permP: 0.031, kpiPass: '7/9',
+  period: '2023-11-01 〜 2025-03-31', nTradesEffective: 308, winRate: 0.6071,
+  monthlySharpe: 2.656, profitFactor: 1.713, payoffRatio: 1.108,
+  maxDdPct: 8.78, permP: 0.048, kpiPass: '7/9',
 };
 const BACKTEST_VALIDATION = {
-  period: '2025-04-01 〜 2025-11-30', nTradesEffective: 85, winRate: 0.6235,
-  monthlySharpe: 1.704, profitFactor: 2.279, payoffRatio: 1.376,
-  maxDdPct: 7.28, permP: 0.0999, kpiPass: '6/9',
+  period: '2025-04-01 〜 2025-11-30', nTradesEffective: 83, winRate: 0.6386,
+  monthlySharpe: 1.654, profitFactor: 2.407, payoffRatio: 1.362,
+  maxDdPct: 8.19, permP: 0.0919, kpiPass: '6/9',
 };
 
 // フォワードテストのチェックポイント日程(00-spec.md「フォワードテスト仕様」節で事前登録済み)。
@@ -209,9 +213,15 @@ export const SysFx012ForwardScreen = () => {
       </div>
 
       <InfoNote tone="warn">
-        <div className="flex items-center gap-1.5 font-700 mb-1"><AlertTriangle size={14} />検証中（採用GOではない）</div>
-        Train+Validation合計で必須KPI13/18未達（実効n・ペイオフレシオ・permutation有意性がサンプル数不足で未達）、
-        C品質チームの正式な採用可否レビューも未実施の状態のまま、司令塔の明示指示によりフォワードテスト（ペーパートレード、実発注なし）を実施中。
+        <div className="flex items-center gap-1.5 font-700 mb-1"><AlertTriangle size={14} />既にREJECT確定済み。本フォワードテストは採用トラックではない</div>
+        下表のTrain/Validation（17ヶ月/8ヶ月、実効nは300/85未満）は必須KPI13/18未達のまま「実効n不足で判断できない」状態だったが、
+        別途実施された<strong>実効n=300超を満たす拡張Train評価（41ヶ月、EXP-FX000020）で2026-08-28にREJECTが正式確定済み</strong>
+        （構造的な壁＝スプレッドコスト倍率K5m≥3.0が届かない。サンプルを増やしても解消しない）。
+        さらに先読み修正（OBS000009不具合1、2026-08-28）後の再計算（2026-08-29）でも結論は変わらずREJECT確定のまま。
+        なお同再計算では最大DDが14.00%→20.04%へ悪化し必須KPI 6/9→5/9に転落しており、
+        「先読みはDD・見栄えを実際より良くしていた」ことが裏付けられている。
+        本ページのフォワードテスト（ペーパートレード、実発注なし）は、このREJECT確定を覆すものではなく、
+        C品質チームの正式レビューも未実施のまま、司令塔の明示指示により実データ蓄積のみを目的として継続中。
         cutoff={data.cutoff}以降のみを対象とし、設計パラメータは完全凍結（一切変更しない）。
       </InfoNote>
 
@@ -254,11 +264,11 @@ export const SysFx012ForwardScreen = () => {
         <div className="flex flex-wrap gap-2">
           <a href="/data/forward-fx-sysfx012/sysfx012-train-trades.csv" download="sysfx012-train-trades.csv"
             className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded border border-fg-3 text-fg-2 hover:border-[#F97316] hover:text-[#F97316] transition-colors">
-            <Download size={13} />Trainトレード記録（CSV・300件）
+            <Download size={13} />Trainトレード記録（CSV・300件、先読み修正前）
           </a>
           <a href="/data/forward-fx-sysfx012/sysfx012-validation-trades.csv" download="sysfx012-validation-trades.csv"
             className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded border border-fg-3 text-fg-2 hover:border-[#F97316] hover:text-[#F97316] transition-colors">
-            <Download size={13} />Validationトレード記録（CSV・85件）
+            <Download size={13} />Validationトレード記録（CSV・85件、先読み修正前）
           </a>
         </div>
       </SectionBox>
@@ -282,7 +292,7 @@ export const SysFx012ForwardScreen = () => {
           <div className="border border-fg-3 rounded p-2.5">
             <div className="flex items-center gap-1.5 text-xs font-700 mb-1"><Target size={12} />実効n</div>
             <p className="text-[11px] text-fg-2 leading-relaxed">
-              現在{bt.n_trades_closed}件。Trainの実効n=300・Validationの実効n=85が判断基準。
+              現在{bt.n_trades_closed}件。Trainの実効n=308・Validationの実効n=83が判断基準。
               実運用ペース（週あたり平均4.1件、4通貨プール）だと90日でも50件前後の見込みで、機械的なKPI判定にはまだ使えない。
             </p>
           </div>
@@ -296,7 +306,7 @@ export const SysFx012ForwardScreen = () => {
           <div className="border border-fg-3 rounded p-2.5">
             <div className="flex items-center gap-1.5 text-xs font-700 mb-1"><Target size={12} />質的傾向の再現</div>
             <p className="text-[11px] text-fg-2 leading-relaxed">
-              勝率62%前後・ペイオフレシオ1.1〜1.4・DDの小ささ（Validation実績7.28%）が実データでも保たれるか。
+              勝率61〜64%前後・ペイオフレシオ1.1〜1.4・DDの小ささ（Validation実績8.19%）が実データでも保たれるか。
               大きく下回る場合は懸念シグナル。
             </p>
           </div>
@@ -312,7 +322,7 @@ export const SysFx012ForwardScreen = () => {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <StatTile label="勝率" value={bt.win_rate != null ? `${(bt.win_rate * 100).toFixed(1)}%` : '—'} />
             <StatTile label="Profit Factor" value={fmtNum(bt.profit_factor, 3)} />
-            <StatTile label="ペイオフレシオ" value={fmtNum(bt.payoff_ratio, 3)} sub="Train基準1.078 / Validation基準1.376" />
+            <StatTile label="ペイオフレシオ" value={fmtNum(bt.payoff_ratio, 3)} sub="Train基準1.108 / Validation基準1.362" />
             <StatTile label="permutation p値" value={fmtNum(bt.perm_p_block, 4)} />
           </div>
         ) : (
@@ -323,7 +333,7 @@ export const SysFx012ForwardScreen = () => {
         {kpi ? (
           <InfoNote>
             <span className="font-700">正式KPI必須ゲート: {kpi.kpi_required_pass_count}</span>
-            {' '}（参考値。母数がまだ小さいため機械的な採否判定には使わない。Train実効n=300・Validation実効n=85が判断基準）
+            {' '}（参考値。母数がまだ小さいため機械的な採否判定には使わない。Train実効n=308・Validation実効n=83が判断基準）
           </InfoNote>
         ) : (
           <InfoNote>正式KPI評価は決済済みトレードが一定数貯まってから参考値として算出予定（現時点は未算出）</InfoNote>
