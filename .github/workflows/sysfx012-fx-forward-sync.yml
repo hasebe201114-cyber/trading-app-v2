@@ -1,10 +1,12 @@
-name: SYS-FX012 FX Forward Test Sync (Weekly)
+name: SYS-FX012 FX Forward Test Sync (Daily)
 
 on:
   schedule:
-    # minmax-fx-day-trading-lab側の週次フォワードテストRoutineは毎週月曜09:00 JST(00:00 UTC)に
-    # 実行される。本ワークフローはその後追いで、十分なマージンを取って月曜12:00 JST(03:00 UTC)に実行する。
-    - cron: "0 3 * * 1"
+    # minmax-fx-day-trading-lab側のフォワードテストサイクルは毎日09:00 JST(00:00 UTC)に
+    # 実行される。本ワークフローはその後追いで、十分なマージンを取って毎日12:00 JST(03:00 UTC)に実行する。
+    # (2026-09-12: 司令塔依頼により週次から日次へ変更。「今週の収支」がより高頻度で
+    # 追えるようにする運用変更で、検証プロトコル自体には影響しない)
+    - cron: "0 3 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -62,7 +64,7 @@ jobs:
               const d = JSON.parse(fs.readFileSync('public/data/forward-fx-sysfx012/sysfx012-forward-ledger.json', 'utf-8'));
               console.log(d.backtest?.n_trades_closed ?? '?');
             " 2>/dev/null || echo "?")
-            git commit -m "chore(sysfx012): FX forward test weekly sync — closed trades ${TRADES}"
+            git commit -m "chore(sysfx012): FX forward test daily sync — closed trades ${TRADES}"
 
             if ! git pull --rebase origin main; then
               git rebase --abort || true

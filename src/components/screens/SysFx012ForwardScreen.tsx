@@ -345,7 +345,7 @@ export const SysFx012ForwardScreen = () => {
       </SectionBox>
 
       <div className="text-[11px] text-fg-3 space-y-1 border-t border-fg-4/40 pt-3">
-        <p>・週次（毎週月曜09:00 JST）にminmax-fx-day-trading-lab側で自動再計算、その後追いで本アプリへ同期（毎週月曜12:00 JST頃）。90日チェックポイント（2026-11-13予定）でK6m（バックテストとのKPI乖離率）を評価。</p>
+        <p>・毎日（09:00 JST、2026-09-12に週次から変更）にminmax-fx-day-trading-lab側で自動再計算、その後追いで本アプリへ同期（毎日12:00 JST頃）。90日チェックポイント（2026-11-13予定）でK6m（バックテストとのKPI乖離率）を評価。</p>
         <p>・複利で再投資しているため、残高が大きくなった時期の値動きは金額として誇張されて見える。優位性の判断は上表の質的指標で行うこと。</p>
         <a href="https://github.com/hasebe201114-cyber/minmax-fx-day-trading-lab/blob/main/research/EXP-FX000006/00-spec.md"
           target="_blank" rel="noreferrer"
