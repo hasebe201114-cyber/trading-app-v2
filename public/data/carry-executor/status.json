@@ -1,7 +1,7 @@
 {
-  "syncedAtUTC": "2026-09-12T22:17:40.110Z",
+  "syncedAtUTC": "2026-09-13T04:46:28.518Z",
   "signal": {
-    "generatedAtUTC": "2026-09-12T04:23:14.754Z",
+    "generatedAtUTC": "2026-09-13T04:36:28.418Z",
     "liveMode": false,
     "capitalUsdt": 500,
     "aborted": false,
@@ -10,7 +10,7 @@
       "btc": {
         "asset": "btc",
         "signal": "open",
-        "sma_bps": 0.79,
+        "sma_bps": 0.68,
         "need_open": true,
         "need_close": false,
         "has_perp_short": false,
@@ -21,7 +21,7 @@
       "eth": {
         "asset": "eth",
         "signal": "open",
-        "sma_bps": 0.45,
+        "sma_bps": 0.59,
         "need_open": true,
         "need_close": false,
         "has_perp_short": false,
@@ -32,13 +32,29 @@
     }
   },
   "margin": {
-    "generatedAtUTC": "2026-09-12T22:04:00.780Z",
+    "generatedAtUTC": "2026-09-13T04:24:08.417Z",
     "positions": [],
     "hasCritical": false,
     "hasWarn": false,
     "fetchError": null
   },
   "runs": [
+    {
+      "conclusion": "success",
+      "createdAt": "2026-09-13T04:35:49Z",
+      "databaseId": 34738261723,
+      "event": "schedule",
+      "name": "OBS000032 Daily Signal Check",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "createdAt": "2026-09-13T04:09:56Z",
+      "databaseId": 34737244758,
+      "event": "schedule",
+      "name": "OBS000032 Margin Monitor",
+      "status": "completed"
+    },
     {
       "conclusion": "success",
       "createdAt": "2026-09-12T22:03:53Z",
@@ -101,22 +117,6 @@
       "databaseId": 34620611674,
       "event": "schedule",
       "name": "OBS000032 Margin Monitor",
-      "status": "completed"
-    },
-    {
-      "conclusion": "success",
-      "createdAt": "2026-09-11T08:50:50Z",
-      "databaseId": 34581195481,
-      "event": "schedule",
-      "name": "OBS000032 Margin Monitor",
-      "status": "completed"
-    },
-    {
-      "conclusion": "success",
-      "createdAt": "2026-09-11T04:24:41Z",
-      "databaseId": 34562091942,
-      "event": "schedule",
-      "name": "OBS000032 Daily Signal Check",
       "status": "completed"
     }
   ]
