@@ -4608,3 +4608,65 @@ EXECUTION LOG:
 [2026-09-21T05:56:16.917Z] >>> forward-f2-event-pairs-eth.{csv,json} 保存（増分マージ後 全ペアn=237／今回フェッチ分n=237）
 [2026-09-21T05:56:16.918Z] >>> forward-interim-metrics.json 保存（alertActive=true）
 [2026-09-21T05:56:16.918Z] >>> forward-alerts.log 追記（1行）
+======================================================================
+=== EXP-OBS000032 フォワード較正 実行 2026-09-22T05:52:41.345Z ===
+⚠ このスクリプトは日次冪等追記型。1回の実行で90日分が完成するものではない。
+毎日（または定期的に）実行することでライブデータが1日ずつ蓄積される。
+Git commit: 4cdac697bd866fe833290b90f80dedf1647bebed
+Node version: v22.23.2
+anchorDateKey: 2026-09-21
+
+REPRODUCTION COMMAND:
+  node --experimental-strip-types scripts/bitget-carry-forward-paper.ts
+
+EXECUTION LOG:
+[2026-09-22T05:52:41.348Z] === EXP-OBS000032 フォワード較正フェーズ Bitgetペーパートレード 日次実行 ===
+[2026-09-22T05:52:41.348Z] 実行UTC時刻: 2026-09-22T05:52:41.345Z
+[2026-09-22T05:52:41.348Z] Node version: v22.23.2
+[2026-09-22T05:52:41.355Z] Git commit: 4cdac697bd866fe833290b90f80dedf1647bebed
+[2026-09-22T05:52:41.355Z] anchorDateKey (最終完全経過UTC日・go-live/追記日として使用): 2026-09-21
+[2026-09-22T05:52:41.356Z] ⚠ 本実行は「日次冪等追記」の1回分。90日分を一括生成するものではない。
+[2026-09-22T05:52:41.356Z] 
+======== BTC (BTCUSDT) ========
+[2026-09-22T05:52:41.357Z] 追記モード: 既存最終日=2026-09-20, 追記対象=2026-09-21, フェッチ窓=2026-07-04..2026-09-21（ledger最小窓=2026-09-13 / F2再構築窓=2026-07-04 のうちより過去まで遡る方）
+[2026-09-22T05:52:41.358Z]   GET https://api.bitget.com/api/v2/spot/market/candles?symbol=BTCUSDT&granularity=1Dutc&limit=200
+[2026-09-22T05:52:41.803Z]   spot candles received: 200件
+[2026-09-22T05:52:42.104Z]   GET https://api.bitget.com/api/v2/mix/market/history-candles?symbol=BTCUSDT&productType=USDT-FUTURES&granularity=1Dutc&limit=200
+[2026-09-22T05:52:42.308Z]   perp last candles received: 90件
+[2026-09-22T05:52:42.609Z]   GET https://api.bitget.com/api/v2/mix/market/history-mark-candles?symbol=BTCUSDT&productType=USDT-FUTURES&granularity=1Dutc&limit=200
+[2026-09-22T05:52:42.814Z]   perp mark candles received: 90件
+[2026-09-22T05:52:43.298Z]   Bitget funding BTCUSDT: page1 返却100件
+[2026-09-22T05:52:43.299Z]   Bitget funding BTCUSDT: page1 oldest=2026-08-20T00:00:00.000Z cursorAdvanced=true
+[2026-09-22T05:52:43.743Z]   Bitget funding BTCUSDT: page2 返却100件
+[2026-09-22T05:52:43.743Z]   Bitget funding BTCUSDT: page2 oldest=2026-07-17T16:00:00.000Z cursorAdvanced=true
+[2026-09-22T05:52:44.197Z]   Bitget funding BTCUSDT: page3 返却70件
+[2026-09-22T05:52:44.197Z]   Bitget funding BTCUSDT: page3 oldest=2026-06-24T08:00:00.000Z cursorAdvanced=true
+[2026-09-22T05:52:44.197Z]   Bitget funding BTCUSDT: 目標窓(2026-07-04)をカバー。取得終了
+[2026-09-22T05:52:44.498Z]   GET https://asia-northeast1-trading-app-v2-94de8.cloudfunctions.net/binanceFundingProxy?symbol=BTCUSDT&startTime=1783123200000&endTime=1790035200000&limit=1000 (via binanceFundingProxy)
+[2026-09-22T05:52:45.976Z]   Binance funding BTCUSDT: 241件
+[2026-09-22T05:52:46.466Z]   2026-09-21 [live] signal=1 pnl=249.989bps cum=193.212bps margin=0.0000 liq=1 gap=0
+[2026-09-22T05:52:46.469Z] 
+======== ETH (ETHUSDT) ========
+[2026-09-22T05:52:46.470Z] 追記モード: 既存最終日=2026-09-20, 追記対象=2026-09-21, フェッチ窓=2026-07-04..2026-09-21（ledger最小窓=2026-09-13 / F2再構築窓=2026-07-04 のうちより過去まで遡る方）
+[2026-09-22T05:52:46.470Z]   GET https://api.bitget.com/api/v2/spot/market/candles?symbol=ETHUSDT&granularity=1Dutc&limit=200
+[2026-09-22T05:52:46.659Z]   spot candles received: 200件
+[2026-09-22T05:52:46.959Z]   GET https://api.bitget.com/api/v2/mix/market/history-candles?symbol=ETHUSDT&productType=USDT-FUTURES&granularity=1Dutc&limit=200
+[2026-09-22T05:52:47.165Z]   perp last candles received: 90件
+[2026-09-22T05:52:47.466Z]   GET https://api.bitget.com/api/v2/mix/market/history-mark-candles?symbol=ETHUSDT&productType=USDT-FUTURES&granularity=1Dutc&limit=200
+[2026-09-22T05:52:47.660Z]   perp mark candles received: 90件
+[2026-09-22T05:52:48.134Z]   Bitget funding ETHUSDT: page1 返却100件
+[2026-09-22T05:52:48.134Z]   Bitget funding ETHUSDT: page1 oldest=2026-08-20T00:00:00.000Z cursorAdvanced=true
+[2026-09-22T05:52:48.587Z]   Bitget funding ETHUSDT: page2 返却100件
+[2026-09-22T05:52:48.587Z]   Bitget funding ETHUSDT: page2 oldest=2026-07-17T16:00:00.000Z cursorAdvanced=true
+[2026-09-22T05:52:49.018Z]   Bitget funding ETHUSDT: page3 返却70件
+[2026-09-22T05:52:49.018Z]   Bitget funding ETHUSDT: page3 oldest=2026-06-24T08:00:00.000Z cursorAdvanced=true
+[2026-09-22T05:52:49.018Z]   Bitget funding ETHUSDT: 目標窓(2026-07-04)をカバー。取得終了
+[2026-09-22T05:52:49.319Z]   GET https://asia-northeast1-trading-app-v2-94de8.cloudfunctions.net/binanceFundingProxy?symbol=ETHUSDT&startTime=1783123200000&endTime=1790035200000&limit=1000 (via binanceFundingProxy)
+[2026-09-22T05:52:49.567Z]   Binance funding ETHUSDT: 241件
+[2026-09-22T05:52:50.045Z]   2026-09-21 [live] signal=1 pnl=0.332bps cum=264.787bps margin=0.2718 liq=0 gap=0
+[2026-09-22T05:52:50.051Z] 
+>>> forward-meta.json 保存
+[2026-09-22T05:52:50.123Z] >>> forward-f2-event-pairs-btc.{csv,json} 保存（増分マージ後 全ペアn=241／今回フェッチ分n=241）
+[2026-09-22T05:52:50.161Z] >>> forward-f2-event-pairs-eth.{csv,json} 保存（増分マージ後 全ペアn=241／今回フェッチ分n=241）
+[2026-09-22T05:52:50.162Z] >>> forward-interim-metrics.json 保存（alertActive=true）
+[2026-09-22T05:52:50.162Z] >>> forward-alerts.log 追記（2行）
