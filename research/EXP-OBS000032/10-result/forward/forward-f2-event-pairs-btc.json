@@ -1706,5 +1706,19 @@
     "bitget_funding_rate": 0.000005,
     "binance_funding_rate": 0.00001021,
     "match": 1
+  },
+  {
+    "event_hour_utc": "2026-09-23T08",
+    "date_utc": "2026-09-23",
+    "bitget_funding_rate": 0.000048,
+    "binance_funding_rate": 0.00000334,
+    "match": 1
+  },
+  {
+    "event_hour_utc": "2026-09-23T16",
+    "date_utc": "2026-09-23",
+    "bitget_funding_rate": 0.0001,
+    "binance_funding_rate": 0.00001286,
+    "match": 1
   }
 ]
