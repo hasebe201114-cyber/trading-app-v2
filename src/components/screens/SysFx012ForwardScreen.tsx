@@ -50,6 +50,49 @@ const daysSince = (isoLike: string): number => {
   return Math.max(0, Math.floor((Date.now() - start.getTime()) / 86_400_000));
 };
 
+// ── ペア別統計計算 ──────────────────────────────────────────
+interface PairStats {
+  pair: string;
+  nTrades: number;
+  nWins: number;
+  nLosses: number;
+  winRate: number;
+  totalPnL: number;
+  totalR: number;
+  avgR: number;
+  maxR: number;
+  minR: number;
+}
+
+function calculatePairStats(trades: SysFx012Trade[]): PairStats[] {
+  const pairMap = new Map<string, SysFx012Trade[]>();
+  trades.forEach(t => {
+    if (!pairMap.has(t.pair)) pairMap.set(t.pair, []);
+    pairMap.get(t.pair)!.push(t);
+  });
+
+  return Array.from(pairMap.entries()).map(([pair, pairTrades]) => {
+    const closed = pairTrades.filter(t => t.dollar_pnl != null);
+    const wins = closed.filter(t => (t.dollar_pnl as number) >= 0);
+    const losses = closed.filter(t => (t.dollar_pnl as number) < 0);
+    const totalPnL = closed.reduce((sum, t) => sum + (t.dollar_pnl || 0), 0);
+    const totalR = closed.reduce((sum, t) => sum + (t.r_net || 0), 0);
+
+    return {
+      pair,
+      nTrades: closed.length,
+      nWins: wins.length,
+      nLosses: losses.length,
+      winRate: closed.length > 0 ? wins.length / closed.length : 0,
+      totalPnL,
+      totalR,
+      avgR: closed.length > 0 ? totalR / closed.length : 0,
+      maxR: closed.length > 0 ? Math.max(...closed.map(t => t.r_net)) : 0,
+      minR: closed.length > 0 ? Math.min(...closed.map(t => t.r_net)) : 0,
+    };
+  }).sort((a, b) => b.nTrades - a.nTrades);
+}
+
 function StatTile({ label, value, sub, tone = 'neutral' }: {
   label: string; value: string; sub?: string; tone?: 'neutral' | 'pos' | 'neg' | 'accent';
 }) {
@@ -201,6 +244,54 @@ function TradeTable({
   );
 }
 
+// ── ペア別統計パネル ──────────────────────────────────────
+function PairSummary({ stats, selectedPair, onSelectPair }: {
+  stats: PairStats[];
+  selectedPair: string | null;
+  onSelectPair: (pair: string | null) => void;
+}) {
+  if (stats.length === 0) return null;
+
+  return (
+    <div className="space-y-2">
+      {stats.map((s) => {
+        const isSelected = selectedPair === s.pair;
+        const bgColor = isSelected ? 'bg-[#F97316]/10 border-[#F97316]' : 'bg-fg-4/20 border-fg-3/30 hover:border-fg-3';
+        return (
+          <div
+            key={s.pair}
+            onClick={() => onSelectPair(isSelected ? null : s.pair)}
+            className={`border rounded p-2.5 cursor-pointer transition-all ${bgColor}`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="font-mono font-700 text-sm text-fg-1">{s.pair}</div>
+              <div className="text-xs text-fg-3">{s.nTrades}件</div>
+            </div>
+            <div className="grid grid-cols-2 gap-1 text-[10px]">
+              <div>
+                <p className="text-fg-3">勝率</p>
+                <p className="font-mono text-fg-1">{(s.winRate * 100).toFixed(1)}%</p>
+              </div>
+              <div>
+                <p className="text-fg-3">平均R</p>
+                <p className={`font-mono ${s.avgR >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{s.avgR.toFixed(3)}R</p>
+              </div>
+              <div>
+                <p className="text-fg-3">合計PnL</p>
+                <p className={`font-mono ${s.totalPnL >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>${s.totalPnL.toFixed(0)}</p>
+              </div>
+              <div>
+                <p className="text-fg-3">合計R</p>
+                <p className={`font-mono ${s.totalR >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{s.totalR.toFixed(2)}R</p>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ── トレード詳細パネル ──────────────────────────────────────
 function TradeDetailPanel({
   trade,
@@ -307,6 +398,7 @@ function TradeDetailPanel({
 export const SysFx012ForwardScreen = () => {
   const { data, loading, error } = useSysFx012ForwardData();
   const [selectedTradeIndex, setSelectedTradeIndex] = useState<number | null>(null);
+  const [selectedPair, setSelectedPair] = useState<string | null>(null);
 
   if (loading) return <div className="p-6 text-fg-3 text-sm">読み込み中…</div>;
   if (error || !data) {
@@ -323,6 +415,7 @@ export const SysFx012ForwardScreen = () => {
   const { backtest: bt, kpi } = data;
   const totalReturnPct = ((bt.final_balance / INITIAL_CAPITAL) - 1) * 100;
   const elapsedDays = daysSince(data.cutoff);
+  const pairStats = calculatePairStats(bt.trades);
 
   // selectedTradeIndexはreverse後のインデックスなので、実際のトレード参照は逆順にして取得
   const selectedTrade = selectedTradeIndex !== null && selectedTradeIndex < bt.trades.length
@@ -465,7 +558,15 @@ export const SysFx012ForwardScreen = () => {
       </SectionBox>
 
       <SectionBox title="トレード台帳">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+          <div className="lg:col-span-1">
+            <div className="text-xs font-700 text-fg-2 mb-2">通貨別統計</div>
+            <PairSummary
+              stats={pairStats}
+              selectedPair={selectedPair}
+              onSelectPair={setSelectedPair}
+            />
+          </div>
           <div className="lg:col-span-2">
             <TradeTable
               trades={bt.trades}
@@ -474,7 +575,8 @@ export const SysFx012ForwardScreen = () => {
             />
           </div>
           {selectedTrade && (
-            <div>
+            <div className="lg:col-span-2">
+              <div className="text-xs font-700 text-fg-2 mb-2">トレード詳細</div>
               <TradeDetailPanel
                 trade={selectedTrade}
                 onClose={() => setSelectedTradeIndex(null)}
