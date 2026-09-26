@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer,
+  AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ReferenceDot, ResponsiveContainer,
 } from 'recharts';
 import { AlertTriangle, Download, ExternalLink, Info, Target, X } from 'lucide-react';
 import { useSysFx012ForwardData, type SysFx012Trade } from '../../hooks/useSysFx012ForwardData';
@@ -270,6 +270,30 @@ function EquityChartEnhanced({
                 label={{ value: '初期資金 $1,000', position: 'insideTopRight', fontSize: 9, fill: 'var(--fg-3)' }} />
               <Area type="stepAfter" dataKey="balance" stroke="none" fill="url(#sysfx012Fill)" isAnimationActive={false} />
               <Line type="stepAfter" dataKey="balance" stroke={ACCENT} strokeWidth={2} dot={false} isAnimationActive={false} />
+
+              {markers.map((marker, idx) => {
+                const markerPoint = chartData.find(d => d.time === marker.time);
+                if (!markerPoint) return null;
+
+                const dotColor = marker.isWin
+                  ? ACCENT
+                  : marker.isEntry
+                    ? '#10b981'
+                    : '#ef4444';
+
+                return (
+                  <ReferenceDot
+                    key={idx}
+                    x={marker.time}
+                    y={markerPoint.balance}
+                    r={4}
+                    fill={dotColor}
+                    stroke="white"
+                    strokeWidth={1.5}
+                    label={false}
+                  />
+                );
+              })}
             </AreaChart>
           </ResponsiveContainer>
 
