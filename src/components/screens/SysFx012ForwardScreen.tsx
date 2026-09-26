@@ -464,7 +464,7 @@ function PerformanceMetrics({ trade, allTrades }: {
 
 // ── 価格チャート（トレード期間中の推移）──────────────────────
 function PriceChart({ trade }: { trade: SysFx012Trade }) {
-  const [ohlcvData, setOhlcvData] = useState<Array<{ time: string; open: number; high: number; low: number; close: number }> | null>(null);
+  const [ohlcvData, setOhlcvData] = useState<Array<{ time: string; open: number; high: number; low: number; close: number; phase: 'pre' | 'holding' | 'post' }> | null>(null);
 
   useEffect(() => {
     if (!trade.entry_time || !trade.pair) {
@@ -482,7 +482,21 @@ function PriceChart({ trade }: { trade: SysFx012Trade }) {
         for (const record of Object.values(data) as any[]) {
           if (record.entry_time === trade.entry_time && record.pair === trade.pair) {
             if (record.ohlcv && record.ohlcv.length > 0) {
-              setOhlcvData(record.ohlcv);
+              const entryTime = new Date(record.entry_time);
+              const exitTime = new Date(record.exit_time);
+              const annotatedData = record.ohlcv.map((candle: any) => {
+                const candleTime = new Date(candle.time);
+                let phase: 'pre' | 'holding' | 'post';
+                if (candleTime < entryTime) {
+                  phase = 'pre';
+                } else if (candleTime < exitTime) {
+                  phase = 'holding';
+                } else {
+                  phase = 'post';
+                }
+                return { ...candle, phase };
+              });
+              setOhlcvData(annotatedData);
               found = true;
               break;
             }
@@ -526,25 +540,78 @@ function PriceChart({ trade }: { trade: SysFx012Trade }) {
   const range = maxPrice - minPrice;
   const padding = range * 0.1;
 
+  // 保有期間の計算
+  const entryTimeObj = new Date(trade.entry_time);
+  const exitTimeObj = new Date(trade.exit_time || trade.entry_time);
+  const holdingMinutes = Math.round((exitTimeObj.getTime() - entryTimeObj.getTime()) / 60000);
+
+  // フェーズの最初と最後のインデックスを取得
+  const preEndIdx = ohlcvData.findIndex(d => d.phase !== 'pre');
+  const holdingEndIdx = ohlcvData.findIndex(d => d.phase === 'post');
+
   return (
     <div className="border border-fg-3 rounded p-3 space-y-2">
       <div className="text-xs font-700 text-fg-1">5分足チャート</div>
+      <div className="flex gap-2 text-[9px] text-fg-3 mb-1">
+        <div className="flex items-center gap-1">
+          <div className="w-3 h-1 bg-fg-4/40"></div>
+          <span>準備期間</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-3 h-1 bg-[#F97316]/30"></div>
+          <span>保有期間</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-3 h-1 bg-fg-4/20"></div>
+          <span>決済後</span>
+        </div>
+      </div>
 
-      <ResponsiveContainer width="100%" height={180}>
+      <ResponsiveContainer width="100%" height={200}>
         <AreaChart data={ohlcvData}
-          margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+          margin={{ top: 8, right: 8, left: 0, bottom: 24 }}>
           <defs>
             <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={ACCENT} stopOpacity={0.15} />
               <stop offset="100%" stopColor={ACCENT} stopOpacity={0} />
             </linearGradient>
+            <pattern id="prePattern" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+              <rect x="0" y="0" width="4" height="4" fill="var(--fg-4)" opacity="0.1" />
+            </pattern>
+            <pattern id="postPattern" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+              <rect x="0" y="0" width="4" height="4" fill="var(--fg-4)" opacity="0.05" />
+            </pattern>
           </defs>
+
+          {/* フェーズ背景 */}
+          {preEndIdx > 0 && (
+            <ReferenceLine
+              x={ohlcvData[preEndIdx].time}
+              stroke="var(--fg-3)"
+              strokeDasharray="1 2"
+              strokeOpacity={0.3}
+              label={{ value: 'Entry', position: 'top', fontSize: 7, fill: 'var(--fg-3)', offset: 2 }}
+            />
+          )}
+          {holdingEndIdx >= 0 && (
+            <ReferenceLine
+              x={ohlcvData[holdingEndIdx].time}
+              stroke="var(--fg-3)"
+              strokeDasharray="1 2"
+              strokeOpacity={0.3}
+              label={{ value: 'Exit', position: 'top', fontSize: 7, fill: 'var(--fg-3)', offset: 2 }}
+            />
+          )}
+
           <CartesianGrid strokeDasharray="3 3" stroke="var(--fg-4)" />
           <XAxis
             dataKey="time"
             tick={{ fontSize: 9, fill: 'var(--fg-3)' }}
             tickLine={false}
             tickFormatter={v => String(v).slice(11, 16)}
+            angle={-15}
+            textAnchor="end"
+            height={40}
           />
           <YAxis
             tick={{ fontSize: 9, fill: 'var(--fg-3)' }}
@@ -556,8 +623,19 @@ function PriceChart({ trade }: { trade: SysFx012Trade }) {
           />
           <Tooltip
             contentStyle={{ background: 'var(--surface)', border: '1px solid var(--fg-4)', borderRadius: 4, fontSize: 11 }}
-            formatter={(v: number) => v.toFixed(3)}
-            labelFormatter={l => String(l)}
+            formatter={(v: number) => [v.toFixed(3), '価格']}
+            labelFormatter={l => `${String(l).slice(5, 16)}`}
+            content={({ active, payload }) => {
+              if (!active || !payload || payload.length === 0) return null;
+              const data = payload[0].payload;
+              return (
+                <div className="bg-surface border border-fg-4 rounded p-2 text-[10px]">
+                  <p className="text-fg-2">{String(data.time).slice(5, 16)}</p>
+                  <p className="text-fg-1">O: {data.open.toFixed(3)} H: {data.high.toFixed(3)} L: {data.low.toFixed(3)} C: {data.close.toFixed(3)}</p>
+                  <p className="text-fg-3 mt-1">Phase: {data.phase === 'pre' ? '準備' : data.phase === 'holding' ? '保有' : '決済後'}</p>
+                </div>
+              );
+            }}
           />
           <ReferenceLine
             y={entryPrice}
@@ -596,9 +674,9 @@ function PriceChart({ trade }: { trade: SysFx012Trade }) {
 
       <div className="grid grid-cols-2 gap-2 text-[10px]">
         <div className="bg-fg-4/20 rounded p-2">
-          <p className="text-fg-3 mb-0.5">High/Low</p>
+          <p className="text-fg-3 mb-0.5">High/Low (保有中)</p>
           <p className="font-mono text-fg-1">
-            {Math.max(...ohlcvData.map(d => d.high)).toFixed(3)} / {Math.min(...ohlcvData.map(d => d.low)).toFixed(3)}
+            {Math.max(...ohlcvData.filter(d => d.phase === 'holding').map(d => d.high)).toFixed(3)} / {Math.min(...ohlcvData.filter(d => d.phase === 'holding').map(d => d.low)).toFixed(3)}
           </p>
         </div>
         <div className="bg-fg-4/20 rounded p-2">
@@ -616,10 +694,8 @@ function PriceChart({ trade }: { trade: SysFx012Trade }) {
           <p className="font-mono text-violet-500">{exitPrice.toFixed(3)}</p>
         </div>
         <div className="bg-fg-4/20 rounded p-2">
-          <p className="text-fg-3 mb-0.5">リスク / リワード</p>
-          <p className="font-mono text-fg-1">
-            {initialRisk.toFixed(4)} / {Math.abs(tpPrice - entryPrice).toFixed(4)}
-          </p>
+          <p className="text-fg-3 mb-0.5">保有期間</p>
+          <p className="font-mono text-fg-1">{holdingMinutes}分</p>
         </div>
       </div>
     </div>
