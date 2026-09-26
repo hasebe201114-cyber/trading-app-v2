@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import {
   AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer,
 } from 'recharts';
-import { AlertTriangle, Download, ExternalLink, Info, Target } from 'lucide-react';
+import { AlertTriangle, Download, ExternalLink, Info, Target, X } from 'lucide-react';
 import { useSysFx012ForwardData, type SysFx012Trade } from '../../hooks/useSysFx012ForwardData';
 import { SectionBox } from '../../ui/components/SectionBox';
 import { formatJST } from '../../ui/utils/formatters';
@@ -143,7 +144,15 @@ function EquityChart({ points, elapsedDays }: { points: { time: string; balance:
 }
 
 // ── トレード台帳テーブル ──────────────────────────────────
-function TradeTable({ trades }: { trades: SysFx012Trade[] }) {
+function TradeTable({
+  trades,
+  selectedIndex,
+  onSelectTrade,
+}: {
+  trades: SysFx012Trade[];
+  selectedIndex: number | null;
+  onSelectTrade: (index: number) => void;
+}) {
   if (trades.length === 0) {
     return <p className="text-sm text-fg-3 py-4 text-center">まだ検出イベントからトレードは生成されていません</p>;
   }
@@ -166,8 +175,14 @@ function TradeTable({ trades }: { trades: SysFx012Trade[] }) {
           {rows.map((t, i) => {
             const closed = t.dollar_pnl != null;
             const pnlColor = !closed ? 'text-fg-3' : (t.dollar_pnl as number) >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500';
+            const isSelected = selectedIndex === i;
+            const rowBg = isSelected ? 'bg-[#F97316]/10' : 'hover:bg-fg-4/20';
             return (
-              <tr key={i} className="border-b border-fg-4/30">
+              <tr
+                key={i}
+                className={`border-b border-fg-4/30 cursor-pointer transition-colors ${rowBg}`}
+                onClick={() => onSelectTrade(i)}
+              >
                 <td className="py-1.5 pr-2 font-mono">{t.pair}</td>
                 <td className="py-1.5 pr-2">{t.direction === 'UP' ? '買い' : '売り'}</td>
                 <td className="py-1.5 pr-2 font-mono tabular-nums">{formatJST(t.entry_time)}</td>
@@ -186,8 +201,112 @@ function TradeTable({ trades }: { trades: SysFx012Trade[] }) {
   );
 }
 
+// ── トレード詳細パネル ──────────────────────────────────────
+function TradeDetailPanel({
+  trade,
+  onClose
+}: {
+  trade: SysFx012Trade | null;
+  onClose: () => void;
+}) {
+  if (!trade) return null;
+
+  const closed = trade.dollar_pnl != null;
+  const isWin = closed && (trade.dollar_pnl as number) >= 0;
+  const winLossLabel = !closed ? '保有中' : isWin ? '勝ち' : '負け';
+  const winLossColor = !closed ? 'text-fg-2' : isWin ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500';
+
+  return (
+    <div className="border border-fg-3 rounded p-4 space-y-3">
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <div className="text-sm font-700 text-fg-1">{trade.pair}</div>
+          <div className={`text-xs font-700 mt-1 ${winLossColor}`}>{winLossLabel}</div>
+        </div>
+        <button
+          onClick={onClose}
+          className="p-1 hover:bg-fg-4 rounded transition-colors"
+          title="パネルを閉じる"
+        >
+          <X size={14} className="text-fg-3" />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 text-xs">
+        <div>
+          <p className="text-fg-3 mb-1">エントリー</p>
+          <p className="font-mono text-fg-1">{formatJST(trade.entry_time)}</p>
+        </div>
+        <div>
+          <p className="text-fg-3 mb-1">決済</p>
+          <p className="font-mono text-fg-1">{trade.exit_time ? formatJST(trade.exit_time) : '保有中'}</p>
+        </div>
+
+        <div>
+          <p className="text-fg-3 mb-1">方向</p>
+          <p className="font-mono text-fg-1">{trade.direction === 'UP' ? '買い' : '売り'}</p>
+        </div>
+        <div>
+          <p className="text-fg-3 mb-1">決済理由</p>
+          <p className="font-mono text-fg-1">{trade.exit_reason ?? '—'}</p>
+        </div>
+
+        <div>
+          <p className="text-fg-3 mb-1">エントリー価格</p>
+          <p className="font-mono text-fg-1">{trade.entry_price.toFixed(3)}</p>
+        </div>
+        <div>
+          <p className="text-fg-3 mb-1">初期リスク</p>
+          <p className="font-mono text-fg-1">{trade.initial_risk.toFixed(6)} pips</p>
+        </div>
+
+        <div>
+          <p className="text-fg-3 mb-1">r_gross</p>
+          <p className="font-mono text-fg-1">{trade.r_gross.toFixed(3)}R</p>
+        </div>
+        <div>
+          <p className="text-fg-3 mb-1">コスト (cost_r)</p>
+          <p className="font-mono text-fg-1">{trade.cost_r.toFixed(6)}R</p>
+        </div>
+
+        <div>
+          <p className="text-fg-3 mb-1">コミッション (commission_r)</p>
+          <p className="font-mono text-fg-1">{trade.commission_r.toFixed(6)}R</p>
+        </div>
+        <div>
+          <p className="text-fg-3 mb-1">r_net</p>
+          <p className={`font-mono font-700 ${isWin ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
+            {trade.r_net.toFixed(3)}R
+          </p>
+        </div>
+
+        <div>
+          <p className="text-fg-3 mb-1">レバレッジ</p>
+          <p className="font-mono text-fg-1">{trade.leverage_ratio.toLocaleString('en-US', { maximumFractionDigits: 1 })}x</p>
+        </div>
+        <div>
+          <p className="text-fg-3 mb-1">リスク額</p>
+          <p className="font-mono text-fg-1">{trade.risk_dollars ? `$${trade.risk_dollars.toFixed(2)}` : '—'}</p>
+        </div>
+
+        <div>
+          <p className="text-fg-3 mb-1">実効リスク率</p>
+          <p className="font-mono text-fg-1">{trade.effective_risk_pct ? `${(trade.effective_risk_pct * 100).toFixed(2)}%` : '—'}</p>
+        </div>
+        <div>
+          <p className="text-fg-3 mb-1">損益</p>
+          <p className={`font-mono font-700 ${isWin ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
+            {closed ? signed(trade.dollar_pnl as number, 2, '$').replace('$', '') + '$' : '—'}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export const SysFx012ForwardScreen = () => {
   const { data, loading, error } = useSysFx012ForwardData();
+  const [selectedTradeIndex, setSelectedTradeIndex] = useState<number | null>(null);
 
   if (loading) return <div className="p-6 text-fg-3 text-sm">読み込み中…</div>;
   if (error || !data) {
@@ -204,6 +323,11 @@ export const SysFx012ForwardScreen = () => {
   const { backtest: bt, kpi } = data;
   const totalReturnPct = ((bt.final_balance / INITIAL_CAPITAL) - 1) * 100;
   const elapsedDays = daysSince(data.cutoff);
+
+  // selectedTradeIndexはreverse後のインデックスなので、実際のトレード参照は逆順にして取得
+  const selectedTrade = selectedTradeIndex !== null && selectedTradeIndex < bt.trades.length
+    ? bt.trades[bt.trades.length - 1 - selectedTradeIndex]
+    : null;
 
   return (
     <div className="p-4 sm:p-6 space-y-5 max-w-4xl">
@@ -341,7 +465,23 @@ export const SysFx012ForwardScreen = () => {
       </SectionBox>
 
       <SectionBox title="トレード台帳">
-        <TradeTable trades={bt.trades} />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2">
+            <TradeTable
+              trades={bt.trades}
+              selectedIndex={selectedTradeIndex}
+              onSelectTrade={setSelectedTradeIndex}
+            />
+          </div>
+          {selectedTrade && (
+            <div>
+              <TradeDetailPanel
+                trade={selectedTrade}
+                onClose={() => setSelectedTradeIndex(null)}
+              />
+            </div>
+          )}
+        </div>
       </SectionBox>
 
       <div className="text-[11px] text-fg-3 space-y-1 border-t border-fg-4/40 pt-3">
