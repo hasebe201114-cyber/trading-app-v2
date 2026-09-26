@@ -353,6 +353,60 @@ function TradeTable({
   );
 }
 
+// ── 価格チャート（トレード期間中の推移）──────────────────────
+function PriceChart({ trade }: { trade: SysFx012Trade }) {
+  const entryPrice = trade.entry_price;
+  const initialRisk = trade.initial_risk; // pips
+
+  // SL/TP計算（トレード方向に応じて）
+  const slPrice = trade.direction === 'UP'
+    ? entryPrice - initialRisk
+    : entryPrice + initialRisk;
+
+  // データ範囲
+  const prices = [entryPrice, slPrice];
+  const minPrice = Math.min(...prices);
+  const maxPrice = Math.max(...prices);
+  const range = maxPrice - minPrice;
+  const padding = range * 0.15;
+
+  return (
+    <div className="border border-fg-3 rounded p-3 space-y-2">
+      <div className="text-xs font-700 text-fg-1">価格推移</div>
+
+      <div className="bg-fg-4/30 rounded p-3 space-y-2">
+        <div className="text-[10px] text-fg-3 mb-2">
+          M5 OHLCVデータは準備中です。以下は参考レベルの情報です。
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div>
+            <p className="text-fg-3 mb-1">エントリー価格</p>
+            <p className="font-mono font-700 text-[#F97316]">{entryPrice.toFixed(3)}</p>
+          </div>
+          <div>
+            <p className="text-fg-3 mb-1">ストップロス</p>
+            <p className="font-mono font-700 text-red-500">{slPrice.toFixed(3)}</p>
+          </div>
+
+          <div>
+            <p className="text-fg-3 mb-1">方向</p>
+            <p className="font-mono text-fg-1">{trade.direction === 'UP' ? '買い ↑' : '売り ↓'}</p>
+          </div>
+          <div>
+            <p className="text-fg-3 mb-1">リスク幅</p>
+            <p className="font-mono text-fg-1">{trade.initial_risk.toFixed(6)} pips</p>
+          </div>
+        </div>
+
+        <div className="text-[10px] text-fg-2 pt-2 border-t border-fg-3/30">
+          <p>今後の改善: minmax-fx-day-trading-lab側から M5 OHLCV データを同期し、実際の価格推移チャート（キャンドル）を表示します。</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── ペア別統計パネル ──────────────────────────────────────
 function PairSummary({ stats, selectedPair, onSelectPair }: {
   stats: PairStats[];
@@ -417,89 +471,93 @@ function TradeDetailPanel({
   const winLossColor = !closed ? 'text-fg-2' : isWin ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500';
 
   return (
-    <div className="border border-fg-3 rounded p-4 space-y-3">
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <div className="text-sm font-700 text-fg-1">{trade.pair}</div>
-          <div className={`text-xs font-700 mt-1 ${winLossColor}`}>{winLossLabel}</div>
+    <div className="space-y-3">
+      <div className="border border-fg-3 rounded p-4 space-y-3">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <div className="text-sm font-700 text-fg-1">{trade.pair}</div>
+            <div className={`text-xs font-700 mt-1 ${winLossColor}`}>{winLossLabel}</div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-fg-4 rounded transition-colors"
+            title="パネルを閉じる"
+          >
+            <X size={14} className="text-fg-3" />
+          </button>
         </div>
-        <button
-          onClick={onClose}
-          className="p-1 hover:bg-fg-4 rounded transition-colors"
-          title="パネルを閉じる"
-        >
-          <X size={14} className="text-fg-3" />
-        </button>
+
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <p className="text-fg-3 mb-1">エントリー</p>
+            <p className="font-mono text-fg-1">{formatJST(trade.entry_time)}</p>
+          </div>
+          <div>
+            <p className="text-fg-3 mb-1">決済</p>
+            <p className="font-mono text-fg-1">{trade.exit_time ? formatJST(trade.exit_time) : '保有中'}</p>
+          </div>
+
+          <div>
+            <p className="text-fg-3 mb-1">方向</p>
+            <p className="font-mono text-fg-1">{trade.direction === 'UP' ? '買い' : '売り'}</p>
+          </div>
+          <div>
+            <p className="text-fg-3 mb-1">決済理由</p>
+            <p className="font-mono text-fg-1">{trade.exit_reason ?? '—'}</p>
+          </div>
+
+          <div>
+            <p className="text-fg-3 mb-1">エントリー価格</p>
+            <p className="font-mono text-fg-1">{trade.entry_price.toFixed(3)}</p>
+          </div>
+          <div>
+            <p className="text-fg-3 mb-1">初期リスク</p>
+            <p className="font-mono text-fg-1">{trade.initial_risk.toFixed(6)} pips</p>
+          </div>
+
+          <div>
+            <p className="text-fg-3 mb-1">r_gross</p>
+            <p className="font-mono text-fg-1">{trade.r_gross.toFixed(3)}R</p>
+          </div>
+          <div>
+            <p className="text-fg-3 mb-1">コスト (cost_r)</p>
+            <p className="font-mono text-fg-1">{trade.cost_r.toFixed(6)}R</p>
+          </div>
+
+          <div>
+            <p className="text-fg-3 mb-1">コミッション (commission_r)</p>
+            <p className="font-mono text-fg-1">{trade.commission_r.toFixed(6)}R</p>
+          </div>
+          <div>
+            <p className="text-fg-3 mb-1">r_net</p>
+            <p className={`font-mono font-700 ${isWin ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
+              {trade.r_net.toFixed(3)}R
+            </p>
+          </div>
+
+          <div>
+            <p className="text-fg-3 mb-1">レバレッジ</p>
+            <p className="font-mono text-fg-1">{trade.leverage_ratio.toLocaleString('en-US', { maximumFractionDigits: 1 })}x</p>
+          </div>
+          <div>
+            <p className="text-fg-3 mb-1">リスク額</p>
+            <p className="font-mono text-fg-1">{trade.risk_dollars ? `$${trade.risk_dollars.toFixed(2)}` : '—'}</p>
+          </div>
+
+          <div>
+            <p className="text-fg-3 mb-1">実効リスク率</p>
+            <p className="font-mono text-fg-1">{trade.effective_risk_pct ? `${(trade.effective_risk_pct * 100).toFixed(2)}%` : '—'}</p>
+          </div>
+          <div>
+            <p className="text-fg-3 mb-1">損益</p>
+            <p className={`font-mono font-700 ${isWin ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
+              {closed ? signed(trade.dollar_pnl as number, 2, '$').replace('$', '') + '$' : '—'}
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 text-xs">
-        <div>
-          <p className="text-fg-3 mb-1">エントリー</p>
-          <p className="font-mono text-fg-1">{formatJST(trade.entry_time)}</p>
-        </div>
-        <div>
-          <p className="text-fg-3 mb-1">決済</p>
-          <p className="font-mono text-fg-1">{trade.exit_time ? formatJST(trade.exit_time) : '保有中'}</p>
-        </div>
-
-        <div>
-          <p className="text-fg-3 mb-1">方向</p>
-          <p className="font-mono text-fg-1">{trade.direction === 'UP' ? '買い' : '売り'}</p>
-        </div>
-        <div>
-          <p className="text-fg-3 mb-1">決済理由</p>
-          <p className="font-mono text-fg-1">{trade.exit_reason ?? '—'}</p>
-        </div>
-
-        <div>
-          <p className="text-fg-3 mb-1">エントリー価格</p>
-          <p className="font-mono text-fg-1">{trade.entry_price.toFixed(3)}</p>
-        </div>
-        <div>
-          <p className="text-fg-3 mb-1">初期リスク</p>
-          <p className="font-mono text-fg-1">{trade.initial_risk.toFixed(6)} pips</p>
-        </div>
-
-        <div>
-          <p className="text-fg-3 mb-1">r_gross</p>
-          <p className="font-mono text-fg-1">{trade.r_gross.toFixed(3)}R</p>
-        </div>
-        <div>
-          <p className="text-fg-3 mb-1">コスト (cost_r)</p>
-          <p className="font-mono text-fg-1">{trade.cost_r.toFixed(6)}R</p>
-        </div>
-
-        <div>
-          <p className="text-fg-3 mb-1">コミッション (commission_r)</p>
-          <p className="font-mono text-fg-1">{trade.commission_r.toFixed(6)}R</p>
-        </div>
-        <div>
-          <p className="text-fg-3 mb-1">r_net</p>
-          <p className={`font-mono font-700 ${isWin ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
-            {trade.r_net.toFixed(3)}R
-          </p>
-        </div>
-
-        <div>
-          <p className="text-fg-3 mb-1">レバレッジ</p>
-          <p className="font-mono text-fg-1">{trade.leverage_ratio.toLocaleString('en-US', { maximumFractionDigits: 1 })}x</p>
-        </div>
-        <div>
-          <p className="text-fg-3 mb-1">リスク額</p>
-          <p className="font-mono text-fg-1">{trade.risk_dollars ? `$${trade.risk_dollars.toFixed(2)}` : '—'}</p>
-        </div>
-
-        <div>
-          <p className="text-fg-3 mb-1">実効リスク率</p>
-          <p className="font-mono text-fg-1">{trade.effective_risk_pct ? `${(trade.effective_risk_pct * 100).toFixed(2)}%` : '—'}</p>
-        </div>
-        <div>
-          <p className="text-fg-3 mb-1">損益</p>
-          <p className={`font-mono font-700 ${isWin ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
-            {closed ? signed(trade.dollar_pnl as number, 2, '$').replace('$', '') + '$' : '—'}
-          </p>
-        </div>
-      </div>
+      <PriceChart trade={trade} />
     </div>
   );
 }
