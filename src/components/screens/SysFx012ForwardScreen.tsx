@@ -186,6 +186,115 @@ function EquityChart({ points, elapsedDays }: { points: { time: string; balance:
   );
 }
 
+// ── 拡張残高推移チャート（トレードマーカー付き） ──────────
+interface ChartTradeMarker {
+  time: string;
+  isEntry: boolean;
+  isWin: boolean;
+}
+
+function EquityChartEnhanced({
+  points,
+  trades,
+  selectedTradeIndex,
+  elapsedDays
+}: {
+  points: { time: string; balance: number }[];
+  trades: SysFx012Trade[];
+  selectedTradeIndex: number | null;
+  elapsedDays: number;
+}) {
+  const chartData = points.map(p => ({
+    time: p.time.slice(0, 16),
+    balance: p.balance,
+    originalTime: p.time,
+  }));
+
+  // マーカーの取得
+  const markers: ChartTradeMarker[] = [];
+  const closedTrades = trades.filter(t => t.dollar_pnl != null);
+  closedTrades.forEach((t, idx) => {
+    const isSelected = selectedTradeIndex !== null && (trades.length - 1 - selectedTradeIndex) === idx;
+    const isWin = (t.dollar_pnl as number) >= 0;
+
+    if (t.entry_time) {
+      const entryPoint = chartData.find(d => d.originalTime.startsWith(t.entry_time.slice(0, 13)));
+      if (entryPoint) {
+        markers.push({
+          time: entryPoint.time,
+          isEntry: true,
+          isWin: isWin && isSelected,
+        });
+      }
+    }
+
+    if (t.exit_time) {
+      const exitPoint = chartData.find(d => d.originalTime.startsWith(t.exit_time!.slice(0, 13)));
+      if (exitPoint) {
+        markers.push({
+          time: exitPoint.time,
+          isEntry: false,
+          isWin: isWin && isSelected,
+        });
+      }
+    }
+  });
+
+  return (
+    <div className="space-y-3">
+      <CheckpointProgress elapsedDays={elapsedDays} />
+      {chartData.length < 2 ? (
+        <div className="flex items-center justify-center h-32 text-fg-3 text-sm">データ蓄積中（まだ決済済みトレードなし）</div>
+      ) : (
+        <div className="space-y-2">
+          <ResponsiveContainer width="100%" height={230}>
+            <AreaChart data={chartData}
+              margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="sysfx012Fill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={ACCENT} stopOpacity={0.25} />
+                  <stop offset="100%" stopColor={ACCENT} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--fg-4)" />
+              <XAxis dataKey="time" tick={{ fontSize: 10, fill: 'var(--fg-3)' }} tickLine={false}
+                tickFormatter={v => String(v).slice(5, 10)} />
+              <YAxis tick={{ fontSize: 11, fill: 'var(--fg-3)' }} tickLine={false} axisLine={false}
+                width={56} domain={['auto', 'auto']} tickFormatter={v => `$${Math.round(v).toLocaleString('en-US')}`} />
+              <Tooltip
+                contentStyle={{ background: 'var(--surface)', border: '1px solid var(--fg-4)', borderRadius: 4, fontSize: 12 }}
+                formatter={(v: number) => [fmtUsd(v), '残高']}
+                labelFormatter={l => String(l)}
+              />
+              <ReferenceLine y={INITIAL_CAPITAL} stroke="var(--fg-3)" strokeDasharray="3 4"
+                label={{ value: '初期資金 $1,000', position: 'insideTopRight', fontSize: 9, fill: 'var(--fg-3)' }} />
+              <Area type="stepAfter" dataKey="balance" stroke="none" fill="url(#sysfx012Fill)" isAnimationActive={false} />
+              <Line type="stepAfter" dataKey="balance" stroke={ACCENT} strokeWidth={2} dot={false} isAnimationActive={false} />
+            </AreaChart>
+          </ResponsiveContainer>
+
+          {markers.length > 0 && (
+            <div className="flex flex-wrap gap-2 text-[11px]">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#10b981' }} />
+                <span className="text-fg-3">エントリー</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#ef4444' }} />
+                <span className="text-fg-3">決済</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: ACCENT }} />
+                <span className="text-fg-3">選択トレード</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── トレード台帳テーブル ──────────────────────────────────
 function TradeTable({
   trades,
@@ -531,7 +640,12 @@ export const SysFx012ForwardScreen = () => {
       </SectionBox>
 
       <SectionBox title="残高推移">
-        <EquityChart points={bt.equity_curve} elapsedDays={elapsedDays} />
+        <EquityChartEnhanced
+          points={bt.equity_curve}
+          trades={bt.trades}
+          selectedTradeIndex={selectedTradeIndex}
+          elapsedDays={elapsedDays}
+        />
       </SectionBox>
 
       <SectionBox title="質的指標（決済済みトレードベース）">
