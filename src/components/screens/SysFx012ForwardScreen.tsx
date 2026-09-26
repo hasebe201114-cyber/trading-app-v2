@@ -353,6 +353,91 @@ function TradeTable({
   );
 }
 
+// ── パフォーマンスメトリクス ──────────────────────────────
+function PerformanceMetrics({ trade, allTrades }: {
+  trade: SysFx012Trade;
+  allTrades: SysFx012Trade[];
+}) {
+  const closed = trade.dollar_pnl != null;
+  const isWin = closed && (trade.dollar_pnl as number) >= 0;
+
+  // トレード期間
+  const entryTime = new Date(trade.entry_time.replace(' ', 'T'));
+  const exitTime = trade.exit_time ? new Date(trade.exit_time.replace(' ', 'T')) : null;
+  const durationMinutes = exitTime
+    ? Math.round((exitTime.getTime() - entryTime.getTime()) / (1000 * 60))
+    : null;
+
+  // 全トレードの平均
+  const closedTrades = allTrades.filter(t => t.dollar_pnl != null);
+  const avgR = closedTrades.length > 0
+    ? closedTrades.reduce((sum, t) => sum + (t.r_net || 0), 0) / closedTrades.length
+    : 0;
+  const avgRGross = closedTrades.length > 0
+    ? closedTrades.reduce((sum, t) => sum + (t.r_gross || 0), 0) / closedTrades.length
+    : 0;
+
+  // リスク/リワード（絶対値ベース）
+  const riskRewardRatio = Math.abs(trade.r_gross / trade.r_net);
+
+  return (
+    <div className="border border-fg-3 rounded p-3 space-y-3">
+      <div className="text-xs font-700 text-fg-1">パフォーマンス分析</div>
+
+      <div className="grid grid-cols-2 gap-2 text-[11px]">
+        <div>
+          <p className="text-fg-3 mb-1">r_gross vs r_net</p>
+          <p className="font-mono text-fg-1">
+            {trade.r_gross.toFixed(3)} → {trade.r_net.toFixed(3)}R
+          </p>
+        </div>
+        <div>
+          <p className="text-fg-3 mb-1">手数料・コスト</p>
+          <p className="font-mono text-fg-1">
+            {(trade.cost_r + trade.commission_r).toFixed(3)}R
+          </p>
+        </div>
+
+        <div>
+          <p className="text-fg-3 mb-1">トレード期間</p>
+          <p className="font-mono text-fg-1">
+            {durationMinutes ? `${durationMinutes}分` : '—'}
+          </p>
+        </div>
+        <div>
+          <p className="text-fg-3 mb-1">リスク/リワード</p>
+          <p className="font-mono text-fg-1">{riskRewardRatio.toFixed(2)}x</p>
+        </div>
+
+        <div>
+          <p className="text-fg-3 mb-1">このトレードの R</p>
+          <p className={`font-mono font-700 ${isWin ? 'text-emerald-600' : 'text-red-500'}`}>
+            {trade.r_net.toFixed(3)}R
+          </p>
+        </div>
+        <div>
+          <p className="text-fg-3 mb-1">全トレード平均 R</p>
+          <p className={`font-mono font-700 ${avgR >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+            {avgR.toFixed(3)}R
+          </p>
+        </div>
+      </div>
+
+      <div className="text-[10px] text-fg-2 bg-fg-4/20 rounded p-2">
+        <p className="mb-1 font-700">このトレード評価:</p>
+        <p>
+          {isWin
+            ? `✓ 勝ちトレード。獲得R: ${trade.r_net.toFixed(3)}R （平均: ${avgR.toFixed(3)}R）`
+            : `✗ 負けトレード。損失R: ${trade.r_net.toFixed(3)}R （平均: ${avgR.toFixed(3)}R）`}
+        </p>
+        {durationMinutes && (
+          <p className="mt-1">保有時間: {durationMinutes}分</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── 価格チャート（トレード期間中の推移）──────────────────────
 function PriceChart({ trade }: { trade: SysFx012Trade }) {
   const entryPrice = trade.entry_price;
@@ -458,9 +543,11 @@ function PairSummary({ stats, selectedPair, onSelectPair }: {
 // ── トレード詳細パネル ──────────────────────────────────────
 function TradeDetailPanel({
   trade,
+  allTrades,
   onClose
 }: {
   trade: SysFx012Trade | null;
+  allTrades: SysFx012Trade[];
   onClose: () => void;
 }) {
   if (!trade) return null;
@@ -558,6 +645,8 @@ function TradeDetailPanel({
       </div>
 
       <PriceChart trade={trade} />
+
+      <PerformanceMetrics trade={trade} allTrades={allTrades} />
     </div>
   );
 }
@@ -751,6 +840,7 @@ export const SysFx012ForwardScreen = () => {
               <div className="text-xs font-700 text-fg-2 mb-2">トレード詳細</div>
               <TradeDetailPanel
                 trade={selectedTrade}
+                allTrades={bt.trades}
                 onClose={() => setSelectedTradeIndex(null)}
               />
             </div>
