@@ -503,6 +503,9 @@ function PriceChart({ trade }: { trade: SysFx012Trade }) {
   const slPrice = trade.direction === 'UP'
     ? entryPrice - initialRisk
     : entryPrice + initialRisk;
+  const tpPrice = trade.direction === 'UP'
+    ? entryPrice + initialRisk
+    : entryPrice - initialRisk;
 
   if (!ohlcvData || ohlcvData.length === 0) {
     return (
@@ -515,9 +518,11 @@ function PriceChart({ trade }: { trade: SysFx012Trade }) {
     );
   }
 
+  const exitPrice = ohlcvData.length > 0 ? ohlcvData[ohlcvData.length - 1].close : entryPrice;
   const prices = ohlcvData.flatMap(d => [d.high, d.low]);
-  const minPrice = Math.min(...prices, slPrice);
-  const maxPrice = Math.max(...prices, slPrice);
+  const allPrices = [...prices, slPrice, tpPrice, exitPrice];
+  const minPrice = Math.min(...allPrices);
+  const maxPrice = Math.max(...allPrices);
   const range = maxPrice - minPrice;
   const padding = range * 0.1;
 
@@ -566,6 +571,18 @@ function PriceChart({ trade }: { trade: SysFx012Trade }) {
             strokeDasharray="2 2"
             label={{ value: 'SL', position: 'insideBottomRight', fontSize: 8, fill: '#ef4444', offset: 5 }}
           />
+          <ReferenceLine
+            y={tpPrice}
+            stroke="#10b981"
+            strokeDasharray="2 2"
+            label={{ value: 'TP', position: 'insideTopLeft', fontSize: 8, fill: '#10b981', offset: 5 }}
+          />
+          <ReferenceLine
+            y={exitPrice}
+            stroke="#8b5cf6"
+            strokeDasharray="3 3"
+            label={{ value: '決済', position: 'right', fontSize: 8, fill: '#8b5cf6', offset: 5 }}
+          />
           <Area
             type="monotone"
             dataKey="close"
@@ -585,11 +602,23 @@ function PriceChart({ trade }: { trade: SysFx012Trade }) {
           </p>
         </div>
         <div className="bg-fg-4/20 rounded p-2">
-          <p className="text-fg-3 mb-0.5">Entry/SL</p>
-          <p className="font-mono">
+          <p className="text-fg-3 mb-0.5">Entry / TP / SL</p>
+          <p className="font-mono space-x-1">
             <span className="text-[#F97316]">{entryPrice.toFixed(3)}</span>
-            <span className="text-fg-3"> / </span>
+            <span className="text-fg-3">/</span>
+            <span className="text-emerald-500">{tpPrice.toFixed(3)}</span>
+            <span className="text-fg-3">/</span>
             <span className="text-red-500">{slPrice.toFixed(3)}</span>
+          </p>
+        </div>
+        <div className="bg-fg-4/20 rounded p-2">
+          <p className="text-fg-3 mb-0.5">決済ポイント</p>
+          <p className="font-mono text-violet-500">{exitPrice.toFixed(3)}</p>
+        </div>
+        <div className="bg-fg-4/20 rounded p-2">
+          <p className="text-fg-3 mb-0.5">リスク / リワード</p>
+          <p className="font-mono text-fg-1">
+            {initialRisk.toFixed(4)} / {Math.abs(tpPrice - entryPrice).toFixed(4)}
           </p>
         </div>
       </div>
