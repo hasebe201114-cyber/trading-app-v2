@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ReferenceDot, ResponsiveContainer,
 } from 'recharts';
@@ -464,52 +464,115 @@ function PerformanceMetrics({ trade, allTrades }: {
 
 // ── 価格チャート（トレード期間中の推移）──────────────────────
 function PriceChart({ trade }: { trade: SysFx012Trade }) {
-  const entryPrice = trade.entry_price;
-  const initialRisk = trade.initial_risk; // pips
+  const [ohlcvData, setOhlcvData] = useState<Array<{ time: string; open: number; high: number; low: number; close: number }> | null>(null);
 
-  // SL/TP計算（トレード方向に応じて）
+  useEffect(() => {
+    fetch('/data/forward-fx-sysfx012/trade-ohlcv.json')
+      .then(r => r.json())
+      .then(data => {
+        for (const record of Object.values(data) as any[]) {
+          if (record.entry_time === trade.entry_time && record.pair === trade.pair) {
+            setOhlcvData(record.ohlcv);
+            break;
+          }
+        }
+      })
+      .catch(() => setOhlcvData(null));
+  }, [trade]);
+
+  const entryPrice = trade.entry_price;
+  const initialRisk = trade.initial_risk;
   const slPrice = trade.direction === 'UP'
     ? entryPrice - initialRisk
     : entryPrice + initialRisk;
 
-  // データ範囲
-  const prices = [entryPrice, slPrice];
-  const minPrice = Math.min(...prices);
-  const maxPrice = Math.max(...prices);
+  if (!ohlcvData || ohlcvData.length === 0) {
+    return (
+      <div className="border border-fg-3 rounded p-3 space-y-2">
+        <div className="text-xs font-700 text-fg-1">5分足チャート</div>
+        <div className="bg-fg-4/30 rounded p-3 text-[10px] text-fg-3">
+          M5データ読み込み中...
+        </div>
+      </div>
+    );
+  }
+
+  const prices = ohlcvData.flatMap(d => [d.high, d.low]);
+  const minPrice = Math.min(...prices, slPrice);
+  const maxPrice = Math.max(...prices, slPrice);
   const range = maxPrice - minPrice;
-  const padding = range * 0.15;
+  const padding = range * 0.1;
 
   return (
     <div className="border border-fg-3 rounded p-3 space-y-2">
-      <div className="text-xs font-700 text-fg-1">価格推移</div>
+      <div className="text-xs font-700 text-fg-1">5分足チャート</div>
 
-      <div className="bg-fg-4/30 rounded p-3 space-y-2">
-        <div className="text-[10px] text-fg-3 mb-2">
-          M5 OHLCVデータは準備中です。以下は参考レベルの情報です。
+      <ResponsiveContainer width="100%" height={180}>
+        <AreaChart data={ohlcvData}
+          margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+          <defs>
+            <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={ACCENT} stopOpacity={0.15} />
+              <stop offset="100%" stopColor={ACCENT} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--fg-4)" />
+          <XAxis
+            dataKey="time"
+            tick={{ fontSize: 9, fill: 'var(--fg-3)' }}
+            tickLine={false}
+            tickFormatter={v => String(v).slice(11, 16)}
+          />
+          <YAxis
+            tick={{ fontSize: 9, fill: 'var(--fg-3)' }}
+            tickLine={false}
+            axisLine={false}
+            width={48}
+            domain={[minPrice - padding, maxPrice + padding]}
+            tickFormatter={v => v.toFixed(2)}
+          />
+          <Tooltip
+            contentStyle={{ background: 'var(--surface)', border: '1px solid var(--fg-4)', borderRadius: 4, fontSize: 11 }}
+            formatter={(v: number) => v.toFixed(3)}
+            labelFormatter={l => String(l)}
+          />
+          <ReferenceLine
+            y={entryPrice}
+            stroke={ACCENT}
+            strokeDasharray="2 2"
+            label={{ value: 'Entry', position: 'insideTopRight', fontSize: 8, fill: ACCENT, offset: 5 }}
+          />
+          <ReferenceLine
+            y={slPrice}
+            stroke="#ef4444"
+            strokeDasharray="2 2"
+            label={{ value: 'SL', position: 'insideBottomRight', fontSize: 8, fill: '#ef4444', offset: 5 }}
+          />
+          <Area
+            type="monotone"
+            dataKey="close"
+            stroke={ACCENT}
+            strokeWidth={1.5}
+            fill="url(#priceGradient)"
+            isAnimationActive={false}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+
+      <div className="grid grid-cols-2 gap-2 text-[10px]">
+        <div className="bg-fg-4/20 rounded p-2">
+          <p className="text-fg-3 mb-0.5">High/Low</p>
+          <p className="font-mono text-fg-1">
+            {Math.max(...ohlcvData.map(d => d.high)).toFixed(3)} / {Math.min(...ohlcvData.map(d => d.low)).toFixed(3)}
+          </p>
         </div>
-
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div>
-            <p className="text-fg-3 mb-1">エントリー価格</p>
-            <p className="font-mono font-700 text-[#F97316]">{entryPrice.toFixed(3)}</p>
-          </div>
-          <div>
-            <p className="text-fg-3 mb-1">ストップロス</p>
-            <p className="font-mono font-700 text-red-500">{slPrice.toFixed(3)}</p>
-          </div>
-
-          <div>
-            <p className="text-fg-3 mb-1">方向</p>
-            <p className="font-mono text-fg-1">{trade.direction === 'UP' ? '買い ↑' : '売り ↓'}</p>
-          </div>
-          <div>
-            <p className="text-fg-3 mb-1">リスク幅</p>
-            <p className="font-mono text-fg-1">{trade.initial_risk.toFixed(6)} pips</p>
-          </div>
-        </div>
-
-        <div className="text-[10px] text-fg-2 pt-2 border-t border-fg-3/30">
-          <p>今後の改善: minmax-fx-day-trading-lab側から M5 OHLCV データを同期し、実際の価格推移チャート（キャンドル）を表示します。</p>
+        <div className="bg-fg-4/20 rounded p-2">
+          <p className="text-fg-3 mb-0.5">Entry/SL</p>
+          <p className="font-mono">
+            <span className="text-[#F97316]">{entryPrice.toFixed(3)}</span>
+            <span className="text-fg-3"> / </span>
+            <span className="text-red-500">{slPrice.toFixed(3)}</span>
+          </p>
         </div>
       </div>
     </div>
