@@ -467,18 +467,36 @@ function PriceChart({ trade }: { trade: SysFx012Trade }) {
   const [ohlcvData, setOhlcvData] = useState<Array<{ time: string; open: number; high: number; low: number; close: number }> | null>(null);
 
   useEffect(() => {
+    if (!trade.entry_time || !trade.pair) {
+      setOhlcvData(null);
+      return;
+    }
+
     fetch('/data/forward-fx-sysfx012/trade-ohlcv.json')
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then(data => {
+        let found = false;
         for (const record of Object.values(data) as any[]) {
           if (record.entry_time === trade.entry_time && record.pair === trade.pair) {
-            setOhlcvData(record.ohlcv);
-            break;
+            if (record.ohlcv && record.ohlcv.length > 0) {
+              setOhlcvData(record.ohlcv);
+              found = true;
+              break;
+            }
           }
         }
+        if (!found) {
+          setOhlcvData(null);
+        }
       })
-      .catch(() => setOhlcvData(null));
-  }, [trade]);
+      .catch(e => {
+        console.error('OHLCV fetch error:', e);
+        setOhlcvData(null);
+      });
+  }, [trade.entry_time, trade.pair]);
 
   const entryPrice = trade.entry_price;
   const initialRisk = trade.initial_risk;
