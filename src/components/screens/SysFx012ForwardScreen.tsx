@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import {
   AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer,
 } from 'recharts';
-import { AlertTriangle, Download, ExternalLink, Info, Target } from 'lucide-react';
+import { AlertTriangle, Download, ExternalLink, Info, Target, X } from 'lucide-react';
 import { useSysFx012ForwardData, type SysFx012Trade } from '../../hooks/useSysFx012ForwardData';
 import { SectionBox } from '../../ui/components/SectionBox';
 import { formatJST } from '../../ui/utils/formatters';
@@ -48,6 +49,49 @@ const daysSince = (isoLike: string): number => {
   if (Number.isNaN(start.getTime())) return 0;
   return Math.max(0, Math.floor((Date.now() - start.getTime()) / 86_400_000));
 };
+
+// ── ペア別統計計算 ──────────────────────────────────────────
+interface PairStats {
+  pair: string;
+  nTrades: number;
+  nWins: number;
+  nLosses: number;
+  winRate: number;
+  totalPnL: number;
+  totalR: number;
+  avgR: number;
+  maxR: number;
+  minR: number;
+}
+
+function calculatePairStats(trades: SysFx012Trade[]): PairStats[] {
+  const pairMap = new Map<string, SysFx012Trade[]>();
+  trades.forEach(t => {
+    if (!pairMap.has(t.pair)) pairMap.set(t.pair, []);
+    pairMap.get(t.pair)!.push(t);
+  });
+
+  return Array.from(pairMap.entries()).map(([pair, pairTrades]) => {
+    const closed = pairTrades.filter(t => t.dollar_pnl != null);
+    const wins = closed.filter(t => (t.dollar_pnl as number) >= 0);
+    const losses = closed.filter(t => (t.dollar_pnl as number) < 0);
+    const totalPnL = closed.reduce((sum, t) => sum + (t.dollar_pnl || 0), 0);
+    const totalR = closed.reduce((sum, t) => sum + (t.r_net || 0), 0);
+
+    return {
+      pair,
+      nTrades: closed.length,
+      nWins: wins.length,
+      nLosses: losses.length,
+      winRate: closed.length > 0 ? wins.length / closed.length : 0,
+      totalPnL,
+      totalR,
+      avgR: closed.length > 0 ? totalR / closed.length : 0,
+      maxR: closed.length > 0 ? Math.max(...closed.map(t => t.r_net)) : 0,
+      minR: closed.length > 0 ? Math.min(...closed.map(t => t.r_net)) : 0,
+    };
+  }).sort((a, b) => b.nTrades - a.nTrades);
+}
 
 function StatTile({ label, value, sub, tone = 'neutral' }: {
   label: string; value: string; sub?: string; tone?: 'neutral' | 'pos' | 'neg' | 'accent';
@@ -142,8 +186,125 @@ function EquityChart({ points, elapsedDays }: { points: { time: string; balance:
   );
 }
 
+// ── 拡張残高推移チャート（トレードマーカー付き） ──────────
+interface ChartTradeMarker {
+  time: string;
+  isEntry: boolean;
+  isWin: boolean;
+}
+
+function EquityChartEnhanced({
+  points,
+  trades,
+  selectedTradeIndex,
+  elapsedDays
+}: {
+  points: { time: string; balance: number }[];
+  trades: SysFx012Trade[];
+  selectedTradeIndex: number | null;
+  elapsedDays: number;
+}) {
+  const chartData = points.map(p => ({
+    time: p.time.slice(0, 16),
+    balance: p.balance,
+    originalTime: p.time,
+  }));
+
+  // マーカーの取得
+  const markers: ChartTradeMarker[] = [];
+  const closedTrades = trades.filter(t => t.dollar_pnl != null);
+  closedTrades.forEach((t, idx) => {
+    const isSelected = selectedTradeIndex !== null && (trades.length - 1 - selectedTradeIndex) === idx;
+    const isWin = (t.dollar_pnl as number) >= 0;
+
+    if (t.entry_time) {
+      const entryPoint = chartData.find(d => d.originalTime.startsWith(t.entry_time.slice(0, 13)));
+      if (entryPoint) {
+        markers.push({
+          time: entryPoint.time,
+          isEntry: true,
+          isWin: isWin && isSelected,
+        });
+      }
+    }
+
+    if (t.exit_time) {
+      const exitPoint = chartData.find(d => d.originalTime.startsWith(t.exit_time!.slice(0, 13)));
+      if (exitPoint) {
+        markers.push({
+          time: exitPoint.time,
+          isEntry: false,
+          isWin: isWin && isSelected,
+        });
+      }
+    }
+  });
+
+  return (
+    <div className="space-y-3">
+      <CheckpointProgress elapsedDays={elapsedDays} />
+      {chartData.length < 2 ? (
+        <div className="flex items-center justify-center h-32 text-fg-3 text-sm">データ蓄積中（まだ決済済みトレードなし）</div>
+      ) : (
+        <div className="space-y-2">
+          <ResponsiveContainer width="100%" height={230}>
+            <AreaChart data={chartData}
+              margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="sysfx012Fill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={ACCENT} stopOpacity={0.25} />
+                  <stop offset="100%" stopColor={ACCENT} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--fg-4)" />
+              <XAxis dataKey="time" tick={{ fontSize: 10, fill: 'var(--fg-3)' }} tickLine={false}
+                tickFormatter={v => String(v).slice(5, 10)} />
+              <YAxis tick={{ fontSize: 11, fill: 'var(--fg-3)' }} tickLine={false} axisLine={false}
+                width={56} domain={['auto', 'auto']} tickFormatter={v => `$${Math.round(v).toLocaleString('en-US')}`} />
+              <Tooltip
+                contentStyle={{ background: 'var(--surface)', border: '1px solid var(--fg-4)', borderRadius: 4, fontSize: 12 }}
+                formatter={(v: number) => [fmtUsd(v), '残高']}
+                labelFormatter={l => String(l)}
+              />
+              <ReferenceLine y={INITIAL_CAPITAL} stroke="var(--fg-3)" strokeDasharray="3 4"
+                label={{ value: '初期資金 $1,000', position: 'insideTopRight', fontSize: 9, fill: 'var(--fg-3)' }} />
+              <Area type="stepAfter" dataKey="balance" stroke="none" fill="url(#sysfx012Fill)" isAnimationActive={false} />
+              <Line type="stepAfter" dataKey="balance" stroke={ACCENT} strokeWidth={2} dot={false} isAnimationActive={false} />
+            </AreaChart>
+          </ResponsiveContainer>
+
+          {markers.length > 0 && (
+            <div className="flex flex-wrap gap-2 text-[11px]">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#10b981' }} />
+                <span className="text-fg-3">エントリー</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#ef4444' }} />
+                <span className="text-fg-3">決済</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: ACCENT }} />
+                <span className="text-fg-3">選択トレード</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── トレード台帳テーブル ──────────────────────────────────
-function TradeTable({ trades }: { trades: SysFx012Trade[] }) {
+function TradeTable({
+  trades,
+  selectedIndex,
+  onSelectTrade,
+}: {
+  trades: SysFx012Trade[];
+  selectedIndex: number | null;
+  onSelectTrade: (index: number) => void;
+}) {
   if (trades.length === 0) {
     return <p className="text-sm text-fg-3 py-4 text-center">まだ検出イベントからトレードは生成されていません</p>;
   }
@@ -166,8 +327,14 @@ function TradeTable({ trades }: { trades: SysFx012Trade[] }) {
           {rows.map((t, i) => {
             const closed = t.dollar_pnl != null;
             const pnlColor = !closed ? 'text-fg-3' : (t.dollar_pnl as number) >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500';
+            const isSelected = selectedIndex === i;
+            const rowBg = isSelected ? 'bg-[#F97316]/10' : 'hover:bg-fg-4/20';
             return (
-              <tr key={i} className="border-b border-fg-4/30">
+              <tr
+                key={i}
+                className={`border-b border-fg-4/30 cursor-pointer transition-colors ${rowBg}`}
+                onClick={() => onSelectTrade(i)}
+              >
                 <td className="py-1.5 pr-2 font-mono">{t.pair}</td>
                 <td className="py-1.5 pr-2">{t.direction === 'UP' ? '買い' : '売り'}</td>
                 <td className="py-1.5 pr-2 font-mono tabular-nums">{formatJST(t.entry_time)}</td>
@@ -186,8 +353,308 @@ function TradeTable({ trades }: { trades: SysFx012Trade[] }) {
   );
 }
 
+// ── パフォーマンスメトリクス ──────────────────────────────
+function PerformanceMetrics({ trade, allTrades }: {
+  trade: SysFx012Trade;
+  allTrades: SysFx012Trade[];
+}) {
+  const closed = trade.dollar_pnl != null;
+  const isWin = closed && (trade.dollar_pnl as number) >= 0;
+
+  // トレード期間
+  const entryTime = new Date(trade.entry_time.replace(' ', 'T'));
+  const exitTime = trade.exit_time ? new Date(trade.exit_time.replace(' ', 'T')) : null;
+  const durationMinutes = exitTime
+    ? Math.round((exitTime.getTime() - entryTime.getTime()) / (1000 * 60))
+    : null;
+
+  // 全トレードの平均
+  const closedTrades = allTrades.filter(t => t.dollar_pnl != null);
+  const avgR = closedTrades.length > 0
+    ? closedTrades.reduce((sum, t) => sum + (t.r_net || 0), 0) / closedTrades.length
+    : 0;
+  const avgRGross = closedTrades.length > 0
+    ? closedTrades.reduce((sum, t) => sum + (t.r_gross || 0), 0) / closedTrades.length
+    : 0;
+
+  // リスク/リワード（絶対値ベース）
+  const riskRewardRatio = Math.abs(trade.r_gross / trade.r_net);
+
+  return (
+    <div className="border border-fg-3 rounded p-3 space-y-3">
+      <div className="text-xs font-700 text-fg-1">パフォーマンス分析</div>
+
+      <div className="grid grid-cols-2 gap-2 text-[11px]">
+        <div>
+          <p className="text-fg-3 mb-1">r_gross vs r_net</p>
+          <p className="font-mono text-fg-1">
+            {trade.r_gross.toFixed(3)} → {trade.r_net.toFixed(3)}R
+          </p>
+        </div>
+        <div>
+          <p className="text-fg-3 mb-1">手数料・コスト</p>
+          <p className="font-mono text-fg-1">
+            {(trade.cost_r + trade.commission_r).toFixed(3)}R
+          </p>
+        </div>
+
+        <div>
+          <p className="text-fg-3 mb-1">トレード期間</p>
+          <p className="font-mono text-fg-1">
+            {durationMinutes ? `${durationMinutes}分` : '—'}
+          </p>
+        </div>
+        <div>
+          <p className="text-fg-3 mb-1">リスク/リワード</p>
+          <p className="font-mono text-fg-1">{riskRewardRatio.toFixed(2)}x</p>
+        </div>
+
+        <div>
+          <p className="text-fg-3 mb-1">このトレードの R</p>
+          <p className={`font-mono font-700 ${isWin ? 'text-emerald-600' : 'text-red-500'}`}>
+            {trade.r_net.toFixed(3)}R
+          </p>
+        </div>
+        <div>
+          <p className="text-fg-3 mb-1">全トレード平均 R</p>
+          <p className={`font-mono font-700 ${avgR >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+            {avgR.toFixed(3)}R
+          </p>
+        </div>
+      </div>
+
+      <div className="text-[10px] text-fg-2 bg-fg-4/20 rounded p-2">
+        <p className="mb-1 font-700">このトレード評価:</p>
+        <p>
+          {isWin
+            ? `✓ 勝ちトレード。獲得R: ${trade.r_net.toFixed(3)}R （平均: ${avgR.toFixed(3)}R）`
+            : `✗ 負けトレード。損失R: ${trade.r_net.toFixed(3)}R （平均: ${avgR.toFixed(3)}R）`}
+        </p>
+        {durationMinutes && (
+          <p className="mt-1">保有時間: {durationMinutes}分</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── 価格チャート（トレード期間中の推移）──────────────────────
+function PriceChart({ trade }: { trade: SysFx012Trade }) {
+  const entryPrice = trade.entry_price;
+  const initialRisk = trade.initial_risk; // pips
+
+  // SL/TP計算（トレード方向に応じて）
+  const slPrice = trade.direction === 'UP'
+    ? entryPrice - initialRisk
+    : entryPrice + initialRisk;
+
+  // データ範囲
+  const prices = [entryPrice, slPrice];
+  const minPrice = Math.min(...prices);
+  const maxPrice = Math.max(...prices);
+  const range = maxPrice - minPrice;
+  const padding = range * 0.15;
+
+  return (
+    <div className="border border-fg-3 rounded p-3 space-y-2">
+      <div className="text-xs font-700 text-fg-1">価格推移</div>
+
+      <div className="bg-fg-4/30 rounded p-3 space-y-2">
+        <div className="text-[10px] text-fg-3 mb-2">
+          M5 OHLCVデータは準備中です。以下は参考レベルの情報です。
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div>
+            <p className="text-fg-3 mb-1">エントリー価格</p>
+            <p className="font-mono font-700 text-[#F97316]">{entryPrice.toFixed(3)}</p>
+          </div>
+          <div>
+            <p className="text-fg-3 mb-1">ストップロス</p>
+            <p className="font-mono font-700 text-red-500">{slPrice.toFixed(3)}</p>
+          </div>
+
+          <div>
+            <p className="text-fg-3 mb-1">方向</p>
+            <p className="font-mono text-fg-1">{trade.direction === 'UP' ? '買い ↑' : '売り ↓'}</p>
+          </div>
+          <div>
+            <p className="text-fg-3 mb-1">リスク幅</p>
+            <p className="font-mono text-fg-1">{trade.initial_risk.toFixed(6)} pips</p>
+          </div>
+        </div>
+
+        <div className="text-[10px] text-fg-2 pt-2 border-t border-fg-3/30">
+          <p>今後の改善: minmax-fx-day-trading-lab側から M5 OHLCV データを同期し、実際の価格推移チャート（キャンドル）を表示します。</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── ペア別統計パネル ──────────────────────────────────────
+function PairSummary({ stats, selectedPair, onSelectPair }: {
+  stats: PairStats[];
+  selectedPair: string | null;
+  onSelectPair: (pair: string | null) => void;
+}) {
+  if (stats.length === 0) return null;
+
+  return (
+    <div className="space-y-2">
+      {stats.map((s) => {
+        const isSelected = selectedPair === s.pair;
+        const bgColor = isSelected ? 'bg-[#F97316]/10 border-[#F97316]' : 'bg-fg-4/20 border-fg-3/30 hover:border-fg-3';
+        return (
+          <div
+            key={s.pair}
+            onClick={() => onSelectPair(isSelected ? null : s.pair)}
+            className={`border rounded p-2.5 cursor-pointer transition-all ${bgColor}`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="font-mono font-700 text-sm text-fg-1">{s.pair}</div>
+              <div className="text-xs text-fg-3">{s.nTrades}件</div>
+            </div>
+            <div className="grid grid-cols-2 gap-1 text-[10px]">
+              <div>
+                <p className="text-fg-3">勝率</p>
+                <p className="font-mono text-fg-1">{(s.winRate * 100).toFixed(1)}%</p>
+              </div>
+              <div>
+                <p className="text-fg-3">平均R</p>
+                <p className={`font-mono ${s.avgR >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{s.avgR.toFixed(3)}R</p>
+              </div>
+              <div>
+                <p className="text-fg-3">合計PnL</p>
+                <p className={`font-mono ${s.totalPnL >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>${s.totalPnL.toFixed(0)}</p>
+              </div>
+              <div>
+                <p className="text-fg-3">合計R</p>
+                <p className={`font-mono ${s.totalR >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{s.totalR.toFixed(2)}R</p>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── トレード詳細パネル ──────────────────────────────────────
+function TradeDetailPanel({
+  trade,
+  allTrades,
+  onClose
+}: {
+  trade: SysFx012Trade | null;
+  allTrades: SysFx012Trade[];
+  onClose: () => void;
+}) {
+  if (!trade) return null;
+
+  const closed = trade.dollar_pnl != null;
+  const isWin = closed && (trade.dollar_pnl as number) >= 0;
+  const winLossLabel = !closed ? '保有中' : isWin ? '勝ち' : '負け';
+  const winLossColor = !closed ? 'text-fg-2' : isWin ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500';
+
+  return (
+    <div className="space-y-3">
+      <div className="border border-fg-3 rounded p-4 space-y-3">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <div className="text-sm font-700 text-fg-1">{trade.pair}</div>
+            <div className={`text-xs font-700 mt-1 ${winLossColor}`}>{winLossLabel}</div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-fg-4 rounded transition-colors"
+            title="パネルを閉じる"
+          >
+            <X size={14} className="text-fg-3" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <p className="text-fg-3 mb-1">エントリー</p>
+            <p className="font-mono text-fg-1">{formatJST(trade.entry_time)}</p>
+          </div>
+          <div>
+            <p className="text-fg-3 mb-1">決済</p>
+            <p className="font-mono text-fg-1">{trade.exit_time ? formatJST(trade.exit_time) : '保有中'}</p>
+          </div>
+
+          <div>
+            <p className="text-fg-3 mb-1">方向</p>
+            <p className="font-mono text-fg-1">{trade.direction === 'UP' ? '買い' : '売り'}</p>
+          </div>
+          <div>
+            <p className="text-fg-3 mb-1">決済理由</p>
+            <p className="font-mono text-fg-1">{trade.exit_reason ?? '—'}</p>
+          </div>
+
+          <div>
+            <p className="text-fg-3 mb-1">エントリー価格</p>
+            <p className="font-mono text-fg-1">{trade.entry_price.toFixed(3)}</p>
+          </div>
+          <div>
+            <p className="text-fg-3 mb-1">初期リスク</p>
+            <p className="font-mono text-fg-1">{trade.initial_risk.toFixed(6)} pips</p>
+          </div>
+
+          <div>
+            <p className="text-fg-3 mb-1">r_gross</p>
+            <p className="font-mono text-fg-1">{trade.r_gross.toFixed(3)}R</p>
+          </div>
+          <div>
+            <p className="text-fg-3 mb-1">コスト (cost_r)</p>
+            <p className="font-mono text-fg-1">{trade.cost_r.toFixed(6)}R</p>
+          </div>
+
+          <div>
+            <p className="text-fg-3 mb-1">コミッション (commission_r)</p>
+            <p className="font-mono text-fg-1">{trade.commission_r.toFixed(6)}R</p>
+          </div>
+          <div>
+            <p className="text-fg-3 mb-1">r_net</p>
+            <p className={`font-mono font-700 ${isWin ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
+              {trade.r_net.toFixed(3)}R
+            </p>
+          </div>
+
+          <div>
+            <p className="text-fg-3 mb-1">レバレッジ</p>
+            <p className="font-mono text-fg-1">{trade.leverage_ratio.toLocaleString('en-US', { maximumFractionDigits: 1 })}x</p>
+          </div>
+          <div>
+            <p className="text-fg-3 mb-1">リスク額</p>
+            <p className="font-mono text-fg-1">{trade.risk_dollars ? `$${trade.risk_dollars.toFixed(2)}` : '—'}</p>
+          </div>
+
+          <div>
+            <p className="text-fg-3 mb-1">実効リスク率</p>
+            <p className="font-mono text-fg-1">{trade.effective_risk_pct ? `${(trade.effective_risk_pct * 100).toFixed(2)}%` : '—'}</p>
+          </div>
+          <div>
+            <p className="text-fg-3 mb-1">損益</p>
+            <p className={`font-mono font-700 ${isWin ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
+              {closed ? signed(trade.dollar_pnl as number, 2, '$').replace('$', '') + '$' : '—'}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <PriceChart trade={trade} />
+
+      <PerformanceMetrics trade={trade} allTrades={allTrades} />
+    </div>
+  );
+}
+
 export const SysFx012ForwardScreen = () => {
   const { data, loading, error } = useSysFx012ForwardData();
+  const [selectedTradeIndex, setSelectedTradeIndex] = useState<number | null>(null);
+  const [selectedPair, setSelectedPair] = useState<string | null>(null);
 
   if (loading) return <div className="p-6 text-fg-3 text-sm">読み込み中…</div>;
   if (error || !data) {
@@ -204,6 +671,12 @@ export const SysFx012ForwardScreen = () => {
   const { backtest: bt, kpi } = data;
   const totalReturnPct = ((bt.final_balance / INITIAL_CAPITAL) - 1) * 100;
   const elapsedDays = daysSince(data.cutoff);
+  const pairStats = calculatePairStats(bt.trades);
+
+  // selectedTradeIndexはreverse後のインデックスなので、実際のトレード参照は逆順にして取得
+  const selectedTrade = selectedTradeIndex !== null && selectedTradeIndex < bt.trades.length
+    ? bt.trades[bt.trades.length - 1 - selectedTradeIndex]
+    : null;
 
   return (
     <div className="p-4 sm:p-6 space-y-5 max-w-4xl">
@@ -314,7 +787,12 @@ export const SysFx012ForwardScreen = () => {
       </SectionBox>
 
       <SectionBox title="残高推移">
-        <EquityChart points={bt.equity_curve} elapsedDays={elapsedDays} />
+        <EquityChartEnhanced
+          points={bt.equity_curve}
+          trades={bt.trades}
+          selectedTradeIndex={selectedTradeIndex}
+          elapsedDays={elapsedDays}
+        />
       </SectionBox>
 
       <SectionBox title="質的指標（決済済みトレードベース）">
@@ -341,7 +819,33 @@ export const SysFx012ForwardScreen = () => {
       </SectionBox>
 
       <SectionBox title="トレード台帳">
-        <TradeTable trades={bt.trades} />
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+          <div className="lg:col-span-1">
+            <div className="text-xs font-700 text-fg-2 mb-2">通貨別統計</div>
+            <PairSummary
+              stats={pairStats}
+              selectedPair={selectedPair}
+              onSelectPair={setSelectedPair}
+            />
+          </div>
+          <div className="lg:col-span-2">
+            <TradeTable
+              trades={bt.trades}
+              selectedIndex={selectedTradeIndex}
+              onSelectTrade={setSelectedTradeIndex}
+            />
+          </div>
+          {selectedTrade && (
+            <div className="lg:col-span-2">
+              <div className="text-xs font-700 text-fg-2 mb-2">トレード詳細</div>
+              <TradeDetailPanel
+                trade={selectedTrade}
+                allTrades={bt.trades}
+                onClose={() => setSelectedTradeIndex(null)}
+              />
+            </div>
+          )}
+        </div>
       </SectionBox>
 
       <div className="text-[11px] text-fg-3 space-y-1 border-t border-fg-4/40 pt-3">

@@ -20,6 +20,7 @@ export interface SysFx012Trade {
   r_net: number;
   leverage_ratio: number;
   risk_dollars?: number;
+  effective_risk_pct?: number;
   dollar_pnl?: number;
   balance_after?: number;
   skipped_ruin?: boolean;
