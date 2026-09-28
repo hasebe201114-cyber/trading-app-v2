@@ -47,6 +47,23 @@ jobs:
           cp minmax-fx-day-trading-lab/research/method-notes/sysfx012_forward_test_ledger.json \
              public/data/forward-fx-sysfx012/sysfx012-forward-ledger.json
 
+      # OHLCV（5分足）データの拡張について:
+      # 2026-09-11までのトレードのOHLCV データは minmax-fx-day-trading-lab側で生成済み（trade-ohlcv.json に収録）。
+      # 2026-09-12以降のトレードについても OHLCV データを必要とする場合は、以下の対応が必要:
+      # 1. minmax-fx-day-trading-lab側で、sysfx012_forward_test_ohlcv.json 等の別ファイルを生成
+      # 2. 本ワークフロー内で下記のように取得・同期
+      # 今後の拡張用の例:
+      # cp minmax-fx-day-trading-lab/research/method-notes/sysfx012_forward_test_ohlcv.json \
+      #    public/data/forward-fx-sysfx012/sysfx012-forward-ohlcv.json
+
+      - name: Sync existing SYS-FX012 OHLCV data if available (for historical trades)
+        run: |
+          # 既存のOHLCVデータがあれば上書き（必須ではない。2026-09-11までのデータのみ現在利用可能）
+          if [ -f "minmax-fx-day-trading-lab/research/method-notes/sysfx012_forward_test_ohlcv.json" ]; then
+            cp minmax-fx-day-trading-lab/research/method-notes/sysfx012_forward_test_ohlcv.json \
+               public/data/forward-fx-sysfx012/trade-ohlcv.json || true
+          fi
+
       - name: Commit and push results
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |

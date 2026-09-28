@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer,
 } from 'recharts';
@@ -48,6 +48,28 @@ const daysSince = (isoLike: string): number => {
   const start = new Date(isoLike.replace(' ', 'T'));
   if (Number.isNaN(start.getTime())) return 0;
   return Math.max(0, Math.floor((Date.now() - start.getTime()) / 86_400_000));
+};
+
+// 決済理由を分かりやすく表示するヘルパー
+const formatExitReason = (reason: string | undefined): { label: string; tooltip: string } => {
+  if (!reason) return { label: '—', tooltip: '不明な決済理由' };
+
+  const reasonMap: Record<string, { label: string; tooltip: string }> = {
+    'SL_INITIAL_NO_TP': {
+      label: 'SL/TP決済',
+      tooltip: '初期SL（初期リスク値）またはトレーリングストップにより決済。勝ちトレードでは利益確定、負けトレードではSLまたはトレーリングストップで決済。'
+    },
+    'WEEKEND_NO_TP': {
+      label: 'ウイークエンドクローズ',
+      tooltip: 'weekend closeoutにより決済。取引所休場時のポジション清算。'
+    },
+    'TP_THEN_SL_TRAIL': {
+      label: 'トレーリングSL',
+      tooltip: '+1R建値移動後、トレーリングストップにより決済。利益保護のための決済。'
+    },
+  };
+
+  return reasonMap[reason] || { label: reason, tooltip: reason };
 };
 
 // ── ペア別統計計算 ──────────────────────────────────────────
@@ -339,7 +361,7 @@ function TradeTable({
                 <td className="py-1.5 pr-2">{t.direction === 'UP' ? '買い' : '売り'}</td>
                 <td className="py-1.5 pr-2 font-mono tabular-nums">{formatJST(t.entry_time)}</td>
                 <td className="py-1.5 pr-2 font-mono tabular-nums">{closed && t.exit_time ? formatJST(t.exit_time) : '保有中'}</td>
-                <td className="py-1.5 pr-2 text-fg-2">{t.exit_reason ?? '—'}</td>
+                <td className="py-1.5 pr-2 text-fg-2 cursor-help" title={formatExitReason(t.exit_reason).tooltip}>{formatExitReason(t.exit_reason).label}</td>
                 <td className="py-1.5 pr-2 text-right font-mono tabular-nums">{fmtNum(t.r_net, 3)}</td>
                 <td className={`py-1.5 text-right font-mono tabular-nums ${pnlColor}`}>
                   {closed ? signed(t.dollar_pnl as number, 2, '$').replace('$', '') + '$' : '—'}
@@ -440,28 +462,247 @@ function PerformanceMetrics({ trade, allTrades }: {
 
 // ── 価格チャート（トレード期間中の推移）──────────────────────
 function PriceChart({ trade }: { trade: SysFx012Trade }) {
-  const entryPrice = trade.entry_price;
-  const initialRisk = trade.initial_risk; // pips
+  const [ohlcvData, setOhlcvData] = useState<Array<{ time: string; open: number; high: number; low: number; close: number; phase: 'pre' | 'holding' | 'post' }> | null>(null);
 
-  // SL/TP計算（トレード方向に応じて）
+  useEffect(() => {
+    if (!trade.entry_time || !trade.pair) {
+      setOhlcvData(null);
+      return;
+    }
+
+    fetch('/data/forward-fx-sysfx012/trade-ohlcv.json')
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then(data => {
+        let found = false;
+        for (const record of Object.values(data) as any[]) {
+          if (record.entry_time === trade.entry_time && record.pair === trade.pair) {
+            if (record.ohlcv && record.ohlcv.length > 0) {
+              const entryTime = new Date(record.entry_time);
+              const exitTime = new Date(record.exit_time);
+              const annotatedData = record.ohlcv.map((candle: any) => {
+                const candleTime = new Date(candle.time);
+                let phase: 'pre' | 'holding' | 'post';
+                if (candleTime < entryTime) {
+                  phase = 'pre';
+                } else if (candleTime < exitTime) {
+                  phase = 'holding';
+                } else {
+                  phase = 'post';
+                }
+                return { ...candle, phase };
+              });
+              setOhlcvData(annotatedData);
+              found = true;
+              break;
+            }
+          }
+        }
+        if (!found) {
+          setOhlcvData(null);
+        }
+      })
+      .catch(e => {
+        console.error('OHLCV fetch error:', e);
+        setOhlcvData(null);
+      });
+  }, [trade.entry_time, trade.pair]);
+
+  const entryPrice = trade.entry_price;
+  const initialRisk = trade.initial_risk;
   const slPrice = trade.direction === 'UP'
     ? entryPrice - initialRisk
     : entryPrice + initialRisk;
+  const tpPrice = trade.direction === 'UP'
+    ? entryPrice + initialRisk
+    : entryPrice - initialRisk;
 
-  // データ範囲
-  const prices = [entryPrice, slPrice];
-  const minPrice = Math.min(...prices);
-  const maxPrice = Math.max(...prices);
+  if (!ohlcvData || ohlcvData.length === 0) {
+    return (
+      <div className="border border-fg-3 rounded p-3 space-y-2">
+        <div className="text-xs font-700 text-fg-1">5分足チャート</div>
+        <div className="bg-amber-50 dark:bg-amber-950/30 rounded p-3 text-[10px] border border-amber-300 dark:border-amber-700">
+          <p className="text-amber-700 dark:text-amber-400 font-600 mb-1">M5データ未対応</p>
+          <p className="text-amber-700 dark:text-amber-400">
+            このトレードの5分足OHLCV データはまだ生成されていません。
+            {trade.entry_time && trade.entry_time > '2026-09-11' && (
+              <>
+                <br />
+                2026-09-12以降の取引は、minmax-fx-day-trading-lab側で OHLCV履歴の拡張が必要です。
+              </>
+            )}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const exitPrice = ohlcvData.length > 0 ? ohlcvData[ohlcvData.length - 1].close : entryPrice;
+  const prices = ohlcvData.flatMap(d => [d.high, d.low]);
+  const allPrices = [...prices, slPrice, tpPrice, exitPrice];
+  const minPrice = Math.min(...allPrices);
+  const maxPrice = Math.max(...allPrices);
   const range = maxPrice - minPrice;
-  const padding = range * 0.15;
+  const padding = range * 0.1;
+
+  // 保有期間の計算
+  const entryTimeObj = new Date(trade.entry_time);
+  const exitTimeObj = new Date(trade.exit_time || trade.entry_time);
+  const holdingMinutes = Math.round((exitTimeObj.getTime() - entryTimeObj.getTime()) / 60000);
+
+  // フェーズの最初と最後のインデックスを取得
+  const preEndIdx = ohlcvData.findIndex(d => d.phase !== 'pre');
+  const holdingEndIdx = ohlcvData.findIndex(d => d.phase === 'post');
 
   return (
     <div className="border border-fg-3 rounded p-3 space-y-2">
-      <div className="text-xs font-700 text-fg-1">価格推移</div>
+      <div className="text-xs font-700 text-fg-1">5分足チャート</div>
+      <div className="flex gap-2 text-[9px] text-fg-3 mb-1">
+        <div className="flex items-center gap-1">
+          <div className="w-3 h-1 bg-fg-4/40"></div>
+          <span>準備期間</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-3 h-1 bg-[#F97316]/30"></div>
+          <span>保有期間</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-3 h-1 bg-fg-4/20"></div>
+          <span>決済後</span>
+        </div>
+      </div>
 
-      <div className="bg-fg-4/30 rounded p-3 space-y-2">
-        <div className="text-[10px] text-fg-3 mb-2">
-          M5 OHLCVデータは準備中です。以下は参考レベルの情報です。
+      <ResponsiveContainer width="100%" height={200}>
+        <AreaChart data={ohlcvData}
+          margin={{ top: 8, right: 8, left: 0, bottom: 24 }}>
+          <defs>
+            <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={ACCENT} stopOpacity={0.15} />
+              <stop offset="100%" stopColor={ACCENT} stopOpacity={0} />
+            </linearGradient>
+            <pattern id="prePattern" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+              <rect x="0" y="0" width="4" height="4" fill="var(--fg-4)" opacity="0.1" />
+            </pattern>
+            <pattern id="postPattern" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+              <rect x="0" y="0" width="4" height="4" fill="var(--fg-4)" opacity="0.05" />
+            </pattern>
+          </defs>
+
+          {/* フェーズ背景 */}
+          {preEndIdx > 0 && (
+            <ReferenceLine
+              x={ohlcvData[preEndIdx].time}
+              stroke="var(--fg-3)"
+              strokeDasharray="1 2"
+              strokeOpacity={0.3}
+              label={{ value: 'Entry', position: 'top', fontSize: 7, fill: 'var(--fg-3)', offset: 2 }}
+            />
+          )}
+          {holdingEndIdx >= 0 && (
+            <ReferenceLine
+              x={ohlcvData[holdingEndIdx].time}
+              stroke="var(--fg-3)"
+              strokeDasharray="1 2"
+              strokeOpacity={0.3}
+              label={{ value: 'Exit', position: 'top', fontSize: 7, fill: 'var(--fg-3)', offset: 2 }}
+            />
+          )}
+
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--fg-4)" />
+          <XAxis
+            dataKey="time"
+            tick={{ fontSize: 9, fill: 'var(--fg-3)' }}
+            tickLine={false}
+            tickFormatter={v => String(v).slice(11, 16)}
+            angle={-15}
+            textAnchor="end"
+            height={40}
+          />
+          <YAxis
+            tick={{ fontSize: 9, fill: 'var(--fg-3)' }}
+            tickLine={false}
+            axisLine={false}
+            width={48}
+            domain={[minPrice - padding, maxPrice + padding]}
+            tickFormatter={v => v.toFixed(2)}
+          />
+          <Tooltip
+            contentStyle={{ background: 'var(--surface)', border: '1px solid var(--fg-4)', borderRadius: 4, fontSize: 11 }}
+            formatter={(v: number) => [v.toFixed(3), '価格']}
+            labelFormatter={l => `${String(l).slice(5, 16)}`}
+            content={({ active, payload }) => {
+              if (!active || !payload || payload.length === 0) return null;
+              const data = payload[0].payload;
+              return (
+                <div className="bg-surface border border-fg-4 rounded p-2 text-[10px]">
+                  <p className="text-fg-2">{String(data.time).slice(5, 16)}</p>
+                  <p className="text-fg-1">O: {data.open.toFixed(3)} H: {data.high.toFixed(3)} L: {data.low.toFixed(3)} C: {data.close.toFixed(3)}</p>
+                  <p className="text-fg-3 mt-1">Phase: {data.phase === 'pre' ? '準備' : data.phase === 'holding' ? '保有' : '決済後'}</p>
+                </div>
+              );
+            }}
+          />
+          <ReferenceLine
+            y={entryPrice}
+            stroke={ACCENT}
+            strokeDasharray="2 2"
+            label={{ value: 'Entry', position: 'insideTopRight', fontSize: 8, fill: ACCENT, offset: 5 }}
+          />
+          <ReferenceLine
+            y={slPrice}
+            stroke="#ef4444"
+            strokeDasharray="2 2"
+            label={{ value: 'SL', position: 'insideBottomRight', fontSize: 8, fill: '#ef4444', offset: 5 }}
+          />
+          <ReferenceLine
+            y={tpPrice}
+            stroke="#10b981"
+            strokeDasharray="2 2"
+            label={{ value: '+1R 建値移動', position: 'insideTopLeft', fontSize: 8, fill: '#10b981', offset: 5 }}
+          />
+          <ReferenceLine
+            y={exitPrice}
+            stroke="#8b5cf6"
+            strokeDasharray="3 3"
+            label={{ value: '決済', position: 'right', fontSize: 8, fill: '#8b5cf6', offset: 5 }}
+          />
+          <Area
+            type="monotone"
+            dataKey="close"
+            stroke={ACCENT}
+            strokeWidth={1.5}
+            fill="url(#priceGradient)"
+            isAnimationActive={false}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+
+      <div className="grid grid-cols-2 gap-2 text-[10px]">
+        <div className="bg-fg-4/20 rounded p-2">
+          <p className="text-fg-3 mb-0.5">High/Low (保有中)</p>
+          <p className="font-mono text-fg-1">
+            {Math.max(...ohlcvData.filter(d => d.phase === 'holding').map(d => d.high)).toFixed(3)} / {Math.min(...ohlcvData.filter(d => d.phase === 'holding').map(d => d.low)).toFixed(3)}
+          </p>
+        </div>
+        <div className="bg-fg-4/20 rounded p-2">
+          <p className="text-fg-3 mb-0.5">Entry / TP / SL</p>
+          <p className="font-mono space-x-1">
+            <span className="text-[#F97316]">{entryPrice.toFixed(3)}</span>
+            <span className="text-fg-3">/</span>
+            <span className="text-emerald-500">{tpPrice.toFixed(3)}</span>
+            <span className="text-fg-3">/</span>
+            <span className="text-red-500">{slPrice.toFixed(3)}</span>
+          </p>
+        </div>
+        <div className="bg-fg-4/20 rounded p-2">
+          <p className="text-fg-3 mb-0.5">決済ポイント</p>
+          <p className="font-mono text-violet-500">{exitPrice.toFixed(3)}</p>
+        </div>
+        <div className="bg-fg-4/20 rounded p-2">
+          <p className="text-fg-3 mb-0.5">保有期間</p>
+          <p className="font-mono text-fg-1">{holdingMinutes}分</p>
         </div>
 
         <div className="grid grid-cols-2 gap-2 text-xs">
@@ -590,7 +831,7 @@ function TradeDetailPanel({
           </div>
           <div>
             <p className="text-fg-3 mb-1">決済理由</p>
-            <p className="font-mono text-fg-1">{trade.exit_reason ?? '—'}</p>
+            <p className="font-mono text-fg-1 cursor-help" title={formatExitReason(trade.exit_reason).tooltip}>{formatExitReason(trade.exit_reason).label}</p>
           </div>
 
           <div>
