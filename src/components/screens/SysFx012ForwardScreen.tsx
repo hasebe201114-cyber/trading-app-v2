@@ -44,6 +44,23 @@ const signed = (v: number, digits: number, suffix = '') =>
 const fmtUsd = (v: number) => `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const fmtPct = (v: number | null | undefined, digits = 1) => (v == null ? '—' : signed(v, digits, '%'));
 const fmtNum = (v: number | null | undefined, digits = 3) => (v == null ? '—' : v.toFixed(digits));
+// SYS-FX012は利確指値なし(tp_levels=[])のため、初期SL・建値ストップ・トレーリングの
+// いずれで決済しても exit_reason は SL_INITIAL_NO_TP になる。ストップ約定はストップ価格
+// ちょうどで記録される(minmax側 simulate_scaled_scheme)ので r_gross から段階を判別する。
+const describeExit = (t: Pick<SysFx012Trade, 'exit_reason' | 'r_gross'>): { label: string; detail: string } => {
+  switch (t.exit_reason) {
+    case 'SL_INITIAL_NO_TP':
+      if (t.r_gross <= -0.99) return { label: '初期SL', detail: '+1Rに届かず初期ストップで損切り' };
+      if (Math.abs(t.r_gross) < 0.01) return { label: '建値ストップ', detail: '+1R到達で建値へ移動後、建値で決済' };
+      if (t.r_gross > 0) return { label: 'トレーリング', detail: '+1R到達後、ATR(M5)×0.703のトレーリングストップで決済' };
+      return { label: 'ストップ', detail: 'ストップ決済' };
+    case 'WEEKEND_NO_TP': return { label: '週末クローズ', detail: '週末の市場クローズ前に成行決済' };
+    case 'MAX_HOLD': return { label: '最大保有', detail: '最大保有時間に到達して成行決済' };
+    case 'NO_M5_DATA_AFTER_ENTRY': return { label: 'データ待ち', detail: 'エントリー後の足データが未取得(未確定)' };
+    case undefined: return { label: '—', detail: '' };
+    default: return { label: t.exit_reason, detail: t.exit_reason };
+  }
+};
 const daysSince = (isoLike: string): number => {
   const start = new Date(isoLike.replace(' ', 'T'));
   if (Number.isNaN(start.getTime())) return 0;
@@ -363,7 +380,9 @@ function TradeTable({
                 <td className="py-1.5 pr-2">{t.direction === 'UP' ? '買い' : '売り'}</td>
                 <td className="py-1.5 pr-2 font-mono tabular-nums">{formatJST(t.entry_time)}</td>
                 <td className="py-1.5 pr-2 font-mono tabular-nums">{closed && t.exit_time ? formatJST(t.exit_time) : '保有中'}</td>
-                <td className="py-1.5 pr-2 text-fg-2">{t.exit_reason ?? '—'}</td>
+                <td className="py-1.5 pr-2 text-fg-2" title={closed ? describeExit(t).detail : undefined}>
+                  {closed ? describeExit(t).label : '—'}
+                </td>
                 <td className="py-1.5 pr-2 text-right font-mono tabular-nums">{fmtNum(t.r_net, 3)}</td>
                 <td className={`py-1.5 text-right font-mono tabular-nums ${pnlColor}`}>
                   {closed ? signed(t.dollar_pnl as number, 2, '$').replace('$', '') + '$' : '—'}
@@ -465,10 +484,13 @@ function PerformanceMetrics({ trade, allTrades }: {
 // ── 価格チャート（トレード期間中の推移）──────────────────────
 function PriceChart({ trade }: { trade: SysFx012Trade }) {
   const [ohlcvData, setOhlcvData] = useState<Array<{ time: string; open: number; high: number; low: number; close: number; phase: 'pre' | 'holding' | 'post' }> | null>(null);
+  const [ohlcvStatus, setOhlcvStatus] = useState<'loading' | 'missing' | 'error'>('loading');
 
   useEffect(() => {
+    setOhlcvData(null);
+    setOhlcvStatus('loading');
     if (!trade.entry_time || !trade.pair) {
-      setOhlcvData(null);
+      setOhlcvStatus('missing');
       return;
     }
 
@@ -503,12 +525,12 @@ function PriceChart({ trade }: { trade: SysFx012Trade }) {
           }
         }
         if (!found) {
-          setOhlcvData(null);
+          setOhlcvStatus('missing');
         }
       })
       .catch(e => {
         console.error('OHLCV fetch error:', e);
-        setOhlcvData(null);
+        setOhlcvStatus('error');
       });
   }, [trade.entry_time, trade.pair]);
 
@@ -517,24 +539,31 @@ function PriceChart({ trade }: { trade: SysFx012Trade }) {
   const slPrice = trade.direction === 'UP'
     ? entryPrice - initialRisk
     : entryPrice + initialRisk;
-  const tpPrice = trade.direction === 'UP'
+  const breakevenTriggerPrice = trade.direction === 'UP'
     ? entryPrice + initialRisk
     : entryPrice - initialRisk;
+  const closed = trade.dollar_pnl != null;
+  const recordedExitPrice = trade.direction === 'UP'
+    ? entryPrice + trade.r_gross * initialRisk
+    : entryPrice - trade.r_gross * initialRisk;
 
   if (!ohlcvData || ohlcvData.length === 0) {
     return (
       <div className="border border-fg-3 rounded p-3 space-y-2">
         <div className="text-xs font-700 text-fg-1">5分足チャート</div>
         <div className="bg-fg-4/30 rounded p-3 text-[10px] text-fg-3">
-          M5データ読み込み中...
+          {ohlcvStatus === 'loading' && 'M5データ読み込み中...'}
+          {ohlcvStatus === 'missing' && 'このトレードの5分足データは未収録です（trade-ohlcv.json はminmax側で生成された分のみ収録）'}
+          {ohlcvStatus === 'error' && '5分足データの取得に失敗しました'}
         </div>
       </div>
     );
   }
 
-  const exitPrice = ohlcvData.length > 0 ? ohlcvData[ohlcvData.length - 1].close : entryPrice;
+  // 決済価格はr_grossから逆算する(OHLCVの末尾は決済後の足を含むため使わない)
+  const exitPrice = closed ? recordedExitPrice : null;
   const prices = ohlcvData.flatMap(d => [d.high, d.low]);
-  const allPrices = [...prices, slPrice, tpPrice, exitPrice];
+  const allPrices = [...prices, slPrice, breakevenTriggerPrice, ...(exitPrice != null ? [exitPrice] : [])];
   const minPrice = Math.min(...allPrices);
   const maxPrice = Math.max(...allPrices);
   const range = maxPrice - minPrice;
@@ -650,17 +679,19 @@ function PriceChart({ trade }: { trade: SysFx012Trade }) {
             label={{ value: 'SL', position: 'insideBottomRight', fontSize: 8, fill: '#ef4444', offset: 5 }}
           />
           <ReferenceLine
-            y={tpPrice}
+            y={breakevenTriggerPrice}
             stroke="#10b981"
             strokeDasharray="2 2"
-            label={{ value: 'TP', position: 'insideTopLeft', fontSize: 8, fill: '#10b981', offset: 5 }}
+            label={{ value: '+1R 建値移動', position: 'insideTopLeft', fontSize: 8, fill: '#10b981', offset: 5 }}
           />
-          <ReferenceLine
-            y={exitPrice}
-            stroke="#8b5cf6"
-            strokeDasharray="3 3"
-            label={{ value: '決済', position: 'right', fontSize: 8, fill: '#8b5cf6', offset: 5 }}
-          />
+          {exitPrice != null && (
+            <ReferenceLine
+              y={exitPrice}
+              stroke="#8b5cf6"
+              strokeDasharray="3 3"
+              label={{ value: '決済', position: 'right', fontSize: 8, fill: '#8b5cf6', offset: 5 }}
+            />
+          )}
           <Area
             type="monotone"
             dataKey="close"
@@ -680,18 +711,18 @@ function PriceChart({ trade }: { trade: SysFx012Trade }) {
           </p>
         </div>
         <div className="bg-fg-4/20 rounded p-2">
-          <p className="text-fg-3 mb-0.5">Entry / TP / SL</p>
+          <p className="text-fg-3 mb-0.5">Entry / +1R建値移動 / 初期SL</p>
           <p className="font-mono space-x-1">
             <span className="text-[#F97316]">{entryPrice.toFixed(3)}</span>
             <span className="text-fg-3">/</span>
-            <span className="text-emerald-500">{tpPrice.toFixed(3)}</span>
+            <span className="text-emerald-500">{breakevenTriggerPrice.toFixed(3)}</span>
             <span className="text-fg-3">/</span>
             <span className="text-red-500">{slPrice.toFixed(3)}</span>
           </p>
         </div>
         <div className="bg-fg-4/20 rounded p-2">
           <p className="text-fg-3 mb-0.5">決済ポイント</p>
-          <p className="font-mono text-violet-500">{exitPrice.toFixed(3)}</p>
+          <p className="font-mono text-violet-500">{exitPrice != null ? exitPrice.toFixed(3) : '保有中'}</p>
         </div>
         <div className="bg-fg-4/20 rounded p-2">
           <p className="text-fg-3 mb-0.5">保有期間</p>
@@ -800,7 +831,10 @@ function TradeDetailPanel({
           </div>
           <div>
             <p className="text-fg-3 mb-1">決済理由</p>
-            <p className="font-mono text-fg-1">{trade.exit_reason ?? '—'}</p>
+            <p className="font-mono text-fg-1">{trade.dollar_pnl != null ? describeExit(trade).label : '—'}</p>
+            {trade.dollar_pnl != null && (
+              <p className="text-[10px] text-fg-3 mt-0.5">{describeExit(trade).detail}</p>
+            )}
           </div>
 
           <div>
@@ -809,7 +843,8 @@ function TradeDetailPanel({
           </div>
           <div>
             <p className="text-fg-3 mb-1">初期リスク</p>
-            <p className="font-mono text-fg-1">{trade.initial_risk.toFixed(6)} pips</p>
+            {/* 対象4通貨はすべて円クロス(1pip=0.01円) */}
+            <p className="font-mono text-fg-1">{(trade.initial_risk * 100).toFixed(1)} pips</p>
           </div>
 
           <div>
