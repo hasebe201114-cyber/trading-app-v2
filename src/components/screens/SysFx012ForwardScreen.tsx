@@ -3,7 +3,9 @@ import {
   AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ReferenceDot, ResponsiveContainer,
 } from 'recharts';
 import { AlertTriangle, Download, ExternalLink, Info, Target, X } from 'lucide-react';
-import { useSysFx012ForwardData, type SysFx012Trade } from '../../hooks/useSysFx012ForwardData';
+import {
+  useSysFx012ForwardData, isSettledTrade, isSkippedTrade, skipLabel, type SysFx012Trade,
+} from '../../hooks/useSysFx012ForwardData';
 import { SectionBox } from '../../ui/components/SectionBox';
 import { formatJST } from '../../ui/utils/formatters';
 
@@ -19,14 +21,17 @@ const INITIAL_CAPITAL = 1000;
 // 反映した数値。修正前(2026-08-21確認)はTrain: Sharpe2.397/PF1.759/ペイオフ1.078/DD8.69%/
 // permP0.031/n=300、Validation: Sharpe1.704/PF2.279/ペイオフ1.376/DD7.28%/permP0.0999/n=85
 // だった。必須KPI通過数(7/9・6/9)自体は不変)。
+// 2026-09-30 minmax OBS000015(合計レバレッジ上限25倍の適用、b78e6be)で再計算。修正前は
+// Train: n=308/勝率60.71%/Sharpe2.656/PF1.713/ペイオフ1.108/DD8.78%/permP0.048/KPI7/9、
+// Validation: Sharpe1.654/PF2.407/ペイオフ1.362 だった。Train は上限で7件を見送り、permP が0.05を超えて KPI 6/9。
 const BACKTEST_TRAIN = {
-  period: '2023-11-01 〜 2025-03-31', nTradesEffective: 308, winRate: 0.6071,
-  monthlySharpe: 2.656, profitFactor: 1.713, payoffRatio: 1.108,
-  maxDdPct: 8.78, permP: 0.048, kpiPass: '7/9',
+  period: '2023-11-01 〜 2025-03-31', nTradesEffective: 301, winRate: 0.608,
+  monthlySharpe: 2.352, profitFactor: 1.591, payoffRatio: 1.026,
+  maxDdPct: 8.78, permP: 0.0549, kpiPass: '6/9',
 };
 const BACKTEST_VALIDATION = {
   period: '2025-04-01 〜 2025-11-30', nTradesEffective: 83, winRate: 0.6386,
-  monthlySharpe: 1.654, profitFactor: 2.407, payoffRatio: 1.362,
+  monthlySharpe: 1.673, profitFactor: 2.428, payoffRatio: 1.374,
   maxDdPct: 8.19, permP: 0.0919, kpiPass: '6/9',
 };
 
@@ -89,7 +94,7 @@ function calculatePairStats(trades: SysFx012Trade[]): PairStats[] {
   });
 
   return Array.from(pairMap.entries()).map(([pair, pairTrades]) => {
-    const closed = pairTrades.filter(t => t.dollar_pnl != null);
+    const closed = pairTrades.filter(isSettledTrade);
     const wins = closed.filter(t => (t.dollar_pnl as number) >= 0);
     const losses = closed.filter(t => (t.dollar_pnl as number) < 0);
     const totalPnL = closed.reduce((sum, t) => sum + (t.dollar_pnl || 0), 0);
@@ -229,8 +234,8 @@ function EquityChartEnhanced({
 
   // マーカーの取得
   const markers: ChartTradeMarker[] = [];
-  const closedTrades = trades.filter(t => t.dollar_pnl != null);
-  closedTrades.forEach((t, idx) => {
+  trades.forEach((t, idx) => {
+    if (!isSettledTrade(t)) return;
     const isSelected = selectedTradeIndex !== null && (trades.length - 1 - selectedTradeIndex) === idx;
     const isWin = (t.dollar_pnl as number) >= 0;
 
@@ -366,7 +371,8 @@ function TradeTable({
         </thead>
         <tbody>
           {rows.map((t, i) => {
-            const closed = t.dollar_pnl != null;
+            const skipped = isSkippedTrade(t);
+            const closed = t.dollar_pnl != null && !skipped;
             const pnlColor = !closed ? 'text-fg-3' : (t.dollar_pnl as number) >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500';
             const isSelected = selectedIndex === i;
             const rowBg = isSelected ? 'bg-[#F97316]/10' : 'hover:bg-fg-4/20';
@@ -379,9 +385,9 @@ function TradeTable({
                 <td className="py-1.5 pr-2 font-mono">{t.pair}</td>
                 <td className="py-1.5 pr-2">{t.direction === 'UP' ? '買い' : '売り'}</td>
                 <td className="py-1.5 pr-2 font-mono tabular-nums">{formatJST(t.entry_time)}</td>
-                <td className="py-1.5 pr-2 font-mono tabular-nums">{closed && t.exit_time ? formatJST(t.exit_time) : '保有中'}</td>
-                <td className="py-1.5 pr-2 text-fg-2" title={closed ? describeExit(t).detail : undefined}>
-                  {closed ? describeExit(t).label : '—'}
+                <td className="py-1.5 pr-2 font-mono tabular-nums">{skipped ? '—' : closed && t.exit_time ? formatJST(t.exit_time) : '保有中'}</td>
+                <td className="py-1.5 pr-2 text-fg-2" title={closed ? describeExit(t).detail : skipped ? '実際には建てていない取引。集計から除外' : undefined}>
+                  {skipped ? skipLabel(t) : closed ? describeExit(t).label : '—'}
                 </td>
                 <td className="py-1.5 pr-2 text-right font-mono tabular-nums">{fmtNum(t.r_net, 3)}</td>
                 <td className={`py-1.5 text-right font-mono tabular-nums ${pnlColor}`}>
@@ -401,7 +407,7 @@ function PerformanceMetrics({ trade, allTrades }: {
   trade: SysFx012Trade;
   allTrades: SysFx012Trade[];
 }) {
-  const closed = trade.dollar_pnl != null;
+  const closed = isSettledTrade(trade);
   const isWin = closed && (trade.dollar_pnl as number) >= 0;
 
   // トレード期間
@@ -412,7 +418,7 @@ function PerformanceMetrics({ trade, allTrades }: {
     : null;
 
   // 全トレードの平均
-  const closedTrades = allTrades.filter(t => t.dollar_pnl != null);
+  const closedTrades = allTrades.filter(isSettledTrade);
   const avgR = closedTrades.length > 0
     ? closedTrades.reduce((sum, t) => sum + (t.r_net || 0), 0) / closedTrades.length
     : 0;
@@ -793,9 +799,10 @@ function TradeDetailPanel({
 }) {
   if (!trade) return null;
 
-  const closed = trade.dollar_pnl != null;
+  const skipped = isSkippedTrade(trade);
+  const closed = trade.dollar_pnl != null && !skipped;
   const isWin = closed && (trade.dollar_pnl as number) >= 0;
-  const winLossLabel = !closed ? '保有中' : isWin ? '勝ち' : '負け';
+  const winLossLabel = skipped ? skipLabel(trade) : !closed ? '保有中' : isWin ? '勝ち' : '負け';
   const winLossColor = !closed ? 'text-fg-2' : isWin ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500';
 
   return (
@@ -833,7 +840,10 @@ function TradeDetailPanel({
             <p className="text-fg-3 mb-1">決済理由</p>
             <p className="font-mono text-fg-1">{trade.dollar_pnl != null ? describeExit(trade).label : '—'}</p>
             {trade.dollar_pnl != null && (
-              <p className="text-[10px] text-fg-3 mt-0.5">{describeExit(trade).detail}</p>
+              <p className="text-[10px] text-fg-3 mt-0.5">
+                {describeExit(trade).detail}
+                {skipped && '（見送りのため実際には建てていない。値は建てた場合の仮想値で、集計から除外）'}
+              </p>
             )}
           </div>
 
@@ -915,6 +925,7 @@ export const SysFx012ForwardScreen = () => {
 
   const { backtest: bt, kpi } = data;
   const totalReturnPct = ((bt.final_balance / INITIAL_CAPITAL) - 1) * 100;
+  const nSkipped = bt.trades.filter(isSkippedTrade).length;
   const elapsedDays = daysSince(data.cutoff);
   const pairStats = calculatePairStats(bt.trades);
 
@@ -938,6 +949,8 @@ export const SysFx012ForwardScreen = () => {
         さらに先読み修正（OBS000009不具合1、2026-08-28）後の再計算（2026-08-29）でも結論は変わらずREJECT確定のまま。
         なお同再計算では最大DDが14.00%→20.04%へ悪化し必須KPI 6/9→5/9に転落しており、
         「先読みはDD・見栄えを実際より良くしていた」ことが裏付けられている。
+        また2026-09-30に、レバレッジ25倍の上限が1ポジションごとにしか効いておらず、複数通貨の同時保有で合計が最大59.5倍に
+        なっていた不備を修正した（minmax OBS000015）。修正後の41ヶ月評価でも優位性は有意（permutation p=0.005）で、判定は変わらずREJECT。
         本ページのフォワードテスト（ペーパートレード、実発注なし）は、このREJECT確定を覆すものではなく、
         C品質チームの正式レビューも未実施のまま、司令塔の明示指示により実データ蓄積のみを目的として継続中。
         cutoff={data.cutoff}以降のみを対象とし、設計パラメータは完全凍結（一切変更しない）。
@@ -975,18 +988,21 @@ export const SysFx012ForwardScreen = () => {
           </table>
         </div>
         <InfoNote>
-          Train+Validation合計で必須KPI13/18。未達3項目（ペイオフレシオ・実効n・permutation有意性、いずれもValidation側）はサンプル数不足に起因。
+          Train+Validation合計で必須KPI12/18（合計レバレッジ上限の適用後。適用前は13/18）。
+          未達はTrain側がペイオフレシオ・スプレッドコスト倍率・permutation有意性（p=0.0549、上限で見送った7件が外れて0.05を超えた）、
+          Validation側がペイオフレシオ・実効n・permutation有意性。
           通貨拡大（EUR_USD追加）・CALM_RATIO調整・DD改善用のコスト比率フィルターなど、改善ループ上限5回すべてを試したが、この結果を上回る設計は見つからなかった。
+          出口・入口の追加検証（fx-exit-design-lab、2026-09-30）でも改善案はすべて不採用。
           フォワードテストは、この凍結済み設計の実データでの再現性を確認するために実施している。
         </InfoNote>
         <div className="flex flex-wrap gap-2">
           <a href="/data/forward-fx-sysfx012/sysfx012-train-trades.csv" download="sysfx012-train-trades.csv"
             className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded border border-fg-3 text-fg-2 hover:border-[#F97316] hover:text-[#F97316] transition-colors">
-            <Download size={13} />Trainトレード記録（CSV・300件、先読み修正前）
+            <Download size={13} />Trainトレード記録（CSV・308件、うち上限で見送り7件）
           </a>
           <a href="/data/forward-fx-sysfx012/sysfx012-validation-trades.csv" download="sysfx012-validation-trades.csv"
             className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded border border-fg-3 text-fg-2 hover:border-[#F97316] hover:text-[#F97316] transition-colors">
-            <Download size={13} />Validationトレード記録（CSV・85件、先読み修正前）
+            <Download size={13} />Validationトレード記録（CSV・83件）
           </a>
         </div>
       </SectionBox>
@@ -997,8 +1013,11 @@ export const SysFx012ForwardScreen = () => {
             tone={bt.final_balance >= INITIAL_CAPITAL ? 'pos' : 'neg'} />
           <StatTile label="累積リターン" value={fmtPct(totalReturnPct, 1)}
             tone={totalReturnPct >= 0 ? 'pos' : 'neg'} sub="初期資金$1,000比" />
-          <StatTile label="決済済みトレード" value={`${bt.n_trades_closed}件`}
-            sub={bt.n_trades_open > 0 ? `保有中${bt.n_trades_open}件` : undefined} />
+          <StatTile label="決済済みトレード" value={`${bt.n_trades_closed - nSkipped}件`}
+            sub={[
+              bt.n_trades_open > 0 ? `保有中${bt.n_trades_open}件` : '',
+              nSkipped > 0 ? `上限で見送り${nSkipped}件（集計外）` : '',
+            ].filter(Boolean).join('・') || undefined} />
           <StatTile label="検出イベント" value={`${bt.n_events_trendfiltered}件`}
             sub={`raw${bt.n_events_raw}→dedup${bt.n_events_dedup}→判定不能除外後${bt.n_events_trendfiltered}`} />
         </div>
@@ -1010,7 +1029,7 @@ export const SysFx012ForwardScreen = () => {
           <div className="border border-fg-3 rounded p-2.5">
             <div className="flex items-center gap-1.5 text-xs font-700 mb-1"><Target size={12} />実効n</div>
             <p className="text-[11px] text-fg-2 leading-relaxed">
-              現在{bt.n_trades_closed}件。Trainの実効n=308・Validationの実効n=83が判断基準。
+              現在{bt.n_trades_closed - nSkipped}件。Trainの実効n=301・Validationの実効n=83が判断基準。
               実運用ペース（週あたり平均4.1件、4通貨プール）だと90日でも50件前後の見込みで、機械的なKPI判定にはまだ使えない。
             </p>
           </div>
@@ -1056,7 +1075,7 @@ export const SysFx012ForwardScreen = () => {
         {kpi ? (
           <InfoNote>
             <span className="font-700">正式KPI必須ゲート: {kpi.kpi_required_pass_count}</span>
-            {' '}（参考値。母数がまだ小さいため機械的な採否判定には使わない。Train実効n=308・Validation実効n=83が判断基準）
+            {' '}（参考値。母数がまだ小さいため機械的な採否判定には使わない。Train実効n=301・Validation実効n=83が判断基準）
           </InfoNote>
         ) : (
           <InfoNote>正式KPI評価は決済済みトレードが一定数貯まってから参考値として算出予定（現時点は未算出）</InfoNote>

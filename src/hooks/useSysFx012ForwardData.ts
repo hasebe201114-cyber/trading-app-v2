@@ -24,6 +24,24 @@ export interface SysFx012Trade {
   dollar_pnl?: number;
   balance_after?: number;
   skipped_ruin?: boolean;
+  // minmax OBS000015(2026-09-30): 口座全体の合計レバレッジ上限(25倍)による縮小・見送り
+  skipped_cap?: boolean;
+  aggregate_cap_action?: 'none' | 'shrink' | 'skip';
+  notional_usd?: number;
+}
+
+// 実際には建てていない取引（破産後・合計レバレッジ上限で見送り）。dollar_pnl は0で記録される。
+export function isSkippedTrade(t: SysFx012Trade): boolean {
+  return !!(t.skipped_ruin || t.skipped_cap);
+}
+
+// 決済済みで、実際に建てた取引（勝率・損益・平均Rの集計対象）
+export function isSettledTrade(t: SysFx012Trade): boolean {
+  return t.dollar_pnl != null && !isSkippedTrade(t);
+}
+
+export function skipLabel(t: SysFx012Trade): string {
+  return t.skipped_ruin ? '見送り（残高0）' : '見送り（合計レバレッジ上限）';
 }
 
 export interface SysFx012EquityPoint {
