@@ -102,3 +102,5 @@
 [2026-10-02T06:44:14.008Z] ETH ALERT liquidation_or_margin_call dates=2026-09-18
 [2026-10-03T06:03:49.673Z] BTC ALERT liquidation_or_margin_call dates=2026-09-21
 [2026-10-03T06:03:49.673Z] ETH ALERT liquidation_or_margin_call dates=2026-09-18
+[2026-10-04T06:38:00.146Z] BTC ALERT liquidation_or_margin_call dates=2026-09-21
+[2026-10-04T06:38:00.146Z] ETH ALERT liquidation_or_margin_call dates=2026-09-18
