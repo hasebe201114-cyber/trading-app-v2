@@ -664,6 +664,108 @@ function SimulationPanel({
   );
 }
 
+// ── 最終評価（2026-10-06 司令塔判断で不採用・データ更新停止） ──────────
+// 出典: research/EXP-OBS000032/30-report-forward-90d.md（評価期間 2026-07-04〜10-01 の90日）。
+// 値は報告書の確定値を固定で表示する（ledger の再計算はしない）。
+type FinalGateRow = { id: string; label: string; btc: string; eth: string; pass: boolean };
+const FINAL_GATES: FinalGateRow[] = [
+  { id: 'F1a', label: '累積の純損益 > 0', btc: '+294.7bps', eth: '+344.3bps', pass: true },
+  { id: 'F1b', label: '1日平均がcalm下側境界以上', btc: '3.27（境界7.90）', eth: '3.83（境界10.01）', pass: false },
+  { id: 'F2', label: 'Bitget⇔Binance 符号一致 ≥80%', btc: '85.2%', eth: '88.2%', pass: true },
+  { id: 'F3', label: '清算・追証 0件', btc: '清算1・追証1', eth: '清算1・追証1', pass: false },
+  { id: 'F4', label: 'basis日次変化 ≤ T1水準', btc: '1.33（上限12.14）', eth: '1.51（上限19.47）', pass: true },
+];
+const FINAL_PNL: { label: string; btc: string; eth: string; strong?: boolean }[] = [
+  { label: '資金調達料の受取', btc: '+123.4', eth: '+150.5' },
+  { label: '現物＋先物の評価損益（日々の記録値）', btc: '+2.7', eth: '+0.4' },
+  { label: '清算時に先物の損失が証拠金で頭打ちになった分', btc: '+273.7', eth: '+250.5' },
+  { label: '各種コスト（反転・資本・建て直し）', btc: '−105.1', eth: '−57.1' },
+  { label: 'うち清算日1日の損益', btc: '+250.0（85%）', eth: '+228.8（66%）' },
+  { label: '純損益（合計）', btc: '+294.7', eth: '+344.3', strong: true },
+  { label: '清算日を除く純損益', btc: '+44.7', eth: '+115.6', strong: true },
+];
+
+function FinalVerdictSection() {
+  return (
+    <SectionBox title="最終評価 — 不採用（2026-10-06 司令塔判断）">
+      <div className="flex items-start gap-2 p-3 mb-3 bg-red-50 dark:bg-red-950/30 border border-red-300 dark:border-red-700 rounded text-sm text-red-700 dark:text-red-300">
+        <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+        <div>
+          <p className="font-700">事前基準で本番採用の前提は不成立（F1b・F3 が両銘柄で未達）。不採用とし、日次の更新を停止しました。</p>
+          <p className="text-[12px] mt-1 opacity-90">以下の画面は 2026-10-05（Day 94）時点の最終データを表示のみで残しています。</p>
+        </div>
+      </div>
+
+      <p className="text-xs font-600 mb-1.5">F1〜F4（評価期間 2026-07-04〜10-01 の90日）</p>
+      <div className="overflow-x-auto -mx-1 px-1">
+        <table className="w-full text-[11px] border-collapse min-w-[320px]">
+          <thead>
+            <tr className="text-fg-3 border-b border-fg-3/50">
+              <th className="text-left py-1 pr-2 font-600">基準</th>
+              <th className="text-right py-1 px-1 font-600">BTC</th>
+              <th className="text-right py-1 px-1 font-600">ETH</th>
+              <th className="text-center py-1 pl-1 font-600">判定</th>
+            </tr>
+          </thead>
+          <tbody>
+            {FINAL_GATES.map(g => (
+              <tr key={g.id} className="border-b border-fg-3/30">
+                <td className="py-1 pr-2"><span className="font-600">{g.id}</span> <span className="text-fg-2">{g.label}</span></td>
+                <td className="py-1 px-1 text-right font-mono tabular-nums">{g.btc}</td>
+                <td className="py-1 px-1 text-right font-mono tabular-nums">{g.eth}</td>
+                <td className="py-1 pl-1 text-center">
+                  {g.pass
+                    ? <span className="inline-flex items-center gap-0.5 text-emerald-600 dark:text-emerald-400"><CheckCircle size={12} />成立</span>
+                    : <span className="inline-flex items-center gap-0.5 text-red-600 dark:text-red-400 font-600"><AlertTriangle size={12} />未達</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p className="text-xs font-600 mt-4 mb-1.5">損益の中身（90日・想定元本比 bps）</p>
+      <div className="overflow-x-auto -mx-1 px-1">
+        <table className="w-full text-[11px] border-collapse min-w-[300px]">
+          <thead>
+            <tr className="text-fg-3 border-b border-fg-3/50">
+              <th className="text-left py-1 pr-2 font-600">内訳</th>
+              <th className="text-right py-1 px-1 font-600">BTC</th>
+              <th className="text-right py-1 pl-1 font-600">ETH</th>
+            </tr>
+          </thead>
+          <tbody>
+            {FINAL_PNL.map(r => (
+              <tr key={r.label} className={`border-b border-fg-3/30 ${r.strong ? 'font-700' : ''}`}>
+                <td className="py-1 pr-2 text-fg-2">{r.label}</td>
+                <td className="py-1 px-1 text-right font-mono tabular-nums">{r.btc}</td>
+                <td className="py-1 pl-1 text-right font-mono tabular-nums">{r.eth}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mt-4 space-y-2 text-[12px] leading-relaxed text-fg-2">
+        <p><span className="font-600 text-fg-1">① 黒字の大半は清算日の一時的な利益。</span>
+          清算日はヘッジが外れて現物だけを持った状態になり、値上がり益が出た。キャリー（資金調達料）の収益ではない。</p>
+        <p><span className="font-600 text-fg-1">② キャリー本体は小さい。</span>
+          受け取った資金調達料は1日平均 BTC 1.46・ETH 1.67bps で、バックテストcalm期間の約9分の1。清算日を除く純益は年率換算で想定元本の約2〜5%。</p>
+        <p><span className="font-600 text-fg-1">③ 清算は構造的。</span>
+          先物3倍・証拠金の補充なしでは、約33%の上昇で必ず清算される。90日で BTC +34%・ETH +52% 上昇し、清算前は証拠金5%未満が BTC 6日・ETH 23日続いた。</p>
+        <p><span className="font-600 text-fg-1">④ 採用しても実行できない。</span>
+          国内から海外の暗号資産取引所には参加できない（2026-10 司令塔判断）。</p>
+      </div>
+
+      <InfoNote>
+        <span className="font-600">教訓（負の資産）</span>: 証拠金の補充なしの「デルタニュートラル」は大きな上昇で中立でなくなる。
+        証拠金が尽きるまでの距離の監視と、清算日を分けた評価を、次のキャリー系の実験では最初から仕様に入れる。
+        詳細はリポジトリの <span className="font-mono">research/EXP-OBS000032/30-report-forward-90d.md</span>。
+      </InfoNote>
+    </SectionBox>
+  );
+}
+
 // ── メイン画面 ────────────────────────────────────────────
 export const ForwardCalibrationScreen = () => {
   const { data, loading, error } = useForwardData();
@@ -711,13 +813,16 @@ export const ForwardCalibrationScreen = () => {
             <TrendingUp size={22} className="text-blue-500" />
             フォワード較正モニター
           </h1>
-          <p className="text-sm text-fg-2">OBS000032 · EXP デルタニュートラル・キャリー戦略</p>
+          <p className="text-sm text-fg-2">OBS000032 · EXP デルタニュートラル・キャリー戦略 <span className="ml-1 px-1.5 py-0.5 rounded text-[11px] font-700 bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-300">不採用・更新停止</span></p>
         </div>
         <div className="text-right">
-          <p className="text-[11px] text-fg-3">最終更新（JST）</p>
+          <p className="text-[11px] text-fg-3">最終データ（JST・更新停止）</p>
           <p className="text-xs font-mono text-fg-2">{formatJST(metrics.generatedAtUTC)}</p>
         </div>
       </div>
+
+      {/* 最終評価 */}
+      <FinalVerdictSection />
 
       {/* アラート */}
       {metrics.alertActive && (
@@ -764,7 +869,7 @@ export const ForwardCalibrationScreen = () => {
           <span className="font-600 text-amber-500"> 黄</span>＝低位（0〜3 bps）、
           <span className="font-600 text-emerald-500"> 緑</span>＝収益圏（3 bps超）。
           縦線「calm」はバックテスト平時の参照ネットキャリー水準です。
-          各値は毎日10:00 JSTに更新されます。
+          （日次更新は 2026-10-06 に停止。最終データの値です）
         </InfoNote>
         <div className="grid grid-cols-2 gap-2 mt-3">
           <FundingRateMeter
@@ -799,7 +904,7 @@ export const ForwardCalibrationScreen = () => {
       </div>
 
       {/* F1-F4 ゲート */}
-      <SectionBox title={`F1–F4 ゲート状態 — ${asset}（試験値: Day${liveDays} < 90）`}>
+      <SectionBox title={`F1–F4 ゲート状態 — ${asset}（Day${liveDays} 時点の中間集計値。正式な評価は上の「最終評価」）`}>
         <InfoNote>
           本番反映の判定基準となる4つのゲートです。<span className="font-600">90日ライブ到達（2026-10-02予定）まではすべて「試験値」</span>で、正式な採否はC品質チームの較正監査で決まります。
           <br /><br />

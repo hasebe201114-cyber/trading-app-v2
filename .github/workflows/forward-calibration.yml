@@ -1,9 +1,8 @@
 name: OBS000032 Forward Calibration (Daily)
 
 on:
-  schedule:
-    # 毎日 01:00 UTC に実行（Bitget 00:00 UTC funding 確定後1時間のマージン）
-    - cron: "0 1 * * *"
+  # 2026-10-06 司令塔判断で OBS000032 は不採用・停止。schedule を削除（手動実行のみ残す）。
+  # 評価: research/EXP-OBS000032/30-report-forward-90d.md
   workflow_dispatch:
     inputs:
       dry_run:

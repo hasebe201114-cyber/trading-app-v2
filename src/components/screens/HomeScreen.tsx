@@ -12,7 +12,7 @@ export const HomeScreen = () => (
     <SectionBox title="プロジェクトの現在地">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <MetricCard color="blue" label="フェーズ" value="Phase 0" sub="フォワード較正" />
-        <MetricCard color="purple" label="進行中" value="OBS000032" sub="Day90カウントダウン中" />
+        <MetricCard color="purple" label="進行中" value="OBS000037" sub="VRPフォワード（Day90: 10/9）" />
         <MetricCard color="emerald" label="採用済み" value="3戦略" sub="本番反映済み" />
       </div>
     </SectionBox>

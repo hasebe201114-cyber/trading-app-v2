@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-08T23:49:20.997Z",
+  "timestamp": "2026-10-06T00:00:00.000Z",
   "phase": "Phase 0 - フォワード較正フェーズ",
   "adopted": [
     {
@@ -73,19 +73,16 @@
       "status": "rejected",
       "conclusion": "グロス段階で両銘柄とも平均負。エッジ不在",
       "details": "コストハードル以前に利益がない"
-    }
-  ],
-  "inProgress": [
+    },
     {
       "obsId": "OBS000032",
       "name": "②をデルタニュートラル・キャリー収穫層へ再定義",
-      "status": "in-progress",
-      "conclusion": "Stage 1採用可＋F2ゲート修正完了（2026-07-08）",
-      "details": "F2ゲート（8hイベント単位全ペア永続化）の増分マージ実装→品質チーム採用可。day90母集団消失リスク根本解消。F1-F4両銘柄合格＋C較正監査＋司令塔最終GO待ち",
-      "date": "2026-07-08",
-      "day90Progress": 7.78
+      "status": "rejected",
+      "conclusion": "90日フォワードで F1b・F3 未達（2026-10-06 司令塔判断で不採用）",
+      "details": "累積黒字の大半は清算日の現物益。先物3倍・証拠金補充なしで約33%上昇時に清算される構造。国内から参加不可"
     }
   ],
+  "inProgress": [],
   "exploring": [
     {
       "obsId": "OBS000030",
