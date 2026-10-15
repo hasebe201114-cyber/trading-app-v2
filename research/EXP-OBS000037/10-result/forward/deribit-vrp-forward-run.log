@@ -3889,3 +3889,44 @@ EXECUTION LOG:
 [2026-10-14T07:14:05.606Z] 
 >>> ledger保存: 行数 101 -> 102（新規追記=1, backfill件数=2, 会計マイグレーション=93行）
 [2026-10-14T07:14:05.607Z] >>> 保存: /home/runner/work/trading-app-v2/trading-app-v2/research/EXP-OBS000037/10-result/forward/deribit-vrp-forward-meta.json
+======================================================================
+=== deribit-vrp-forward-paper.ts 実行 2026-10-15T07:05:31.310Z ===
+⚠ 日次冪等追記型。1回の実行で90日分が完成するものではない。
+Git commit: 2b3f7047af421811f43b2f94281b9fcee11de1aa
+Node version: v22.23.3
+anchorDateKey: 2026-10-14
+mode: append
+rowCountBefore: 102
+rowCountAfter: 103
+newRowsAppended: 1
+backfillCount: 1
+
+REPRODUCTION COMMAND:
+  node --experimental-strip-types scripts/deribit-vrp-forward-paper.ts
+
+EXECUTION LOG:
+[2026-10-15T07:05:31.312Z] === EXP-OBS000037 Stage 2 forward calibration: Deribit VRP フォワード較正ハーネス 日次実行 ===
+[2026-10-15T07:05:31.312Z] 実行UTC時刻: 2026-10-15T07:05:31.310Z
+[2026-10-15T07:05:31.312Z] Node version: v22.23.3
+[2026-10-15T07:05:31.321Z] Git commit: 2b3f7047af421811f43b2f94281b9fcee11de1aa
+[2026-10-15T07:05:31.321Z] anchorDateKey (最終完全経過UTC日): 2026-10-14
+[2026-10-15T07:05:31.321Z] ⚠ 本実行は日次冪等追記の1回分。90日分を一括生成するものではない。
+[2026-10-15T07:05:31.322Z] 既存ledger行数: 102
+[2026-10-15T07:05:31.322Z] 追記モード: 既存最終日=2026-10-13, 追記対象=2026-10-14
+[2026-10-15T07:05:31.323Z] go-live date: 2026-07-11
+[2026-10-15T07:05:31.323Z] Stage 2 会計マイグレーション: 95行を再計算（旧Stage 0プレースホルダ → §2実測コスト・§3 vegaNotionalPct）
+[2026-10-15T07:05:31.323Z] C2 コホート境界フィールド付与: 102行に cohort_week_index/is_cohort_anchor を追記
+[2026-10-15T07:05:31.323Z] データ取得窓: 2026-10-06..2026-10-14（新規追記=1日, backfill候補=7日）
+[2026-10-15T07:05:31.323Z] 
+>>> DVOL取得
+[2026-10-15T07:05:31.748Z]   DVOL page#1: rowsReturned=10 continuation=null
+[2026-10-15T07:05:31.748Z]   DVOL pagination終了（continuationなし）
+[2026-10-15T07:05:31.748Z]   DVOL取得件数: 10
+[2026-10-15T07:05:32.047Z] 
+>>> BTC-PERPETUAL 価格取得（RV自前計算用）
+[2026-10-15T07:05:32.048Z]   GET https://www.deribit.com/api/v2/public/get_tradingview_chart_data?instrument_name=BTC-PERPETUAL&start_timestamp=1791244800000&end_timestamp=1792022400000&resolution=1D
+[2026-10-15T07:05:32.192Z]   価格取得件数: 10 source=deribit-tradingview status=ok
+[2026-10-15T07:05:32.192Z]   2026-10-14 [live] dvol=39.12 rv7=null vrp=null spike=0 cohort_week=13 anchor=0
+[2026-10-15T07:05:32.194Z] 
+>>> ledger保存: 行数 102 -> 103（新規追記=1, backfill件数=1, 会計マイグレーション=95行）
+[2026-10-15T07:05:32.195Z] >>> 保存: /home/runner/work/trading-app-v2/trading-app-v2/research/EXP-OBS000037/10-result/forward/deribit-vrp-forward-meta.json
