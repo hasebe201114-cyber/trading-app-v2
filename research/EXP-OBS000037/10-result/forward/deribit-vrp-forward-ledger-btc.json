@@ -1573,10 +1573,10 @@
     "dvol": 37.93,
     "dvol_daily_change_vol_pts": 0.5799999999999983,
     "dvol_spike_marker": 0,
-    "rv_forward_7d": null,
-    "vrp": null,
-    "net_pnl_pct": null,
-    "sleeve_return": null,
+    "rv_forward_7d": 25.33743827363567,
+    "vrp": 12.59256172636433,
+    "net_pnl_pct": 0.1954416241701277,
+    "sleeve_return": 0.1954416241701277,
     "cohort_week_index": 15,
     "is_cohort_anchor": 1,
     "price_source": "deribit-tradingview"
@@ -1663,6 +1663,20 @@
     "sleeve_return": null,
     "cohort_week_index": 15,
     "is_cohort_anchor": 0,
+    "price_source": "deribit-tradingview"
+  },
+  {
+    "date": "2026-10-31",
+    "phase": "live",
+    "dvol": 40.03,
+    "dvol_daily_change_vol_pts": -0.5600000000000023,
+    "dvol_spike_marker": 0,
+    "rv_forward_7d": null,
+    "vrp": null,
+    "net_pnl_pct": null,
+    "sleeve_return": null,
+    "cohort_week_index": 16,
+    "is_cohort_anchor": 1,
     "price_source": "deribit-tradingview"
   }
 ]
