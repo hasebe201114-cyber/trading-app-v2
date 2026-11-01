@@ -984,11 +984,45 @@ Help Token: AaVM3aNGG9pFeWhwvSUEorT4ML950vxkxIw71YvKlDPCPUKmQSwBhndKIP4Z3Muc8E7L
 <p>⚠️ 本レポートは SYS-FX012 不採用 (OBS000020, 2026-10-01) および Actions 定期実行の意図的停止 (commit <code>04118f1</code>, 2026-10-01) を反映した<strong>最終スナップショット</strong>である。継続可否は司令塔の判断事項。</p>
 <p>このプロンプト自体が週次レポート生成の雛形。新規週で prompt 微調整があれば <code>obs/minmax_fx_day_trading_lab/70対応待ち/</code> 配下に記録。</p>
 </blockquote>
+<hr />
+<h2>10. 本レポートの公開状況（2026-11-02 時点）</h2>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>状態</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>レポート markdown</td>
+<td><code>logs/forward_test_cycle/weekly_report_20261102.md</code> (生成済)</td>
+</tr>
+<tr>
+<td>HTML 化</td>
+<td><code>public/reports/sysfx012-weekly-2026-11-02.html</code> + <code>sysfx012-weekly-LATEST.html</code> (823,450 bytes / PNG 6枚 base64 埋込)</td>
+</tr>
+<tr>
+<td>trading-app-v2 へ commit/push</td>
+<td><strong>完了</strong> (commit <code>c667075</code>)</td>
+</tr>
+<tr>
+<td>Firebase Hosting への反映</td>
+<td>❌ <strong>未反映</strong> — deploy run <code>41325359377</code> が 403 で失敗 (§6 障害 1)</td>
+</tr>
+</tbody>
+</table>
+<p>→ <strong>スマホからは 10/19 版しか見えない</strong>。Firebase Deploy 403 の復旧後、自動で 11/02 版に更新される。<br />
+→ 復旧までの代替手段: <code>https://trading-app-v2-94de8.web.app/reports/sysfx012-weekly-2026-11-02.html</code> は<strong>未反映のため 404/旧版</strong>。GitHub 上では <code>public/reports/sysfx012-weekly-2026-11-02.html</code> を直接参照可能。</p>
+<h3>関連 obs ノート</h3>
+<ul>
+<li><code>obs/minmax_fx_day_trading_lab/70対応待ち/OBS000021-Actions停止の誤診断訂正とFirebase-Deploy-403.md</code> (2026-11-02 起票・push 済)</li>
+</ul>
   <div class="footer">
     <p>このレポートは <code>minmax-fx-day-trading-lab/scripts/forward_test/build_weekly_html.py</code> で自動生成・push されています。
     出典: <a href="https://github.com/hasebe201114-cyber/minmax-fx-day-trading-lab/blob/main/research/EXP-FX000006/00-spec.md">00-spec.md「フォワードテスト仕様」</a>。
     設計パラメータは完全凍結 (HARKing 防止)。</p>
-    <p>生成タイムスタンプ: 2026-11-02 01:14:41 (JST) / コミット: <code>minmax-fx-day-trading-lab@main</code></p>
+    <p>生成タイムスタンプ: 2026-11-02 01:19:34 (JST) / コミット: <code>minmax-fx-day-trading-lab@main</code></p>
   </div>
 </body>
 </html>
