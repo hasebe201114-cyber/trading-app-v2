@@ -127,3 +127,4 @@ date,phase,dvol,dvol_daily_change_vol_pts,dvol_spike_marker,rv_forward_7d,vrp,ne
 2026-11-06,live,39.43,-2.8400000000000034,0,,,,,16,0,deribit-tradingview
 2026-11-07,live,40.2,0.7700000000000031,0,,,,,17,1,deribit-tradingview
 2026-11-08,live,40.99,0.7899999999999991,0,,,,,17,0,deribit-tradingview
+2026-11-09,live,,,0,,,,,17,0,
