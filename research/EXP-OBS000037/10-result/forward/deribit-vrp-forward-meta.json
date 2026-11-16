@@ -9,7 +9,7 @@
   "warmupDays": 7,
   "rvForwardDays": 7,
   "liveDaysRequiredForGate": 90,
-  "currentLiveDaysCount": 127,
+  "currentLiveDaysCount": 128,
   "currentWarmupDaysCount": 7,
   "fixedParams": {
     "dvolSpikeThresholdVolPts": 5,
@@ -2305,6 +2305,24 @@
       "dvolFetchWindow": {
         "start": "2026-11-06",
         "end": "2026-11-14"
+      },
+      "dvolRowsFetched": 10,
+      "priceSource": "deribit-tradingview",
+      "priceRowsFetched": 10
+    },
+    {
+      "runTimestampUTC": "2026-11-16T09:06:57.224Z",
+      "anchorDateKey": "2026-11-15",
+      "gitCommit": "08a2aff76d10d039567801106cea159f986c704e",
+      "nodeVersion": "v22.23.4",
+      "mode": "append",
+      "newRowsAppended": 1,
+      "backfillCount": 1,
+      "rowCountBefore": 134,
+      "rowCountAfter": 135,
+      "dvolFetchWindow": {
+        "start": "2026-11-07",
+        "end": "2026-11-15"
       },
       "dvolRowsFetched": 10,
       "priceSource": "deribit-tradingview",
